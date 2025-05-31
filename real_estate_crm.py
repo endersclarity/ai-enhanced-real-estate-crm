@@ -13,6 +13,18 @@ import os
 import google.generativeai as genai
 from functools import wraps
 
+# Import ZipForm functions
+try:
+    from zipform_ai_functions import (
+        create_client_zipform, create_property_zipform, create_transaction,
+        create_broker_agent, create_lender, create_title_company, 
+        create_escrow_company, create_service_provider, ZIPFORM_AI_FUNCTIONS
+    )
+    ZIPFORM_AVAILABLE = True
+except ImportError:
+    print("⚠️  ZipForm functions not available - run migration first")
+    ZIPFORM_AVAILABLE = False
+
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change in production
 
@@ -34,19 +46,114 @@ def configure_gemini():
 # Initialize Gemini configuration
 GEMINI_CONFIGURED = configure_gemini()
 
-def get_gemini_response(message, context="real estate CRM assistant"):
+def get_available_functions():
     """
-    Get AI response from Gemini API using LangChain approach (same as working Langchain8n project)
+    Get all available AI-callable functions with descriptions
+    
+    Returns:
+        dict: Function registry with descriptions and usage examples
+    """
+    functions = {}
+    
+    # Core CRM Functions
+    functions.update(AI_CALLABLE_FUNCTIONS)
+    
+    # Add ZipForm Functions if available
+    try:
+        from streamlined_zipform_functions import STREAMLINED_ZIPFORM_FUNCTIONS
+        functions.update(STREAMLINED_ZIPFORM_FUNCTIONS)
+    except ImportError:
+        pass
+    
+    # Add MLS Functions if available
+    try:
+        from mls_integration import MLS_FUNCTIONS
+        functions.update(MLS_FUNCTIONS)
+    except ImportError:
+        pass
+    
+    return functions
+
+def build_ai_context():
+    """
+    Build comprehensive AI context with CRM function awareness
+    
+    Returns:
+        str: Enhanced system prompt with function awareness
+    """
+    available_functions = get_available_functions()
+    
+    # Build function documentation
+    function_docs = []
+    for func_name, func_info in available_functions.items():
+        func_doc = f"""
+{func_name}:
+  Description: {func_info.get('description', 'No description')}
+  Required: {', '.join(func_info.get('required_params', []))}
+  Optional: {', '.join(func_info.get('optional_params', [])[:5])}{'...' if len(func_info.get('optional_params', [])) > 5 else ''}
+  Example: {func_info.get('example', 'No example')}"""
+        function_docs.append(func_doc)
+    
+    system_prompt = f"""You are an intelligent Real Estate CRM Assistant for Narissa Realty.
+
+🏠 CORE CAPABILITIES:
+- Complete client management (buyers, sellers, contacts)
+- Property management with MLS integration
+- ZipForm Transaction Cover Sheet processing
+- Service provider and agent management
+- Email processing and data extraction
+- Workflow automation and guidance
+
+🤖 AI FUNCTION CALLING:
+You have access to {len(available_functions)} database functions. When users describe real estate scenarios, analyze their needs and intelligently suggest appropriate function calls.
+
+AVAILABLE FUNCTIONS:
+{chr(10).join(function_docs[:10])}
+{'[Additional functions available...]' if len(available_functions) > 10 else ''}
+
+🎯 INTELLIGENT RESPONSES:
+When users mention:
+- New clients/contacts → Suggest create_zipform_client() or create_contact()
+- Properties/listings → Suggest create_zipform_property() or find_mls_property()
+- Transactions/offers → Suggest create_zipform_transaction()
+- MLS numbers → Use find_mls_property() for automatic data import
+- Email content → Extract relevant data and suggest appropriate database operations
+
+🔄 WORKFLOW INTELLIGENCE:
+1. ANALYZE user input for real estate entities (names, addresses, prices, dates)
+2. IDENTIFY which database operations would be helpful
+3. PROPOSE specific function calls with extracted parameters
+4. CONFIRM with user before executing database operations
+5. EXECUTE functions and provide feedback on results
+
+💡 CONVERSATION FLOW:
+- Ask clarifying questions when information is incomplete
+- Suggest next steps in real estate workflows
+- Reference previous conversation context
+- Provide professional real estate guidance
+
+Be conversational, helpful, and proactive in suggesting database operations that would benefit the user's real estate workflow."""
+    
+    return system_prompt
+
+def get_gemini_response(message, context="", conversation_history=None):
+    """
+    Enhanced AI response with CRM function awareness and conversation memory
     
     Args:
         message (str): User message
-        context (str): Context for the AI assistant
+        context (str): Additional context (optional)
+        conversation_history (list): Previous messages for context
     
     Returns:
-        str: AI response or error message
+        dict: {'response': str, 'suggested_functions': list, 'confidence': float}
     """
     if not GEMINI_CONFIGURED:
-        return "AI service is currently unavailable. Please check configuration."
+        return {
+            'response': "AI service is currently unavailable. Please check configuration.",
+            'suggested_functions': [],
+            'confidence': 0.0
+        }
     
     try:
         # Use LangChain approach (like Langchain8n project)
@@ -59,30 +166,125 @@ def get_gemini_response(message, context="real estate CRM assistant"):
             temperature=0.1
         )
         
-        # Create context-aware system message
-        system_prompt = f"""You are a helpful {context} for Narissa Realty. 
-        You assist real estate professionals with:
-        - Client management and communication
-        - Property information and analysis
-        - Transaction guidance and workflow
-        - Email processing and data extraction
-        - Professional real estate advice
+        # Build enhanced system prompt with function awareness
+        system_prompt = build_ai_context()
         
-        Be professional, helpful, and knowledgeable about real estate processes.
-        Keep responses concise but informative."""
+        # Add conversation context if provided
+        if context:
+            system_prompt += f"\n\n🎯 CURRENT CONTEXT: {context}"
         
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=message)
-        ]
+        # Build message history
+        messages = [SystemMessage(content=system_prompt)]
+        
+        # Add conversation history if provided
+        if conversation_history:
+            for hist_msg in conversation_history[-5:]:  # Last 5 messages for context
+                if hist_msg.get('role') == 'user':
+                    messages.append(HumanMessage(content=hist_msg['content']))
+                elif hist_msg.get('role') == 'assistant':
+                    messages.append(SystemMessage(content=f"Previous AI response: {hist_msg['content'][:200]}..."))
+        
+        # Add current user message
+        messages.append(HumanMessage(content=message))
         
         # Generate response
         response = llm.invoke(messages)
-        return response.content
+        
+        # Analyze response for function suggestions
+        suggested_functions = analyze_response_for_functions(response.content, message)
+        
+        return {
+            'response': response.content,
+            'suggested_functions': suggested_functions,
+            'confidence': calculate_response_confidence(response.content, message)
+        }
         
     except Exception as e:
         print(f"[GEMINI API ERROR] {str(e)}")
-        return f"I apologize, but I'm experiencing technical difficulties. Please try again later. (Error: {str(e)[:50]}...)"
+        return {
+            'response': f"I apologize, but I'm experiencing technical difficulties. Please try again later. (Error: {str(e)[:50]}...)",
+            'suggested_functions': [],
+            'confidence': 0.0
+        }
+
+def analyze_response_for_functions(ai_response, user_message):
+    """
+    Analyze AI response and user message to suggest relevant functions
+    
+    Args:
+        ai_response (str): AI's response text
+        user_message (str): Original user message
+    
+    Returns:
+        list: Suggested function calls with parameters
+    """
+    suggestions = []
+    combined_text = f"{user_message} {ai_response}".lower()
+    
+    # Look for client creation triggers
+    if any(trigger in combined_text for trigger in ['new client', 'add client', 'client named', 'buyer named']):
+        suggestions.append({
+            'function': 'create_zipform_client',
+            'reason': 'Detected new client mention',
+            'confidence': 0.8
+        })
+    
+    # Look for property triggers
+    if any(trigger in combined_text for trigger in ['mls', 'property', 'listing', 'address']):
+        suggestions.append({
+            'function': 'create_zipform_property',
+            'reason': 'Detected property-related content',
+            'confidence': 0.7
+        })
+    
+    # Look for transaction triggers
+    if any(trigger in combined_text for trigger in ['offer', 'purchase', 'transaction', 'closing']):
+        suggestions.append({
+            'function': 'create_zipform_transaction',
+            'reason': 'Detected transaction-related content',
+            'confidence': 0.7
+        })
+    
+    # Look for MLS number patterns
+    import re
+    mls_matches = re.findall(r'mls\s*#?(\d+)', combined_text)
+    if mls_matches:
+        suggestions.append({
+            'function': 'find_mls_property',
+            'parameters': {'mls_number': mls_matches[0]},
+            'reason': f'Found MLS number: {mls_matches[0]}',
+            'confidence': 0.9
+        })
+    
+    return suggestions
+
+def calculate_response_confidence(ai_response, user_message):
+    """
+    Calculate confidence in AI response based on content analysis
+    
+    Args:
+        ai_response (str): AI response
+        user_message (str): User message
+    
+    Returns:
+        float: Confidence score (0.0 to 1.0)
+    """
+    confidence = 0.5  # Base confidence
+    
+    # Increase confidence for specific real estate terms
+    real_estate_terms = ['client', 'property', 'listing', 'transaction', 'mls', 'offer', 'buyer', 'seller']
+    term_matches = sum(1 for term in real_estate_terms if term in ai_response.lower())
+    confidence += min(term_matches * 0.1, 0.3)
+    
+    # Increase confidence for function suggestions
+    if 'suggest' in ai_response.lower() or 'recommend' in ai_response.lower():
+        confidence += 0.1
+    
+    # Decrease confidence for error indicators
+    if any(error in ai_response.lower() for error in ['error', 'sorry', 'unable', 'cannot']):
+        confidence -= 0.2
+    
+    return min(max(confidence, 0.0), 1.0)
 
 class DateTimeEncoder(json.JSONEncoder):
     """Custom JSON encoder for datetime objects"""
@@ -489,11 +691,12 @@ def find_properties(search_term=None, min_price=None, max_price=None, bedrooms=N
             'message': f'Error searching properties: {str(e)}'
         }
 
-# Function registry for AI discovery
+# Enhanced function registry for AI discovery (includes both legacy and ZipForm functions)
 AI_CALLABLE_FUNCTIONS = {
+    # Legacy functions (for backward compatibility)
     'create_client': {
         'function': create_client,
-        'description': 'Create a new client with contact information',
+        'description': 'Create a new client with basic contact information (legacy)',
         'required_params': ['first_name', 'last_name'],
         'optional_params': ['email', 'phone', 'client_type', 'address_street', 'address_city', 'address_state', 'occupation'],
         'example': 'create_client("John", "Smith", email="john@email.com", phone="555-1234", client_type="buyer")'
@@ -514,7 +717,7 @@ AI_CALLABLE_FUNCTIONS = {
     },
     'create_property': {
         'function': create_property,
-        'description': 'Add a new property listing to the system',
+        'description': 'Add a new property listing to the system (legacy)',
         'required_params': ['address_line1', 'city', 'state', 'zip_code'],
         'optional_params': ['listing_price', 'bedrooms', 'bathrooms', 'square_feet', 'property_type', 'mls_number'],
         'example': 'create_property("123 Main St", "Sacramento", "CA", "95814", listing_price=500000, bedrooms=3)'
@@ -527,6 +730,13 @@ AI_CALLABLE_FUNCTIONS = {
         'example': 'find_properties(city="Sacramento", min_price=400000, max_price=600000, bedrooms=3)'
     }
 }
+
+# Add ZipForm functions if available
+if ZIPFORM_AVAILABLE:
+    AI_CALLABLE_FUNCTIONS.update(ZIPFORM_AI_FUNCTIONS)
+    print("✅ ZipForm AI functions loaded successfully")
+else:
+    print("⚠️  Running with legacy functions only")
 
 @app.route('/')
 def dashboard():
@@ -736,29 +946,53 @@ def new_transaction():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    """Handle chat messages from the AI chatbot"""
+    """Enhanced AI chatbot with CRM function awareness and conversation memory"""
     try:
         data = request.get_json()
         if not data or 'message' not in data:
             return jsonify({'error': 'No message provided'}), 400
         
         user_message = data['message']
-        print(f"[CHAT] Received message: {user_message}")
+        conversation_history = data.get('conversation_history', [])
+        current_context = data.get('context', '')
         
-        # Get AI response from Gemini API
-        ai_response = get_gemini_response(user_message)
+        print(f"[CHAT] Enhanced AI processing: {user_message[:50]}...")
         
-        print(f"[CHAT] AI responding with: {ai_response[:100]}...")
+        # Get enhanced AI response with CRM function awareness
+        ai_result = get_gemini_response(
+            message=user_message,
+            context=current_context,
+            conversation_history=conversation_history
+        )
         
-        return jsonify({
-            'response': ai_response,
+        # Build response with enhanced capabilities
+        response_data = {
+            'response': ai_result['response'],
+            'suggested_functions': ai_result.get('suggested_functions', []),
+            'confidence': ai_result.get('confidence', 0.5),
             'timestamp': datetime.now().isoformat(),
-            'model': 'gemini-pro'
-        })
+            'model': 'gemini-2.5-flash-preview-04-17',
+            'capabilities': {
+                'function_count': len(get_available_functions()),
+                'conversation_memory': len(conversation_history) > 0,
+                'zipform_integration': True,
+                'mls_integration': True
+            }
+        }
+        
+        # Log enhanced processing
+        print(f"[ENHANCED AI] Response confidence: {ai_result.get('confidence', 0.5):.2f}")
+        print(f"[ENHANCED AI] Function suggestions: {len(ai_result.get('suggested_functions', []))}")
+        
+        return jsonify(response_data)
         
     except Exception as e:
-        print(f"[CHAT ERROR] {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
+        print(f"[ENHANCED CHAT ERROR] {str(e)}")
+        return jsonify({
+            'error': 'AI processing error',
+            'message': str(e),
+            'fallback_response': 'I apologize, but I encountered an issue processing your request. Please try again.'
+        }), 500
 
 @app.route('/process_email', methods=['POST'])
 def process_email():
