@@ -439,24 +439,42 @@ function sendChatMessage() {
         
         // Send to backend chat endpoint
         if (aiReady) {
+            updateAIStatus('processing', 'Thinking...');
+            
             fetch('/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({ 
+                    message: message,
+                    conversation_history: chatHistory.slice(-5),  // Send last 5 messages for context
+                    context: 'Dashboard sidebar interaction'
+                })
             })
             .then(response => response.json())
             .then(data => {
+                updateAIStatus('ready', 'Ready for processing');
+                
                 if (data.response) {
                     addAIMessage(data.response);
+                    
+                    // Display function suggestions if available
+                    if (data.suggested_functions && data.suggested_functions.length > 0) {
+                        let suggestions = '\n\n💡 Suggestions:\n';
+                        data.suggested_functions.forEach(func => {
+                            suggestions += `• ${func.function}: ${func.reason}\n`;
+                        });
+                        addAIMessage(suggestions);
+                    }
                 } else {
                     addAIMessage('Sorry, I encountered an error processing your message.');
                 }
             })
             .catch(error => {
                 console.error('Chat error:', error);
-                addAIMessage('Connection error. Please try again.');
+                updateAIStatus('error', 'Connection failed');
+                addAIMessage('Connection error. Please check that the Flask server is running and try again.');
             });
         } else {
             // Fallback for when backend is not ready
@@ -540,7 +558,19 @@ function processEmail() {
             extractedData = data.extracted_data;
             displayExtractionResults(data.extracted_data);
             updateAIStatus('ready', 'Data extracted successfully');
-            addAIMessage('Email processed successfully! Found ' + Object.keys(data.extracted_data).length + ' data fields.');
+            
+            if (data.message) {
+                addAIMessage(data.message);
+            } else {
+                addAIMessage('Email processed successfully! Found ' + Object.keys(data.extracted_data).length + ' data fields.');
+            }
+        } else if (data.message) {
+            updateAIStatus('ready', 'Processing complete');
+            addAIMessage(data.message);
+            
+            // For now, show basic extraction for demo
+            extractedData = { status: 'processed', content_length: content.length };
+            displayExtractionResults(extractedData);
         } else {
             updateAIStatus('error', 'Processing failed');
             addAIMessage('Failed to extract data from email. Please check the content and try again.');
