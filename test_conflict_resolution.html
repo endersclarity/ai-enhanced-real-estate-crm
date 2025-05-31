@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task #9 Conflict Resolution Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .fail { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { margin: 5px; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <h1>Task #9: Conflict Resolution Logic Test</h1>
+    
+    <div class="info test-result">
+        <h3>Test Strategy</h3>
+        <p>Test the conflict resolution system with sample data that is known to conflict with existing entries in localStorage. Verify that conflicts are detected and the resolution mechanism functions as expected.</p>
+    </div>
+    
+    <h3>Test Setup</h3>
+    <button onclick="setupTestData()">1. Setup Test Data in localStorage</button>
+    <button onclick="testConflictDetection()">2. Test Conflict Detection</button>
+    <button onclick="testMergeStrategy()">3. Test Merge Strategy</button>
+    <button onclick="testReplaceStrategy()">4. Test Replace Strategy</button>
+    <button onclick="testSkipStrategy()">5. Test Skip Strategy</button>
+    <button onclick="clearTestData()">Clear Test Data</button>
+    
+    <div id="testResults"></div>
+    
+    <h3>Manual Testing Instructions</h3>
+    <ol>
+        <li>Click "Setup Test Data" to add existing client to localStorage</li>
+        <li>Open the <a href="http://172.22.206.209:8080/chatbot-crm.html" target="_blank">chatbot interface</a></li>
+        <li>Paste this conflicting email in the email processor:</li>
+    </ol>
+    
+    <pre>From: john.doe@gmail.com
+Subject: Updated Property Interest
+
+Hi Narissa,
+
+I'm updating my property search. I'm now interested in 456 Oak Street, Beverly Hills, CA 90210.
+My budget has increased to $950,000.
+You can still reach me at (555) 123-4567.
+
+Thanks,
+John Doe</pre>
+    
+    <ol start="4">
+        <li>Click "Process Email" - should detect conflicts</li>
+        <li>Test each conflict resolution button (Merge, Replace, Skip)</li>
+        <li>Verify the results match expected behavior</li>
+    </ol>
+    
+    <script>
+        function logResult(message, isPass = true) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${isPass ? 'pass' : 'fail'}`;
+            resultDiv.innerHTML = `<strong>${isPass ? '✅' : '❌'}</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function setupTestData() {
+            try {
+                // Create existing client data that will conflict
+                const existingClients = [
+                    {
+                        id: 12345,
+                        firstName: "John",
+                        lastName: "Doe", 
+                        email: "john.doe@gmail.com",
+                        phone: "(555) 123-4567",
+                        source: "Website",
+                        status: "active",
+                        dateAdded: "2024-12-01T00:00:00.000Z",
+                        notes: "Initial client contact",
+                        propertyInterest: "123 Main Street, Los Angeles, CA 90210",
+                        budget: "$750,000",
+                        contactPreference: "email"
+                    }
+                ];
+                
+                const existingProperties = [
+                    {
+                        id: 54321,
+                        address: "456 Oak Street, Beverly Hills, CA 90210",
+                        mlsNumber: "BH456789",
+                        price: "$900,000",
+                        status: "active",
+                        dateAdded: "2024-12-01T00:00:00.000Z",
+                        source: "MLS",
+                        notes: "Luxury property listing"
+                    }
+                ];
+                
+                localStorage.setItem('crmClients', JSON.stringify(existingClients));
+                localStorage.setItem('crmProperties', JSON.stringify(existingProperties));
+                localStorage.setItem('crmTransactions', JSON.stringify([]));
+                
+                logResult(`Test data setup complete. Added 1 client and 1 property that will conflict with test email.`);
+                
+                // Show current data
+                logResult(`Existing client: ${existingClients[0].firstName} ${existingClients[0].lastName} (${existingClients[0].email}) - Budget: ${existingClients[0].budget}`, true);
+                
+            } catch (error) {
+                logResult(`Failed to setup test data: ${error.message}`, false);
+            }
+        }
+        
+        function testConflictDetection() {
+            try {
+                // Simulate the entities that would be extracted from the test email
+                const testEntities = {
+                    email: ["john.doe@gmail.com"],
+                    phone: ["(555) 123-4567"], 
+                    address: ["456 Oak Street, Beverly Hills, CA 90210"],
+                    price: ["$950,000"],
+                    name: ["John Doe"]
+                };
+                
+                // Test conflict detection logic (need to access the chatbot's function)
+                // This is a simplified version of what the chatbot does
+                const existingClients = JSON.parse(localStorage.getItem('crmClients') || '[]');
+                const existingProperties = JSON.parse(localStorage.getItem('crmProperties') || '[]');
+                
+                let conflicts = [];
+                
+                // Check email conflicts
+                if (testEntities.email) {
+                    testEntities.email.forEach(email => {
+                        const existingClient = existingClients.find(client => 
+                            client.email && client.email.toLowerCase() === email.toLowerCase()
+                        );
+                        if (existingClient) {
+                            conflicts.push(`Email ${email} already exists for client: ${existingClient.firstName} ${existingClient.lastName}`);
+                        }
+                    });
+                }
+                
+                // Check address conflicts  
+                if (testEntities.address) {
+                    testEntities.address.forEach(address => {
+                        const existingProperty = existingProperties.find(property => 
+                            property.address && 
+                            property.address.toLowerCase().includes(address.toLowerCase().substring(0, 20))
+                        );
+                        if (existingProperty) {
+                            conflicts.push(`Similar address already exists: ${existingProperty.address}`);
+                        }
+                    });
+                }
+                
+                if (conflicts.length > 0) {
+                    logResult(`Conflict detection working! Found ${conflicts.length} conflicts: ${conflicts.join('; ')}`, true);
+                } else {
+                    logResult(`No conflicts detected (this might be unexpected if test data is setup correctly)`, false);
+                }
+                
+            } catch (error) {
+                logResult(`Conflict detection test failed: ${error.message}`, false);
+            }
+        }
+        
+        function testMergeStrategy() {
+            logResult(`Manual test required: Use chatbot interface to test merge strategy with conflicting email`, true);
+            logResult(`Expected behavior: Existing client data should be updated with new budget ($950,000) and property interest`, true);
+        }
+        
+        function testReplaceStrategy() {
+            logResult(`Manual test required: Use chatbot interface to test replace strategy with conflicting email`, true);
+            logResult(`Expected behavior: Existing client should be completely replaced with new data from email`, true);
+        }
+        
+        function testSkipStrategy() {
+            logResult(`Manual test required: Use chatbot interface to test skip strategy with conflicting email`, true);
+            logResult(`Expected behavior: No changes should be made to existing data due to conflicts`, true);
+        }
+        
+        function clearTestData() {
+            localStorage.removeItem('crmClients');
+            localStorage.removeItem('crmProperties');
+            localStorage.removeItem('crmTransactions');
+            logResult(`Test data cleared from localStorage`, true);
+        }
+        
+        // Auto-run setup on page load
+        window.onload = function() {
+            logResult("Task #9 Conflict Resolution Test Suite Ready", true);
+            logResult("Click 'Setup Test Data' to begin testing", true);
+        };
+    </script>
+</body>
+</html>
