@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Add Email Content Paste Area to UI
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Add a dedicated area within the chatbot interface for users to paste email content for processing.
+# Details:
+Modify chatbot-crm.html to include a text area or similar input field specifically designated for pasting email content. Ensure it can handle formatted text input to preserve basic structure if possible.
+
+# Test Strategy:
+Verify that the new paste area appears correctly in the interface and allows users to paste email text content.

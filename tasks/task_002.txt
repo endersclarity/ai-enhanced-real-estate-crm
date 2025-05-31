@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Design AI Instruction Framework and Content
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Design the structure and content for the smart AI instructions, embedding comprehensive real estate CRM context and domain knowledge.
+# Details:
+Define a format for embedding AI instructions within the browser interface. Populate this framework with real estate domain knowledge and awareness of the 177-field CRM schema. Focus on guiding entity extraction and workflow recommendations.
+
+# Test Strategy:
+Review the designed instruction format and content for clarity, completeness, and relevance to real estate CRM context and the 177-field schema.

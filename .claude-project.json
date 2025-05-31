@@ -1,0 +1,45 @@
+{
+  "name": "Offer Creator - Real Estate Automation",
+  "description": "Advanced real estate automation system for Narissa Realty with ZipForm Plus integration and PDF reconstruction",
+  "version": "1.0.0",
+  "type": "python-flask-webapp",
+  "keymap": {
+    "start": "source venv/bin/activate && python app.py",
+    "dev": "source venv/bin/activate && python working_app.py",
+    "test": "source venv/bin/activate && python -m pytest tests/ -v",
+    "test-reconstruction": "source venv/bin/activate && python test_pdf_reconstruction.py",
+    "zipform-advanced": "source venv/bin/activate && python advanced_pdf_reconstructor.py",
+    "zipform-professional": "source venv/bin/activate && python professional_pdf_filler.py",
+    "zipform-mapper": "source venv/bin/activate && python zipform_field_mapper.py",
+    "analyze": "source venv/bin/activate && python analyze_forms.py",
+    "shell": "source venv/bin/activate",
+    "requirements": "source venv/bin/activate && pip install -r requirements.txt",
+    "forms": "ls -la *.pdf | head -15",
+    "output": "ls -la generated_offers/ reconstructed_forms/ professional_filled_forms/",
+    "clean": "rm -rf generated_offers/* output/* working_offers/* reconstructed_forms/* professional_filled_forms/* smart_filled_forms/*",
+    "manifest": "cat memory-bank/system_manifest.md",
+    "roadmap": "cat memory-bank/project_roadmap.md"
+  },
+  "structure": {
+    "source": ["*.py", "templates/", "static/"],
+    "docs": ["README.md", "INSTRUCTIONS.md", "memory-bank/"],
+    "config": ["requirements.txt", "form_data_mapping.json"],
+    "templates": ["*.pdf"],
+    "output": ["generated_offers/", "working_offers/", "fixed_offers/", "output/", "reconstructed_forms/", "professional_filled_forms/", "smart_filled_forms/"]
+  },
+  "context": {
+    "manifest": "memory-bank/system_manifest.md",
+    "roadmap": "memory-bank/project_roadmap.md",
+    "active": "activeContext.md"
+  },
+  "metadata": {
+    "last_load": "2025-05-31T18:00:00Z",
+    "last_sync": "2025-05-31T23:45:00Z", 
+    "session_status": "Phase 2 AI Integration Optimized - Smart Chatbot Enhancement Approach Active",
+    "next_milestone": "Chatbot Enhancement with Email Processing Integration",
+    "breakthrough": "Strategic pivot from complex Python pipeline to browser-based AI chatbot enhancement, 50% development time reduction",
+    "files_ready": ["chatbot-crm.html", "real_estate_crm.py", "simple_pdf_generator.py", "BRANCH_README.md", "feature/phase-2-ai-integration"],
+    "test_results": "Branch approach optimization complete - foundation leverage strategy validated",
+    "capabilities": ["Smart chatbot foundation", "Browser-based AI instructions", "Email processing design", "Static HTML CRM", "177-field database", "Multi-strategy PDF reconstruction", "Optimized development workflow"]
+  }
+}

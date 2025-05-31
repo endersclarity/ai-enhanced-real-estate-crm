@@ -1,0 +1,66 @@
+{
+  "common_fields": {
+    "property": {
+      "address": "Property Address",
+      "city": "City", 
+      "state": "State",
+      "zip": "ZIP Code",
+      "county": "County",
+      "apn": "Assessor Parcel Number",
+      "mls_number": "MLS Number"
+    },
+    "buyer": {
+      "name": "Buyer Full Name",
+      "phone": "Buyer Phone",
+      "email": "Buyer Email", 
+      "address": "Buyer Address"
+    },
+    "seller": {
+      "name": "Seller Full Name",
+      "phone": "Seller Phone",
+      "email": "Seller Email"
+    },
+    "purchase_details": {
+      "purchase_price": "Purchase Price",
+      "deposit_amount": "Deposit Amount",
+      "offer_date": "Offer Date",
+      "closing_date": "Closing Date",
+      "loan_amount": "Loan Amount",
+      "down_payment": "Down Payment"
+    },
+    "agent": {
+      "name": "Agent Name",
+      "license": "Agent License Number",
+      "phone": "Agent Phone",
+      "brokerage": "Brokerage Name",
+      "commission_rate": "Commission Rate"
+    }
+  },
+  "form_mappings": {
+    "California_Residential_Purchase_Agreement": {
+      "priority": 1,
+      "description": "Main purchase agreement - 27 pages",
+      "required_fields": ["property.address", "buyer.name", "seller.name", "purchase_details.purchase_price", "purchase_details.offer_date"]
+    },
+    "Buyer_Representation_Agreement": {
+      "priority": 2, 
+      "description": "Buyer representation and compensation - 13 pages",
+      "required_fields": ["buyer.name", "agent.name", "agent.brokerage", "agent.commission_rate"]
+    },
+    "Statewide_Buyer_and_Seller_Advisory": {
+      "priority": 3,
+      "description": "State-required buyer/seller advisory - 15 pages", 
+      "required_fields": ["property.address", "buyer.name", "seller.name"]
+    },
+    "Transaction_Record": {
+      "priority": 4,
+      "description": "Internal transaction tracking - 3 pages",
+      "required_fields": ["property.address", "property.mls_number", "purchase_details.purchase_price", "purchase_details.offer_date"]
+    },
+    "Confidentiality_Agreement": {
+      "priority": 5,
+      "description": "Non-disclosure agreement - 1 page",
+      "required_fields": ["property.address", "buyer.name", "seller.name", "purchase_details.offer_date"]
+    }
+  }
+}

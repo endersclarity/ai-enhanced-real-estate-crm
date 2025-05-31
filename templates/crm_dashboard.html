@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Narissa Realty CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom mb-4">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-calendar3"></i> This week
+            </button>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus"></i> Quick Add
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Clients</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_clients }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Transactions</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active_transactions }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clipboard-data fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Properties</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.properties }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-house fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month Closings</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.this_month_closings }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-trophy fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <a href="{{ url_for('new_client') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-person-plus"></i> Add Client
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <a href="{{ url_for('new_property') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-house-add"></i> Add Property
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <a href="{{ url_for('new_transaction') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-clipboard-plus"></i> New Transaction
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <button class="btn btn-outline-info w-100" onclick="generateForms()">
+                            <i class="bi bi-file-earmark-pdf"></i> Generate Forms
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Transactions</h5>
+                <a href="{{ url_for('transactions_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property</th>
+                                <th>Buyer</th>
+                                <th>Seller</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Offer Date</th>
+                                <th>Close Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ transaction.address_street }}</strong><br>
+                                    <small class="text-muted">{{ transaction.address_city }}</small>
+                                </td>
+                                <td>
+                                    {% if transaction.buyer_first %}
+                                        {{ transaction.buyer_first }} {{ transaction.buyer_last }}
+                                    {% else %}
+                                        <span class="text-muted">TBD</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.seller_first %}
+                                        {{ transaction.seller_first }} {{ transaction.seller_last }}
+                                    {% else %}
+                                        <span class="text-muted">TBD</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.purchase_price %}
+                                        <span class="currency">${{ "{:,.0f}".format(transaction.purchase_price) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">TBD</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge status-badge 
+                                        {% if transaction.status == 'pending' %}bg-warning
+                                        {% elif transaction.status == 'under_contract' %}bg-info
+                                        {% elif transaction.status == 'closed' %}bg-success
+                                        {% elif transaction.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ transaction.status.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if transaction.offer_date %}
+                                        {{ transaction.offer_date }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.close_of_escrow_date %}
+                                        {{ transaction.close_of_escrow_date }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="generateTransactionForms({{ transaction.id }})">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-clipboard-data text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-2">No transactions yet</h5>
+                    <p class="text-muted">Create your first transaction to get started</p>
+                    <a href="{{ url_for('new_transaction') }}" class="btn btn-primary">Create Transaction</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function generateForms() {
+    alert('Form generation feature coming soon!');
+}
+
+function generateTransactionForms(transactionId) {
+    if (confirm('Generate PDF forms for this transaction?')) {
+        fetch(`/api/generate_forms/${transactionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Forms generation initiated! Check the generated_offers folder.');
+                }
+            })
+            .catch(error => {
+                alert('Error generating forms: ' + error);
+            });
+    }
+}
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(function() {
+    window.location.reload();
+}, 300000);
+</script>
+{% endblock %}

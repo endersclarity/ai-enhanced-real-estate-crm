@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Field Mapper - Drag & Label Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: #333;
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tools {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .pdf-container {
+            position: relative;
+            padding: 20px;
+            background: #fafafa;
+            min-height: 600px;
+            overflow: auto;
+        }
+        
+        .pdf-viewer {
+            position: relative;
+            background: white;
+            border: 1px solid #ddd;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .field-box {
+            position: absolute;
+            border: 2px solid #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            cursor: move;
+            min-width: 20px;
+            min-height: 20px;
+        }
+        
+        .field-box:hover {
+            border-color: #0056b3;
+            background: rgba(0, 123, 255, 0.2);
+        }
+        
+        .field-box.selected {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .field-label {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #007bff;
+            color: white;
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        
+        .field-box.selected .field-label {
+            background: #dc3545;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: #007bff;
+            cursor: se-resize;
+        }
+        
+        .sidebar {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+        }
+        
+        .sidebar-content {
+            padding: 15px;
+        }
+        
+        .field-list {
+            margin-bottom: 20px;
+        }
+        
+        .field-item {
+            padding: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .field-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .field-item.selected {
+            background: #e7f3ff;
+            border-color: #007bff;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        
+        #pdf-canvas {
+            max-width: 100%;
+            display: block;
+        }
+        
+        .stats {
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 PDF Field Mapper</h1>
+            <p>Drag rectangles over fillable areas and label them for CSV auto-fill</p>
+        </div>
+        
+        <div class="tools">
+            <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('pdf-upload').click()">
+                📁 Load PDF
+            </button>
+            <button class="btn btn-success" onclick="addField()">
+                ➕ Add Field
+            </button>
+            <button class="btn btn-danger" onclick="deleteSelected()">
+                🗑️ Delete Selected
+            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">
+                🧹 Clear All
+            </button>
+            <button class="btn btn-success" onclick="exportMapping()">
+                💾 Export Mapping
+            </button>
+            <input type="file" id="mapping-upload" accept=".json" style="display: none;" onchange="importMapping()">
+            <button class="btn btn-secondary" onclick="document.getElementById('mapping-upload').click()">
+                📥 Import Mapping
+            </button>
+        </div>
+        
+        <div class="pdf-container">
+            <div id="upload-area" class="upload-area">
+                <h3>📄 Drop PDF file here or click "Load PDF"</h3>
+                <p>Upload a PDF form to start mapping fields</p>
+            </div>
+            
+            <div class="pdf-viewer" id="pdf-viewer" style="display: none;">
+                <canvas id="pdf-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+        <div class="sidebar-header">
+            Field Manager
+        </div>
+        <div class="sidebar-content">
+            <div class="stats" id="stats">
+                Fields: 0 | Selected: None
+            </div>
+            
+            <div class="form-group">
+                <label for="field-name">Field Name:</label>
+                <input type="text" id="field-name" class="form-control" placeholder="e.g., buyer_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="field-type">Field Type:</label>
+                <select id="field-type" class="form-control">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="date">Date</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" onclick="updateSelectedField()">
+                ✏️ Update Field
+            </button>
+            
+            <div class="field-list" id="field-list">
+                <h4>Mapped Fields:</h4>
+                <div id="fields-container">
+                    <p class="text-muted">No fields mapped yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        let pdfDoc = null;
+        let currentPage = 1;
+        let scale = 1.5;
+        let fields = [];
+        let selectedField = null;
+        let isCreatingField = false;
+        let startX, startY;
+        
+        // PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // File upload handling
+        document.getElementById('pdf-upload').addEventListener('change', handleFileSelect);
+        
+        // Drag & drop
+        const uploadArea = document.getElementById('upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                loadPDF(files[0]);
+            }
+        });
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadPDF(file);
+            }
+        }
+        
+        async function loadPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
+            
+            document.getElementById('upload-area').style.display = 'none';
+            document.getElementById('pdf-viewer').style.display = 'block';
+            
+            renderPage(currentPage);
+            setupCanvasEvents();
+        }
+        
+        async function renderPage(pageNum) {
+            const page = await pdfDoc.getPage(pageNum);
+            const canvas = document.getElementById('pdf-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const viewport = page.getViewport({ scale });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise;
+            
+            // Re-render field boxes
+            renderFields();
+        }
+        
+        function setupCanvasEvents() {
+            const canvas = document.getElementById('pdf-canvas');
+            
+            canvas.addEventListener('mousedown', startFieldCreation);
+            canvas.addEventListener('mousemove', updateFieldCreation);
+            canvas.addEventListener('mouseup', endFieldCreation);
+        }
+        
+        function startFieldCreation(e) {
+            if (e.target.tagName === 'CANVAS') {
+                const rect = e.target.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+                isCreatingField = true;
+            }
+        }
+        
+        function updateFieldCreation(e) {
+            if (isCreatingField) {
+                const rect = e.target.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                // Show preview rectangle (implementation would go here)
+            }
+        }
+        
+        function endFieldCreation(e) {
+            if (isCreatingField) {
+                const rect = e.target.getBoundingClientRect();
+                const endX = e.clientX - rect.left;
+                const endY = e.clientY - rect.top;
+                
+                const width = Math.abs(endX - startX);
+                const height = Math.abs(endY - startY);
+                
+                if (width > 10 && height > 10) {
+                    createField(
+                        Math.min(startX, endX),
+                        Math.min(startY, endY),
+                        width,
+                        height
+                    );
+                }
+                
+                isCreatingField = false;
+            }
+        }
+        
+        function createField(x, y, width, height) {
+            const fieldId = `field_${Date.now()}`;
+            const field = {
+                id: fieldId,
+                name: `field_${fields.length + 1}`,
+                type: 'text',
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                page: currentPage
+            };
+            
+            fields.push(field);
+            renderFields();
+            updateFieldsList();
+            updateStats();
+        }
+        
+        function renderFields() {
+            // Remove existing field boxes
+            document.querySelectorAll('.field-box').forEach(box => box.remove());
+            
+            const viewer = document.getElementById('pdf-viewer');
+            
+            fields.forEach(field => {
+                if (field.page === currentPage) {
+                    const box = document.createElement('div');
+                    box.className = 'field-box';
+                    box.dataset.fieldId = field.id;
+                    box.style.left = field.x + 'px';
+                    box.style.top = field.y + 'px';
+                    box.style.width = field.width + 'px';
+                    box.style.height = field.height + 'px';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'field-label';
+                    label.textContent = field.name;
+                    box.appendChild(label);
+                    
+                    const handle = document.createElement('div');
+                    handle.className = 'resize-handle';
+                    box.appendChild(handle);
+                    
+                    box.addEventListener('click', () => selectField(field.id));
+                    
+                    viewer.appendChild(box);
+                }
+            });
+        }
+        
+        function selectField(fieldId) {
+            selectedField = fieldId;
+            
+            // Update visual selection
+            document.querySelectorAll('.field-box').forEach(box => {
+                box.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.field-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const selectedBox = document.querySelector(`[data-field-id="${fieldId}"]`);
+            if (selectedBox) {
+                selectedBox.classList.add('selected');
+            }
+            
+            const selectedItem = document.querySelector(`[data-field-id="${fieldId}"].field-item`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+            }
+            
+            // Update form
+            const field = fields.find(f => f.id === fieldId);
+            if (field) {
+                document.getElementById('field-name').value = field.name;
+                document.getElementById('field-type').value = field.type;
+            }
+            
+            updateStats();
+        }
+        
+        function updateSelectedField() {
+            if (!selectedField) return;
+            
+            const field = fields.find(f => f.id === selectedField);
+            if (field) {
+                field.name = document.getElementById('field-name').value;
+                field.type = document.getElementById('field-type').value;
+                
+                renderFields();
+                updateFieldsList();
+            }
+        }
+        
+        function deleteSelected() {
+            if (!selectedField) return;
+            
+            fields = fields.filter(f => f.id !== selectedField);
+            selectedField = null;
+            
+            renderFields();
+            updateFieldsList();
+            updateStats();
+            
+            document.getElementById('field-name').value = '';
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all fields?')) {
+                fields = [];
+                selectedField = null;
+                renderFields();
+                updateFieldsList();
+                updateStats();
+            }
+        }
+        
+        function addField() {
+            // Add field at center of canvas
+            const canvas = document.getElementById('pdf-canvas');
+            const centerX = canvas.width / 2 - 50;
+            const centerY = canvas.height / 2 - 15;
+            
+            createField(centerX, centerY, 100, 30);
+        }
+        
+        function updateFieldsList() {
+            const container = document.getElementById('fields-container');
+            
+            if (fields.length === 0) {
+                container.innerHTML = '<p class="text-muted">No fields mapped yet</p>';
+                return;
+            }
+            
+            container.innerHTML = fields.map(field => `
+                <div class="field-item" data-field-id="${field.id}" onclick="selectField('${field.id}')">
+                    <strong>${field.name}</strong> (${field.type})<br>
+                    <small>x:${Math.round(field.x)}, y:${Math.round(field.y)}, ${Math.round(field.width)}×${Math.round(field.height)}</small>
+                </div>
+            `).join('');
+        }
+        
+        function updateStats() {
+            const selectedName = selectedField ? 
+                fields.find(f => f.id === selectedField)?.name || 'Unknown' : 
+                'None';
+            
+            document.getElementById('stats').textContent = 
+                `Fields: ${fields.length} | Selected: ${selectedName}`;
+        }
+        
+        function exportMapping() {
+            const mapping = {
+                pdf_name: 'custom_mapping',
+                created: new Date().toISOString(),
+                fields: fields.map(field => ({
+                    name: field.name,
+                    type: field.type,
+                    coordinates: {
+                        x: field.x,
+                        y: field.y,
+                        width: field.width,
+                        height: field.height
+                    },
+                    page: field.page
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(mapping, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pdf_field_mapping.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importMapping() {
+            const file = document.getElementById('mapping-upload').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const mapping = JSON.parse(e.target.result);
+                    
+                    fields = mapping.fields.map(field => ({
+                        id: `field_${Date.now()}_${Math.random()}`,
+                        name: field.name,
+                        type: field.type,
+                        x: field.coordinates.x,
+                        y: field.coordinates.y,
+                        width: field.coordinates.width,
+                        height: field.coordinates.height,
+                        page: field.page || 1
+                    }));
+                    
+                    renderFields();
+                    updateFieldsList();
+                    updateStats();
+                    
+                    alert('Mapping imported successfully!');
+                } catch (error) {
+                    alert('Error importing mapping: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

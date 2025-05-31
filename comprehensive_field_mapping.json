@@ -1,0 +1,211 @@
+{
+  "csv_structure": {
+    "total_fields": 177,
+    "description": "Comprehensive field mapping for 13 California real estate forms",
+    "categories": {
+      "buyer_info": {
+        "count": 26,
+        "fields": [
+          "buyer_1_first_name", "buyer_1_last_name", "buyer_1_middle_initial", 
+          "buyer_1_address", "buyer_1_city", "buyer_1_state", "buyer_1_zip",
+          "buyer_1_phone", "buyer_1_email", "buyer_1_employer", "buyer_1_occupation", 
+          "buyer_1_income", "buyer_1_ssn",
+          "buyer_2_first_name", "buyer_2_last_name", "buyer_2_middle_initial",
+          "buyer_2_address", "buyer_2_city", "buyer_2_state", "buyer_2_zip", 
+          "buyer_2_phone", "buyer_2_email", "buyer_2_employer", "buyer_2_occupation",
+          "buyer_2_income", "buyer_2_ssn"
+        ]
+      },
+      "seller_info": {
+        "count": 18,
+        "fields": [
+          "seller_1_first_name", "seller_1_last_name", "seller_1_middle_initial",
+          "seller_1_address", "seller_1_city", "seller_1_state", "seller_1_zip",
+          "seller_1_phone", "seller_1_email",
+          "seller_2_first_name", "seller_2_last_name", "seller_2_middle_initial", 
+          "seller_2_address", "seller_2_city", "seller_2_state", "seller_2_zip",
+          "seller_2_phone", "seller_2_email"
+        ]
+      },
+      "property_details": {
+        "count": 23,
+        "fields": [
+          "property_address", "property_city", "property_state", "property_zip", "property_county",
+          "apn", "lot_number", "block_number", "subdivision_name", "lot_size_sqft", "lot_size_acres",
+          "house_sqft", "bedrooms", "bathrooms", "half_baths", "garage_spaces", "parking_spaces",
+          "year_built", "property_type", "zoning", "hoa_name", "hoa_dues", "hoa_frequency"
+        ]
+      },
+      "financial_info": {
+        "count": 20,
+        "fields": [
+          "purchase_price", "earnest_money_amount", "down_payment_amount", "down_payment_percentage",
+          "loan_amount", "loan_term_years", "monthly_payment", "interest_rate", "property_taxes_annual",
+          "insurance_annual", "hoa_dues_monthly", "closing_costs", "inspection_costs", "appraisal_costs",
+          "title_insurance", "escrow_fees", "recording_fees", "transfer_taxes", "other_costs", "total_buyer_costs"
+        ]
+      },
+      "agent_broker_info": {
+        "count": 16,
+        "fields": [
+          "buyer_agent_name", "buyer_agent_phone", "buyer_agent_email", "buyer_agent_license", 
+          "buyer_agent_dre", "buyer_brokerage_name", "buyer_brokerage_address", "buyer_brokerage_phone",
+          "listing_agent_name", "listing_agent_phone", "listing_agent_email", "listing_agent_license",
+          "listing_agent_dre", "listing_brokerage_name", "listing_brokerage_address", "listing_brokerage_phone"
+        ]
+      },
+      "dates_deadlines": {
+        "count": 16,
+        "fields": [
+          "offer_date", "acceptance_date", "contract_date", "close_of_escrow_date", "possession_date",
+          "inspection_deadline", "inspection_start_date", "inspection_end_date", "appraisal_deadline",
+          "appraisal_date", "loan_approval_deadline", "loan_approval_date", "contingency_removal_date",
+          "title_report_deadline", "recording_date", "final_walkthrough_date"
+        ]
+      },
+      "contingencies": {
+        "count": 14,
+        "type": "boolean",
+        "fields": [
+          "financing_contingency", "inspection_contingency", "appraisal_contingency", "title_contingency",
+          "sale_of_property_contingency", "homeowners_insurance_contingency", "hoa_approval_contingency",
+          "as_is_sale", "seller_financing", "rent_back_to_seller", "buyer_occupancy_before_closing",
+          "personal_property_included", "fixtures_included", "landscaping_included"
+        ]
+      },
+      "legal_professional": {
+        "count": 10,
+        "fields": [
+          "title_company_name", "title_company_contact", "title_company_phone", "escrow_company_name",
+          "escrow_officer_name", "escrow_officer_phone", "buyer_attorney_name", "buyer_attorney_phone",
+          "seller_attorney_name", "seller_attorney_phone"
+        ]
+      },
+      "inspections": {
+        "count": 18,
+        "fields": [
+          "general_inspection_company", "general_inspection_cost", "termite_inspection_company", "termite_inspection_cost",
+          "roof_inspection_company", "roof_inspection_cost", "hvac_inspection_company", "hvac_inspection_cost",
+          "electrical_inspection_company", "electrical_inspection_cost", "plumbing_inspection_company", "plumbing_inspection_cost",
+          "septic_inspection_company", "septic_inspection_cost", "well_inspection_company", "well_inspection_cost",
+          "pool_inspection_company", "pool_inspection_cost"
+        ]
+      },
+      "disclosures": {
+        "count": 10,
+        "type": "boolean",
+        "fields": [
+          "seller_disclosure_received", "lead_paint_disclosure", "natural_hazards_disclosure", "hoa_documents_received",
+          "preliminary_title_report_received", "survey_received", "property_tax_records_received", "utility_bills_received",
+          "rental_agreements_received", "warranty_information_received"
+        ]
+      },
+      "signatures": {
+        "count": 10,
+        "type": "date",
+        "fields": [
+          "buyer_1_signature_date", "buyer_2_signature_date", "seller_1_signature_date", "seller_2_signature_date",
+          "buyer_agent_signature_date", "listing_agent_signature_date", "witness_1_signature_date", "witness_2_signature_date",
+          "notary_signature_date", "notary_seal_date"
+        ]
+      }
+    }
+  },
+  "form_field_mappings": {
+    "California_Residential_Purchase_Agreement": {
+      "priority": 1,
+      "field_count": 60,
+      "primary_fields": {
+        "property_address": ["Property Address", "Property Street Address", "Street Address"],
+        "property_city": ["City"],
+        "property_state": ["State"],
+        "property_zip": ["ZIP", "Zip Code", "Postal Code"],
+        "property_county": ["County"],
+        "apn": ["APN", "Assessor Parcel Number", "Parcel Number"],
+        "buyer_1_first_name": ["Buyer 1 First Name", "Buyer First Name", "Primary Buyer First"],
+        "buyer_1_last_name": ["Buyer 1 Last Name", "Buyer Last Name", "Primary Buyer Last"],
+        "buyer_2_first_name": ["Buyer 2 First Name", "Secondary Buyer First", "Co-Buyer First"],
+        "buyer_2_last_name": ["Buyer 2 Last Name", "Secondary Buyer Last", "Co-Buyer Last"],
+        "seller_1_first_name": ["Seller 1 First Name", "Seller First Name", "Primary Seller First"],
+        "seller_1_last_name": ["Seller 1 Last Name", "Seller Last Name", "Primary Seller Last"],
+        "purchase_price": ["Purchase Price", "Sale Price", "Agreed Price"],
+        "earnest_money_amount": ["Earnest Money", "Deposit Amount", "Good Faith Deposit"],
+        "down_payment_amount": ["Down Payment", "Initial Payment"],
+        "loan_amount": ["Loan Amount", "Financing Amount"],
+        "offer_date": ["Offer Date", "Date of Offer"],
+        "acceptance_date": ["Acceptance Date", "Date Accepted"],
+        "close_of_escrow_date": ["Close of Escrow", "Closing Date", "COE Date"],
+        "possession_date": ["Possession Date", "Move-in Date"],
+        "financing_contingency": ["Financing Contingency", "Loan Contingency"],
+        "inspection_contingency": ["Inspection Contingency", "Investigation Contingency"],
+        "appraisal_contingency": ["Appraisal Contingency"],
+        "buyer_agent_name": ["Buyer Agent", "Selling Agent", "Buyer's Agent"],
+        "listing_agent_name": ["Listing Agent", "Seller's Agent"],
+        "buyer_brokerage_name": ["Buyer Brokerage", "Selling Office"],
+        "listing_brokerage_name": ["Listing Office", "Listing Brokerage"]
+      }
+    },
+    "Buyer_Representation_and_Broker_Compensation_Agreement": {
+      "priority": 2,
+      "field_count": 21,
+      "primary_fields": {
+        "buyer_1_first_name": ["Buyer First Name", "Client First Name"],
+        "buyer_1_last_name": ["Buyer Last Name", "Client Last Name"],
+        "buyer_agent_name": ["Agent Name", "Broker Name"],
+        "buyer_agent_license": ["Agent License", "License Number"],
+        "buyer_agent_dre": ["DRE Number", "Agent DRE"],
+        "buyer_brokerage_name": ["Brokerage Name", "Real Estate Company"],
+        "buyer_brokerage_address": ["Brokerage Address", "Company Address"],
+        "contract_date": ["Agreement Date", "Contract Date"],
+        "property_address": ["Property Address", "Subject Property"]
+      }
+    },
+    "Statewide_Buyer_and_Seller_Advisory": {
+      "priority": 3,
+      "field_count": 71,
+      "primary_fields": {
+        "buyer_1_first_name": ["Buyer First Name"],
+        "buyer_1_last_name": ["Buyer Last Name"],
+        "seller_1_first_name": ["Seller First Name"],
+        "seller_1_last_name": ["Seller Last Name"],
+        "property_address": ["Property Address"],
+        "offer_date": ["Date"]
+      }
+    },
+    "Transaction_Record": {
+      "priority": 4,
+      "field_count": 82,
+      "primary_fields": {
+        "property_address": ["Property Address"],
+        "purchase_price": ["Sale Price", "Purchase Price"],
+        "buyer_1_first_name": ["Buyer First"],
+        "buyer_1_last_name": ["Buyer Last"],
+        "seller_1_first_name": ["Seller First"],
+        "seller_1_last_name": ["Seller Last"],
+        "buyer_agent_name": ["Selling Agent"],
+        "listing_agent_name": ["Listing Agent"],
+        "offer_date": ["Contract Date"],
+        "close_of_escrow_date": ["Closing Date"]
+      }
+    }
+  },
+  "validation_rules": {
+    "required_fields": [
+      "buyer_1_first_name", "buyer_1_last_name", "seller_1_first_name", "seller_1_last_name",
+      "property_address", "property_city", "property_state", "property_zip",
+      "purchase_price", "offer_date", "buyer_agent_name", "listing_agent_name"
+    ],
+    "date_fields": [
+      "offer_date", "acceptance_date", "contract_date", "close_of_escrow_date", 
+      "possession_date", "inspection_deadline", "appraisal_deadline", "loan_approval_deadline"
+    ],
+    "currency_fields": [
+      "purchase_price", "earnest_money_amount", "down_payment_amount", "loan_amount",
+      "monthly_payment", "property_taxes_annual", "insurance_annual", "closing_costs"
+    ],
+    "boolean_fields": [
+      "financing_contingency", "inspection_contingency", "appraisal_contingency",
+      "as_is_sale", "seller_financing", "personal_property_included"
+    ]
+  }
+}

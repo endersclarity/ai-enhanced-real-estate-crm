@@ -1,0 +1,3 @@
+date_prepared,buyer_name,property_address,property_city,property_county,property_zip,apn,purchase_price,coe_days,initial_deposit,loan_amount,down_payment,seller_name,buyer_signature_date,seller_signature_date,buyer_agent,buyer_brokerage,seller_agent,seller_brokerage,all_cash,fha_loan,conventional_loan
+05/28/2025,John Smith,123 Main St,Sacramento,Sacramento,95814,123-456-789,450000,30,5000,360000,90000,ABC Properties LLC,05/28/2025,05/28/2025,John Agent,Best Realty,Bob Seller,Prime Real Estate,No,No,Yes
+05/29/2025,Jane Doe,456 Oak Ave,San Francisco,San Francisco,94102,987-654-321,675000,45,7500,540000,135000,XYZ Investments,05/29/2025,05/29/2025,Mary Agent,Top Properties,Sue Listing,Elite Properties,No,Yes,No

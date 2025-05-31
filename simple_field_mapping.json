@@ -1,0 +1,100 @@
+{
+  "csv_structure": {
+    "total_fields": 14,
+    "description": "Practical field mapping based on actual intake form requirements",
+    "fields": [
+      "buyer_name",
+      "buyer_email", 
+      "buyer_phone",
+      "buyer_address",
+      "property_address",
+      "offer_price",
+      "earnest_money",
+      "escrow_days",
+      "seller_pays_broker",
+      "has_septic",
+      "has_well", 
+      "included_items",
+      "agent_name",
+      "offer_date"
+    ]
+  },
+  "form_field_mappings": {
+    "California_Residential_Purchase_Agreement": {
+      "priority": 1,
+      "primary_fields": {
+        "buyer_name": ["Buyer Name", "Buyer(s)", "Purchaser"],
+        "property_address": ["Property Address", "Subject Property"],
+        "offer_price": ["Purchase Price", "Total Purchase Price", "Sale Price"],
+        "earnest_money": ["Initial Deposit", "Earnest Money Deposit", "Good Faith Deposit"],
+        "escrow_days": ["Close of Escrow", "Escrow Period"],
+        "offer_date": ["Date of Offer", "Offer Date"],
+        "agent_name": ["Buyer's Broker", "Selling Agent"],
+        "buyer_phone": ["Buyer Phone", "Contact Phone"],
+        "buyer_email": ["Buyer Email", "Contact Email"]
+      }
+    },
+    "Buyer_Representation_and_Broker_Compensation_Agreement": {
+      "priority": 2, 
+      "primary_fields": {
+        "buyer_name": ["Buyer", "Client"],
+        "agent_name": ["Agent", "Broker"],
+        "seller_pays_broker": ["Seller Compensation", "Commission Payment"],
+        "offer_date": ["Agreement Date"]
+      }
+    },
+    "Statewide_Buyer_and_Seller_Advisory": {
+      "priority": 3,
+      "primary_fields": {
+        "buyer_name": ["Buyer"],
+        "property_address": ["Property"],
+        "offer_date": ["Date"]
+      }
+    },
+    "Septic_Well_Inspection_Addendum": {
+      "priority": 4,
+      "primary_fields": {
+        "buyer_name": ["Buyer"],
+        "property_address": ["Property Address"],
+        "has_septic": ["Septic System", "Septic Inspection"],
+        "has_well": ["Well Water", "Well Inspection"],
+        "offer_date": ["Date"]
+      }
+    },
+    "Transaction_Record": {
+      "priority": 5,
+      "primary_fields": {
+        "property_address": ["Property Address"],
+        "offer_price": ["Sale Price"],
+        "buyer_name": ["Buyer"],
+        "agent_name": ["Agent"],
+        "offer_date": ["Date"]
+      }
+    }
+  },
+  "validation_rules": {
+    "required_fields": [
+      "buyer_name",
+      "buyer_email", 
+      "buyer_phone",
+      "property_address",
+      "offer_price",
+      "earnest_money",
+      "escrow_days",
+      "agent_name",
+      "offer_date"
+    ],
+    "currency_fields": [
+      "offer_price",
+      "earnest_money"
+    ],
+    "boolean_fields": [
+      "seller_pays_broker",
+      "has_septic", 
+      "has_well"
+    ],
+    "date_fields": [
+      "offer_date"
+    ]
+  }
+}

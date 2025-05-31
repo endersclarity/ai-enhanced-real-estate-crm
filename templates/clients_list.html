@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Clients - Narissa Realty CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom mb-4">
+    <h1 class="h2">Clients</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportClients()">
+                <i class="bi bi-download"></i> Export
+            </button>
+        </div>
+        <a href="{{ url_for('new_client') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-person-plus"></i> Add Client
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="searchInput" placeholder="Search clients by name, email, or phone...">
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="clientTypeFilter">
+            <option value="">All Client Types</option>
+            <option value="buyer">Buyers</option>
+            <option value="seller">Sellers</option>
+            <option value="both">Both</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="locationFilter">
+            <option value="">All Locations</option>
+            {% for client in clients %}
+                {% if client.address_city %}
+                    <option value="{{ client.address_city }}">{{ client.address_city }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- Clients Table -->
+<div class="card">
+    <div class="card-body">
+        {% if clients %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="clientsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Contact</th>
+                        <th>Location</th>
+                        <th>Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2">
+                                    {{ client.first_name[0] }}{{ client.last_name[0] }}
+                                </div>
+                                <div>
+                                    <strong>{{ client.first_name }} {{ client.last_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">ID: {{ client.id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if client.client_type == 'buyer' %}bg-primary
+                                {% elif client.client_type == 'seller' %}bg-success
+                                {% else %}bg-info{% endif %}">
+                                {{ client.client_type.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if client.email %}
+                                <div><i class="bi bi-envelope"></i> {{ client.email }}</div>
+                            {% endif %}
+                            {% if client.phone_primary %}
+                                <div><i class="bi bi-telephone"></i> {{ client.phone_primary }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if client.address_city and client.address_state %}
+                                {{ client.address_city }}, {{ client.address_state }}
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ client.created_at[:10] if client.created_at else 'Unknown' }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('client_detail', client_id=client.id) }}" 
+                                   class="btn btn-outline-primary btn-sm" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="editClient({{ client.id }})" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" 
+                                        onclick="emailClient('{{ client.email }}')" title="Email">
+                                    <i class="bi bi-envelope"></i>
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" 
+                                        onclick="callClient('{{ client.phone_primary }}')" title="Call">
+                                    <i class="bi bi-telephone"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+            <h4 class="text-muted mt-3">No clients yet</h4>
+            <p class="text-muted">Add your first client to get started with the CRM</p>
+            <a href="{{ url_for('new_client') }}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Add First Client
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    filterTable();
+});
+
+document.getElementById('clientTypeFilter').addEventListener('change', function() {
+    filterTable();
+});
+
+document.getElementById('locationFilter').addEventListener('change', function() {
+    filterTable();
+});
+
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const typeFilter = document.getElementById('clientTypeFilter').value.toLowerCase();
+    const locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+    const table = document.getElementById('clientsTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.cells[0].textContent.toLowerCase();
+        const type = row.cells[1].textContent.toLowerCase();
+        const contact = row.cells[2].textContent.toLowerCase();
+        const location = row.cells[3].textContent.toLowerCase();
+
+        const matchesSearch = name.includes(searchTerm) || contact.includes(searchTerm);
+        const matchesType = !typeFilter || type.includes(typeFilter);
+        const matchesLocation = !locationFilter || location.includes(locationFilter);
+
+        if (matchesSearch && matchesType && matchesLocation) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+}
+
+function editClient(clientId) {
+    window.location.href = `/clients/${clientId}/edit`;
+}
+
+function emailClient(email) {
+    if (email && email !== 'None') {
+        window.location.href = `mailto:${email}`;
+    } else {
+        alert('No email address available for this client');
+    }
+}
+
+function callClient(phone) {
+    if (phone && phone !== 'None') {
+        window.location.href = `tel:${phone}`;
+    } else {
+        alert('No phone number available for this client');
+    }
+}
+
+function exportClients() {
+    // Simple CSV export functionality
+    const table = document.getElementById('clientsTable');
+    let csv = 'Name,Type,Email,Phone,City,State,Date Added\n';
+    
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        if (row.style.display !== 'none') {
+            const name = row.cells[0].textContent.trim().replace(/\s+/g, ' ');
+            const type = row.cells[1].textContent.trim();
+            const contact = row.cells[2].textContent.trim().replace(/\n/g, ' | ');
+            const location = row.cells[3].textContent.trim();
+            const date = row.cells[4].textContent.trim();
+            
+            csv += `"${name}","${type}","${contact}","${location}","${date}"\n`;
+        }
+    }
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clients_export_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Auto-highlight search terms
+function highlightSearchTerm() {
+    const searchTerm = document.getElementById('searchInput').value;
+    if (searchTerm.length > 2) {
+        // Add highlighting logic here if needed
+    }
+}
+</script>
+{% endblock %}
