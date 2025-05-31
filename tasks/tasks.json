@@ -65,10 +65,10 @@
     },
     {
       "id": 6,
-      "title": "Implement Data Mapping and CRM Database Update Logic",
-      "description": "Implement the logic in `real_estate_crm.py` to receive extracted data from the email processing endpoint, map it to the 177-field CRM schema, handle conflicts, and update the database.",
-      "details": "Inside the `/process_email` route handler in `real_estate_crm.py`, receive the JSON data payload. Implement Python logic to map the keys from the received JSON (extracted entities) to the corresponding fields in the 177-field CRM schema. Use the database interaction layer (e.g., SQLAlchemy models or raw SQL queries based on `real_estate_crm_schema.sql`) to insert new records or update existing ones. Implement the conflict resolution logic as specified in the PRD (e.g., prompt user, overwrite, merge). Return a response indicating success, failure, or conflicts.",
-      "testStrategy": "Write unit tests for the data mapping and database update functions using sample extracted JSON data and the 177-field schema. Test scenarios for inserting new clients/properties and updating existing ones. Test conflict resolution logic with sample conflicting data. Test the `/process_email` endpoint with sample data and verify database changes using a database client or another CRM view.",
+      "title": "Build AI-Callable Database Functions",
+      "description": "Create a library of Python functions that the AI can call to perform any CRM database operation through natural language commands.",
+      "details": "In `real_estate_crm.py`, create a comprehensive set of database functions that the AI can call: `create_client()`, `update_client()`, `find_clients()`, `create_property()`, `update_property()`, `create_transaction()`, `schedule_showing()`, etc. Each function should handle validation, conflict detection, and return structured responses. Implement a function registry system so the AI knows what operations are available. Add detailed docstrings that help the AI understand when and how to use each function.",
+      "testStrategy": "Test each database function individually with sample data. Create test scenarios for client creation, property updates, transaction management, and data conflicts. Verify that functions return consistent, structured responses that the AI can interpret. Test the function registry system to ensure the AI can discover available operations.",
       "priority": "high",
       "dependencies": [
         4
@@ -78,28 +78,28 @@
     },
     {
       "id": 7,
-      "title": "Connect Frontend Chat to Flask Chat Endpoint",
-      "description": "Modify the refactored chatbot JavaScript to send user chat messages to the new Flask `/chat` endpoint and display the responses received from the backend.",
-      "details": "In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles sending user messages. Use the `fetch` API or `XMLHttpRequest` to send a POST request containing the user's message to the `/chat` endpoint defined in `real_estate_crm.py`. Upon receiving a response from the backend, update the chat interface to display the AI's message.",
-      "testStrategy": "Load the dashboard. Type a message in the chatbot sidebar and send it. Use browser developer tools (Network tab) to verify that a POST request is sent to `/chat`. Verify that the response from the backend is received and the AI's message appears in the chat interface.",
+      "title": "Enhanced AI Context with CRM Function Awareness",
+      "description": "Upgrade the AI assistant to understand all available CRM functions and intelligently decide when to call them based on user conversations.",
+      "details": "Enhance the `get_gemini_response()` function in `real_estate_crm.py` to include context about available CRM functions. Create a system prompt that teaches the AI about real estate workflows and available database operations. Implement function calling logic where the AI can decide to call specific CRM functions and format the responses appropriately. Add conversation memory so the AI can reference previous interactions and suggest follow-up actions.",
+      "testStrategy": "Test conversations where users describe real estate scenarios and verify the AI suggests appropriate database operations. Test multi-step workflows where the AI remembers context across messages. Verify the AI can handle ambiguous requests by asking clarifying questions. Test error handling when database operations fail.",
       "priority": "high",
       "dependencies": [
-        3,
-        5
+        5,
+        6
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 8,
-      "title": "Connect Frontend Email Processing to Flask Data Endpoint",
-      "description": "Modify the refactored chatbot JavaScript to send the extracted email data to the new Flask `/process_email` endpoint after processing and handle the backend's response.",
-      "details": "In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles the output of the email processing and entity extraction. After the data is extracted and validated (and potentially previewed), use the `fetch` API or `XMLHttpRequest` to send a POST request containing the extracted data (likely as a JSON object) to the `/process_email` endpoint defined in `real_estate_crm.py`. Handle the response from the backend, displaying success messages, errors, or conflict resolution prompts to the user.",
-      "testStrategy": "Load the dashboard. Paste sample email content into the email processing area. Trigger the processing and data extraction. Verify that a POST request is sent to `/process_email` with the extracted data payload. Verify that the backend's response is received and handled appropriately in the frontend UI (e.g., a 'Data saved successfully' message).",
+      "title": "Smart Database Operations with User Confirmation",
+      "description": "Implement a conversation flow where the AI proposes database operations, the user confirms or modifies them, and the AI executes the operations with feedback.",
+      "details": "Create a conversation system where the AI analyzes user input (emails, text, requests) and proposes specific database operations before executing them. Implement a confirmation workflow where the AI presents 'I want to create a client named John Smith with phone 555-1234. Proceed?' and waits for user confirmation. Add the ability for users to modify proposed operations ('Actually, use his work phone instead'). Implement operation execution with success/failure feedback and suggested next steps.",
+      "testStrategy": "Test scenarios where users paste emails or describe situations, and verify the AI proposes appropriate database operations. Test the confirmation workflow with various user responses (yes, no, modifications). Test operation execution and verify database changes are made correctly. Test error handling and rollback scenarios when operations fail.",
       "priority": "high",
       "dependencies": [
-        3,
-        6
+        6,
+        7
       ],
       "status": "pending",
       "subtasks": []
