@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-05-31T13:07:47.276995",
+  "clients_migrated": 0,
+  "properties_migrated": 0,
+  "errors": [
+    "Client migration error: 'sqlite3.Row' object has no attribute 'get'",
+    "Client migration error: 'sqlite3.Row' object has no attribute 'get'",
+    "Property migration error: 'sqlite3.Row' object has no attribute 'get'",
+    "Property migration error: 'sqlite3.Row' object has no attribute 'get'"
+  ]
+}

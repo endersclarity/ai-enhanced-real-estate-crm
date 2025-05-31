@@ -1,0 +1,301 @@
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+✅ ZipForm AI functions loaded successfully
+ * Serving Flask app 'real_estate_crm'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.206.209:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
+172.22.192.1 - - [31/May/2025 14:26:49] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 751, in dashboard
+    'this_month_closings': conn.execute('SELECT COUNT(*) as count FROM transactions WHERE close_of_escrow_date >= date("now", "start of month")').fetchone()['count']
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: close_of_escrow_date
+172.22.192.1 - - [31/May/2025 14:26:49] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:26:49] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:26:49] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:26:49] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [31/May/2025 14:27:59] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 751, in dashboard
+    'this_month_closings': conn.execute('SELECT COUNT(*) as count FROM transactions WHERE close_of_escrow_date >= date("now", "start of month")').fetchone()['count']
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: close_of_escrow_date
+ * Detected change in '/home/ender/.claude/projects/offer-creator/real_estate_crm.py', reloading
+✅ ZipForm AI functions loaded successfully
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
+ * Detected change in '/home/ender/.claude/projects/offer-creator/real_estate_crm.py', reloading
+✅ ZipForm AI functions loaded successfully
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
+127.0.0.1 - - [31/May/2025 14:28:22] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+127.0.0.1 - - [31/May/2025 14:28:32] "POST /chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/May/2025 14:28:49] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:32:06] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+172.22.192.1 - - [31/May/2025 14:32:06] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:06] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:06] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:06] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:08] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+172.22.192.1 - - [31/May/2025 14:32:08] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:08] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:08] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:08] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:09] "[35m[1mGET / HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ender/.claude/projects/offer-creator/real_estate_crm.py", line 755, in dashboard
+    recent_transactions = conn.execute('''
+                          ^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: p.address_line1
+172.22.192.1 - - [31/May/2025 14:32:10] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:10] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:10] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+172.22.192.1 - - [31/May/2025 14:32:10] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+ * Detected change in '/home/ender/.claude/projects/offer-creator/real_estate_crm.py', reloading
+✅ ZipForm AI functions loaded successfully
+[CHAT] Enhanced AI processing: Hello, can you help me with my CRM?...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 3
+[CHAT] Enhanced AI processing: I have a new buyer client named John Smith, email ...
+[ENHANCED AI] Response confidence: 0.70
+[ENHANCED AI] Function suggestions: 1
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
+ * Detected change in '/home/ender/.claude/projects/offer-creator/real_estate_crm.py', reloading
+✅ ZipForm AI functions loaded successfully
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
+127.0.0.1 - - [31/May/2025 14:33:22] "GET / HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:34:26] "GET / HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:34:33] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:34:51] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:09] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:19] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:35] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:41] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:45] "POST /chat HTTP/1.1" 200 -
+172.22.192.1 - - [31/May/2025 14:35:58] "POST /chat HTTP/1.1" 200 -
+ * Detected change in '/home/ender/.claude/projects/offer-creator/real_estate_crm.py', reloading
+✅ ZipForm AI functions loaded successfully
+[CHAT] Enhanced AI processing: sup bitch...
+[ENHANCED AI] Response confidence: 0.50
+[ENHANCED AI] Function suggestions: 1
+[CHAT] Enhanced AI processing: show me one random mls listing...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 1
+[CHAT] Enhanced AI processing: so do it!...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 3
+[CHAT] Enhanced AI processing: I just told you to find a listing...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 1
+[CHAT] Enhanced AI processing: pull up any mls property listing...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 1
+[CHAT] Enhanced AI processing: do it...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 3
+[CHAT] Enhanced AI processing: any number...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 1
+[CHAT] Enhanced AI processing: what document are you beinhg pointed to for mls?...
+[ENHANCED AI] Response confidence: 0.80
+[ENHANCED AI] Function suggestions: 1
+ * Restarting with stat
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 509-619-347
