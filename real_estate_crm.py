@@ -110,6 +110,424 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+# ============================================================================
+# AI-CALLABLE DATABASE FUNCTIONS
+# ============================================================================
+
+def create_client(first_name, last_name, email=None, phone=None, client_type='buyer', **kwargs):
+    """
+    Create a new client in the CRM database.
+    
+    Args:
+        first_name (str): Client's first name (required)
+        last_name (str): Client's last name (required)
+        email (str): Email address (optional but recommended)
+        phone (str): Primary phone number (optional)
+        client_type (str): 'buyer', 'seller', or 'both' (default: 'buyer')
+        **kwargs: Additional client fields (address, occupation, income, etc.)
+    
+    Returns:
+        dict: {'success': bool, 'client_id': int, 'message': str, 'conflicts': list}
+    """
+    try:
+        conn = get_db_connection()
+        
+        # Check for existing client with same name and email
+        conflicts = []
+        if email:
+            existing = conn.execute(
+                'SELECT id, first_name, last_name FROM clients WHERE email = ?', 
+                (email,)
+            ).fetchone()
+            if existing:
+                conflicts.append(f"Email {email} already exists for {existing['first_name']} {existing['last_name']}")
+        
+        # If conflicts exist, return them for user decision
+        if conflicts:
+            conn.close()
+            return {
+                'success': False,
+                'client_id': None,
+                'message': 'Conflicts detected - need user confirmation',
+                'conflicts': conflicts
+            }
+        
+        # Insert new client
+        cursor = conn.execute('''
+            INSERT INTO clients (
+                first_name, last_name, email, phone_primary, client_type,
+                phone_secondary, address_street, address_city, 
+                address_state, address_zip, employer, occupation, annual_income,
+                ssn_last_four, preferred_contact_method, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            first_name, last_name, email, phone, client_type,
+            kwargs.get('phone_secondary'), kwargs.get('address_street'), 
+            kwargs.get('address_city'), kwargs.get('address_state'), kwargs.get('address_zip'),
+            kwargs.get('employer'), kwargs.get('occupation'),
+            kwargs.get('annual_income'), kwargs.get('ssn_last_four'),
+            kwargs.get('preferred_contact_method', 'email'), kwargs.get('notes')
+        ))
+        
+        client_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return {
+            'success': True,
+            'client_id': client_id,
+            'message': f'Successfully created client: {first_name} {last_name}',
+            'conflicts': []
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'client_id': None,
+            'message': f'Error creating client: {str(e)}',
+            'conflicts': []
+        }
+
+def find_clients(search_term=None, client_type=None, limit=10):
+    """
+    Find clients matching search criteria.
+    
+    Args:
+        search_term (str): Search in name, email, or phone (optional)
+        client_type (str): Filter by client type: 'buyer', 'seller', 'both' (optional)
+        limit (int): Maximum number of results (default: 10)
+    
+    Returns:
+        dict: {'success': bool, 'clients': list, 'count': int, 'message': str}
+    """
+    try:
+        conn = get_db_connection()
+        
+        query = '''
+            SELECT id, first_name, last_name, email, phone_primary, client_type,
+                   address_city, address_state, created_at
+            FROM clients
+            WHERE 1=1
+        '''
+        params = []
+        
+        if search_term:
+            query += ''' AND (
+                first_name LIKE ? OR last_name LIKE ? OR 
+                email LIKE ? OR phone_primary LIKE ?
+            )'''
+            search_pattern = f'%{search_term}%'
+            params.extend([search_pattern, search_pattern, search_pattern, search_pattern])
+        
+        if client_type:
+            query += ' AND client_type = ?'
+            params.append(client_type)
+        
+        query += ' ORDER BY last_name, first_name LIMIT ?'
+        params.append(limit)
+        
+        clients = conn.execute(query, params).fetchall()
+        conn.close()
+        
+        # Convert to list of dicts for easier AI processing
+        client_list = []
+        for client in clients:
+            client_list.append({
+                'id': client['id'],
+                'name': f"{client['first_name']} {client['last_name']}",
+                'email': client['email'],
+                'phone': client['phone_primary'],
+                'type': client['client_type'],
+                'location': f"{client['address_city']}, {client['address_state']}" if client['address_city'] else None,
+                'created': client['created_at']
+            })
+        
+        return {
+            'success': True,
+            'clients': client_list,
+            'count': len(client_list),
+            'message': f'Found {len(client_list)} clients'
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'clients': [],
+            'count': 0,
+            'message': f'Error searching clients: {str(e)}'
+        }
+
+def update_client(client_id, **kwargs):
+    """
+    Update an existing client's information.
+    
+    Args:
+        client_id (int): Client ID to update
+        **kwargs: Fields to update (first_name, last_name, email, phone, etc.)
+    
+    Returns:
+        dict: {'success': bool, 'message': str, 'updated_fields': list}
+    """
+    try:
+        conn = get_db_connection()
+        
+        # Check if client exists
+        existing = conn.execute('SELECT id, first_name, last_name FROM clients WHERE id = ?', (client_id,)).fetchone()
+        if not existing:
+            conn.close()
+            return {
+                'success': False,
+                'message': f'Client with ID {client_id} not found',
+                'updated_fields': []
+            }
+        
+        # Build update query for provided fields
+        valid_fields = [
+            'first_name', 'last_name', 'email', 'phone_primary', 
+            'phone_secondary', 'client_type', 'address_street', 'address_city',
+            'address_state', 'address_zip', 'employer', 'occupation', 'annual_income',
+            'ssn_last_four', 'preferred_contact_method', 'notes'
+        ]
+        
+        update_fields = []
+        params = []
+        for field, value in kwargs.items():
+            if field in valid_fields and value is not None:
+                update_fields.append(f'{field} = ?')
+                params.append(value)
+        
+        if not update_fields:
+            conn.close()
+            return {
+                'success': False,
+                'message': 'No valid fields provided for update',
+                'updated_fields': []
+            }
+        
+        # Execute update
+        query = f"UPDATE clients SET {', '.join(update_fields)} WHERE id = ?"
+        params.append(client_id)
+        
+        conn.execute(query, params)
+        conn.commit()
+        conn.close()
+        
+        return {
+            'success': True,
+            'message': f'Successfully updated client: {existing["first_name"]} {existing["last_name"]}',
+            'updated_fields': list(kwargs.keys())
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Error updating client: {str(e)}',
+            'updated_fields': []
+        }
+
+def create_property(address_line1, city, state, zip_code, **kwargs):
+    """
+    Create a new property listing in the CRM database.
+    
+    Args:
+        address_line1 (str): Street address (required)
+        city (str): City (required)
+        state (str): State (required)
+        zip_code (str): ZIP code (required)
+        **kwargs: Additional property fields (price, bedrooms, bathrooms, etc.)
+    
+    Returns:
+        dict: {'success': bool, 'property_id': int, 'message': str, 'conflicts': list}
+    """
+    try:
+        conn = get_db_connection()
+        
+        # Check for existing property at same address
+        conflicts = []
+        existing = conn.execute(
+            'SELECT id FROM properties WHERE address_line1 = ? AND city = ? AND state = ?',
+            (address_line1, city, state)
+        ).fetchone()
+        
+        if existing:
+            conflicts.append(f"Property already exists at {address_line1}, {city}, {state}")
+        
+        if conflicts:
+            conn.close()
+            return {
+                'success': False,
+                'property_id': None,
+                'message': 'Property conflicts detected - need user confirmation',
+                'conflicts': conflicts
+            }
+        
+        # Insert new property - using actual schema field names
+        cursor = conn.execute('''
+            INSERT INTO properties (
+                address_line1, address_line2, city, state, zip_code, mls_number,
+                property_type, listing_type, bedrooms, bathrooms, square_feet, 
+                lot_size, year_built, listing_price, property_description,
+                public_remarks, private_remarks
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            address_line1, kwargs.get('address_line2'), city, state, zip_code,
+            kwargs.get('mls_number'), kwargs.get('property_type', 'single_family'),
+            kwargs.get('listing_type', 'sale'), kwargs.get('bedrooms'), kwargs.get('bathrooms'),
+            kwargs.get('square_feet'), kwargs.get('lot_size'), kwargs.get('year_built'),
+            kwargs.get('listing_price'), kwargs.get('description'), kwargs.get('public_remarks'),
+            kwargs.get('private_remarks')
+        ))
+        
+        property_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return {
+            'success': True,
+            'property_id': property_id,
+            'message': f'Successfully created property: {address_line1}, {city}',
+            'conflicts': []
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'property_id': None,
+            'message': f'Error creating property: {str(e)}',
+            'conflicts': []
+        }
+
+def find_properties(search_term=None, min_price=None, max_price=None, bedrooms=None, city=None, limit=10):
+    """
+    Find properties matching search criteria.
+    
+    Args:
+        search_term (str): Search in address or MLS number (optional)
+        min_price (float): Minimum listing price (optional)
+        max_price (float): Maximum listing price (optional)
+        bedrooms (int): Number of bedrooms (optional)
+        city (str): City filter (optional)
+        limit (int): Maximum results (default: 10)
+    
+    Returns:
+        dict: {'success': bool, 'properties': list, 'count': int, 'message': str}
+    """
+    try:
+        conn = get_db_connection()
+        
+        query = '''
+            SELECT id, address_line1, address_line2, city, state, zip_code,
+                   property_type, bedrooms, bathrooms, square_feet, listing_price,
+                   mls_number, listing_type, created_at
+            FROM properties
+            WHERE 1=1
+        '''
+        params = []
+        
+        if search_term:
+            query += ''' AND (
+                address_line1 LIKE ? OR city LIKE ? OR mls_number LIKE ?
+            )'''
+            search_pattern = f'%{search_term}%'
+            params.extend([search_pattern, search_pattern, search_pattern])
+        
+        if min_price:
+            query += ' AND listing_price >= ?'
+            params.append(min_price)
+        
+        if max_price:
+            query += ' AND listing_price <= ?'
+            params.append(max_price)
+        
+        if bedrooms:
+            query += ' AND bedrooms = ?'
+            params.append(bedrooms)
+        
+        if city:
+            query += ' AND city LIKE ?'
+            params.append(f'%{city}%')
+        
+        query += ' ORDER BY listing_price DESC LIMIT ?'
+        params.append(limit)
+        
+        properties = conn.execute(query, params).fetchall()
+        conn.close()
+        
+        # Convert to list of dicts for AI processing
+        property_list = []
+        for prop in properties:
+            address_parts = [prop['address_line1']]
+            if prop['address_line2']:
+                address_parts.append(prop['address_line2'])
+            address_parts.extend([prop['city'], prop['state'], prop['zip_code']])
+            
+            property_list.append({
+                'id': prop['id'],
+                'address': ', '.join(filter(None, address_parts)),
+                'type': prop['property_type'],
+                'bedrooms': prop['bedrooms'],
+                'bathrooms': prop['bathrooms'],
+                'square_feet': prop['square_feet'],
+                'price': prop['listing_price'],
+                'mls': prop['mls_number'],
+                'listing_type': prop['listing_type'],
+                'created': prop['created_at']
+            })
+        
+        return {
+            'success': True,
+            'properties': property_list,
+            'count': len(property_list),
+            'message': f'Found {len(property_list)} properties'
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'properties': [],
+            'count': 0,
+            'message': f'Error searching properties: {str(e)}'
+        }
+
+# Function registry for AI discovery
+AI_CALLABLE_FUNCTIONS = {
+    'create_client': {
+        'function': create_client,
+        'description': 'Create a new client with contact information',
+        'required_params': ['first_name', 'last_name'],
+        'optional_params': ['email', 'phone', 'client_type', 'address_street', 'address_city', 'address_state', 'occupation'],
+        'example': 'create_client("John", "Smith", email="john@email.com", phone="555-1234", client_type="buyer")'
+    },
+    'find_clients': {
+        'function': find_clients,
+        'description': 'Search for existing clients by name, email, or phone',
+        'required_params': [],
+        'optional_params': ['search_term', 'client_type', 'limit'],
+        'example': 'find_clients("John Smith") or find_clients(client_type="buyer")'
+    },
+    'update_client': {
+        'function': update_client,
+        'description': 'Update existing client information',
+        'required_params': ['client_id'],
+        'optional_params': ['first_name', 'last_name', 'email', 'phone_primary', 'address_street'],
+        'example': 'update_client(123, email="newemail@example.com", phone_primary="555-9999")'
+    },
+    'create_property': {
+        'function': create_property,
+        'description': 'Add a new property listing to the system',
+        'required_params': ['address_line1', 'city', 'state', 'zip_code'],
+        'optional_params': ['listing_price', 'bedrooms', 'bathrooms', 'square_feet', 'property_type', 'mls_number'],
+        'example': 'create_property("123 Main St", "Sacramento", "CA", "95814", listing_price=500000, bedrooms=3)'
+    },
+    'find_properties': {
+        'function': find_properties,
+        'description': 'Search for properties by address, price range, or features',
+        'required_params': [],
+        'optional_params': ['search_term', 'min_price', 'max_price', 'bedrooms', 'city', 'limit'],
+        'example': 'find_properties(city="Sacramento", min_price=400000, max_price=600000, bedrooms=3)'
+    }
+}
+
 @app.route('/')
 def dashboard():
     """Main dashboard view"""
