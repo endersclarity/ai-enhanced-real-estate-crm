@@ -1,11 +1,11 @@
 # Task ID: 4
-# Title: Add Email Content Paste Area to UI
+# Title: Configure Custom Domain and SSL Certificates
 # Status: pending
-# Dependencies: 1
+# Dependencies: 3
 # Priority: high
-# Description: Add a dedicated area within the chatbot interface for users to paste email content for processing.
+# Description: Configure the custom domain for the application and install SSL certificates for secure HTTPS access.
 # Details:
-Modify chatbot-crm.html to include a text area or similar input field specifically designated for pasting email content. Ensure it can handle formatted text input to preserve basic structure if possible.
+Update DNS records (A/CNAME) with the domain registrar to point to the cloud hosting server/load balancer IP. Obtain SSL certificates (e.g., Let's Encrypt, commercial CA). Configure the web server (e.g., Nginx, Apache) or load balancer to use the SSL certificates and enforce HTTPS redirection for all traffic. Ensure the custom domain is secured with SSL as per success criteria.
 
 # Test Strategy:
-Verify that the new paste area appears correctly in the interface and allows users to paste email text content.
+Access the application using the custom domain name via HTTPS. Verify the SSL certificate is valid and trusted by browsers. Check that HTTP requests are automatically redirected to HTTPS.

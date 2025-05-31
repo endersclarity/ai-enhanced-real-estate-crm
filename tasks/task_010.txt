@@ -1,11 +1,11 @@
 # Task ID: 10
-# Title: Integrate Full Email Processing Workflow and Optimize
+# Title: Implement Data Backup and Restore Capabilities
 # Status: pending
-# Dependencies: 4, 5, 6, 7, 8, 9
+# Dependencies: 2, 3
 # Priority: high
-# Description: Integrate all components (paste, extraction, validation, preview, mapping, conflict resolution, population) into a seamless workflow and optimize for performance and user experience.
+# Description: Implement capabilities for securely backing up and restoring the production database.
 # Details:
-Connect the UI (Task 4, 7) and logic components (Task 5, 6, 8, 9) to create a single, fluid workflow from pasting an email to populating the CRM. Optimize the JavaScript code and UI interactions to achieve the performance targets: email analysis/extraction <10 seconds, full workflow <30 seconds, chatbot response <5 seconds.
+Ensure automated database backups (configured in Task 2) are functioning correctly. Develop or configure a process for manually triggering backups. Implement a procedure and potentially tools for restoring the database from a backup in case of data loss or corruption. Store backups securely and off-site if possible.
 
 # Test Strategy:
-Perform end-to-end functional tests using sample real estate emails. Measure the time taken for email analysis/extraction and the complete workflow from paste to CRM population. Verify data accuracy (90%+ field population accuracy) in the localStorage CRM after population. Confirm the user experience is seamless and meets the <30 second target.
+Perform a manual backup of the production database. Test the restore process in a staging or development environment using a recent backup file. Verify that the restored data is consistent and complete.

@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Develop AI-Guided Entity Extraction Engine
+# Title: Implement User Authentication System
 # Status: pending
-# Dependencies: 3, 4
+# Dependencies: 3
 # Priority: high
-# Description: Develop the JavaScript-based engine for AI-powered entity extraction from pasted email content, guided by the loaded AI instructions.
+# Description: Implement a robust user authentication system for the CRM application.
 # Details:
-Write JavaScript code to process the text from the email paste area. Utilize the loaded AI instructions (Task 3) to identify and extract key real estate entities such as names, addresses, prices, and dates. The engine should be JavaScript-based as per the technical architecture.
+Integrate a secure authentication library (e.g., Flask-Login, Flask-Security) or implement a custom authentication flow. Store user credentials securely (hashed passwords). Implement user registration, login, logout, and password reset functionalities. Ensure authentication protects sensitive endpoints.
 
 # Test Strategy:
-Test the extraction engine with a variety of sample real estate emails. Verify that key entities (names, addresses, prices, dates) are correctly identified and extracted with a target accuracy of 95%+.
+Test user registration, login, and logout flows. Verify that unauthenticated users cannot access protected pages. Test password reset functionality. Check for secure handling of credentials (e.g., no plain text passwords in DB).
