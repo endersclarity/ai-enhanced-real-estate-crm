@@ -16,11 +16,11 @@
 **Goal**: Implement intelligent automation and data extraction capabilities
 
 **Active Tasks**:
-- [ ] Email parsing and content extraction engine
-- [ ] Entity recognition for real estate data (names, addresses, prices, dates)
-- [ ] CRM integration with automatic field mapping to 177-field schema
-- [ ] Data validation and conflict resolution system
-- [ ] Workflow automation and intelligent task creation
+- [ ] Enhance existing chatbot-crm.html with AI instructions for email processing
+- [ ] Add email paste functionality to chatbot for data extraction
+- [ ] Implement smart AI context loading in chatbot for CRM awareness
+- [ ] Create quick action buttons for common real estate tasks
+- [ ] Test chatbot email processing with real estate samples
 
 **Success Criteria**:
 - All CRM functions tested and working reliably
