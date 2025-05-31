@@ -52,6 +52,113 @@
             border-color: #1e3d6f;
         }
         
+        /* Chatbot Sidebar Styles */
+        .chatbot-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-ready { background: #28a745; }
+        .status-processing { background: #ffc107; }
+        .status-error { background: #dc3545; }
+        
+        .chat-container-mini {
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .chat-messages-mini {
+            height: 200px;
+            overflow-y: auto;
+            padding: 0.75rem;
+        }
+        
+        .chat-input-mini {
+            background: white;
+            border-top: 1px solid #dee2e6;
+            padding: 0.5rem;
+        }
+        
+        .message {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .message.ai {
+            background: #e3f2fd;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .message.user {
+            background: #f1f8e9;
+            border-left: 3px solid var(--accent-color);
+            margin-left: 1rem;
+        }
+        
+        .email-paste-area {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .email-paste-area.active {
+            border-color: var(--primary-color);
+            background: #f0f7ff;
+        }
+        
+        .email-paste-area textarea {
+            border: none;
+            background: transparent;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .email-paste-area textarea:focus {
+            box-shadow: none;
+            border: none;
+        }
+        
+        .processing-indicator {
+            text-align: center;
+            padding: 1rem;
+            background: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .extraction-results {
+            background: #d1ecf1;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #bee5eb;
+        }
+        
+        @media (max-width: 992px) {
+            .chatbot-sidebar {
+                position: static;
+                margin-top: 2rem;
+            }
+        }
+        
         .sidebar {
             background-color: var(--secondary-color);
             min-height: calc(100vh - 56px);

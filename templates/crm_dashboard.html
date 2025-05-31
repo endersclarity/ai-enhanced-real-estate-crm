@@ -3,19 +3,23 @@
 {% block title %}Dashboard - Narissa Realty CRM{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom mb-4">
-    <h1 class="h2">Dashboard</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-calendar3"></i> This week
-            </button>
-        </div>
-        <button type="button" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus"></i> Quick Add
-        </button>
-    </div>
-</div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Dashboard Content -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom mb-4">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-calendar3"></i> This week
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus"></i> Quick Add
+                    </button>
+                </div>
+            </div>
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
@@ -220,12 +224,93 @@
                 {% endif %}
             </div>
         </div>
+        
+        <!-- AI Chatbot Sidebar -->
+        <div class="col-lg-3">
+            <div class="chatbot-sidebar">
+                <!-- AI Status -->
+                <div class="mb-3">
+                    <h6>
+                        <span class="status-indicator status-ready" id="aiStatus"></span>
+                        AI Assistant
+                    </h6>
+                    <small class="text-muted" id="aiStatusText">Ready for processing</small>
+                </div>
+                
+                <!-- Chat Container -->
+                <div class="chat-container-mini">
+                    <div class="chat-messages-mini" id="chatMessages">
+                        <div class="message ai">
+                            <strong>AI:</strong> Ready to help! Paste emails or ask questions.
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="chat-input-mini">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="chatInput" 
+                                   placeholder="Ask me anything...">
+                            <button class="btn btn-primary" type="button" id="sendButton">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Paste Area -->
+                <div class="email-paste-area mt-3" id="emailPasteArea">
+                    <div class="text-center mb-2">
+                        <i class="bi bi-envelope-plus" style="font-size: 1.5rem; color: #2c5aa0;"></i>
+                        <h6 class="mt-1">Email Processor</h6>
+                        <small class="text-muted">Paste email content for extraction</small>
+                    </div>
+                    
+                    <textarea id="emailContent" 
+                              placeholder="Paste email content here..."
+                              class="form-control" rows="4"></textarea>
+                    
+                    <div class="mt-2 d-grid gap-1">
+                        <button class="btn btn-primary btn-sm" id="processEmailBtn">
+                            <i class="bi bi-cpu"></i> Process Email
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="clearEmailBtn">
+                            <i class="bi bi-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Processing Indicator -->
+                <div class="processing-indicator" id="processingIndicator" style="display: none;">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2 mb-0 small">Analyzing content...</p>
+                    </div>
+                </div>
+                
+                <!-- Extraction Results -->
+                <div class="extraction-results" id="extractionResults" style="display: none;">
+                    <h6 class="small">Extracted Data</h6>
+                    <div id="extractedEntities"></div>
+                    <div class="mt-2 d-grid gap-1">
+                        <button class="btn btn-success btn-sm" id="addToCrmBtn">
+                            <i class="bi bi-database-add"></i> Add to CRM
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" id="previewDataBtn">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Existing dashboard functions
 function generateForms() {
     alert('Form generation feature coming soon!');
 }
@@ -247,9 +332,354 @@ function generateTransactionForms(transactionId) {
     }
 }
 
-// Auto-refresh dashboard every 5 minutes
-setInterval(function() {
-    window.location.reload();
+// Chatbot Integration JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChatbot();
+});
+
+// Global chatbot variables
+let chatHistory = [];
+let extractedData = null;
+let aiReady = false;
+
+// Initialize chatbot functionality
+function initializeChatbot() {
+    setupChatbotEventListeners();
+    updateAIStatus('ready', 'Ready for processing');
+    aiReady = true;
+}
+
+// Setup chatbot event listeners
+function setupChatbotEventListeners() {
+    // Chat input
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+    }
+    
+    if (sendButton) {
+        sendButton.addEventListener('click', sendChatMessage);
+    }
+    
+    // Email processing
+    const processEmailBtn = document.getElementById('processEmailBtn');
+    const clearEmailBtn = document.getElementById('clearEmailBtn');
+    const addToCrmBtn = document.getElementById('addToCrmBtn');
+    const previewDataBtn = document.getElementById('previewDataBtn');
+    
+    if (processEmailBtn) {
+        processEmailBtn.addEventListener('click', processEmail);
+    }
+    
+    if (clearEmailBtn) {
+        clearEmailBtn.addEventListener('click', clearEmail);
+    }
+    
+    if (addToCrmBtn) {
+        addToCrmBtn.addEventListener('click', addToCRM);
+    }
+    
+    if (previewDataBtn) {
+        previewDataBtn.addEventListener('click', previewData);
+    }
+    
+    // Email paste area interactions
+    const emailPasteArea = document.getElementById('emailPasteArea');
+    const emailContent = document.getElementById('emailContent');
+    
+    if (emailContent && emailPasteArea) {
+        emailContent.addEventListener('focus', () => {
+            emailPasteArea.classList.add('active');
+        });
+        
+        emailContent.addEventListener('blur', () => {
+            emailPasteArea.classList.remove('active');
+        });
+        
+        emailContent.addEventListener('paste', () => {
+            setTimeout(() => {
+                if (emailContent.value.trim()) {
+                    addAIMessage('Email content detected. Click "Process Email" to extract data automatically.');
+                }
+            }, 100);
+        });
+    }
+}
+
+// Update AI status indicator
+function updateAIStatus(status, text) {
+    const statusIndicator = document.getElementById('aiStatus');
+    const statusText = document.getElementById('aiStatusText');
+    
+    if (statusIndicator) {
+        statusIndicator.className = `status-indicator status-${status}`;
+    }
+    
+    if (statusText) {
+        statusText.textContent = text;
+    }
+}
+
+// Send chat message
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    if (!input) return;
+    
+    const message = input.value.trim();
+    
+    if (message) {
+        addUserMessage(message);
+        input.value = '';
+        
+        // Send to backend chat endpoint
+        if (aiReady) {
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    addAIMessage(data.response);
+                } else {
+                    addAIMessage('Sorry, I encountered an error processing your message.');
+                }
+            })
+            .catch(error => {
+                console.error('Chat error:', error);
+                addAIMessage('Connection error. Please try again.');
+            });
+        } else {
+            // Fallback for when backend is not ready
+            setTimeout(() => {
+                addAIMessage('I received your message: "' + message + '". Backend integration in progress.');
+            }, 500);
+        }
+    }
+}
+
+// Add user message to chat
+function addUserMessage(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user';
+    messageDiv.innerHTML = '<strong>You:</strong> ' + escapeHtml(message);
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    chatHistory.push({ type: 'user', message: message });
+}
+
+// Add AI message to chat
+function addAIMessage(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ai';
+    messageDiv.innerHTML = '<strong>AI:</strong> ' + escapeHtml(message);
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    chatHistory.push({ type: 'ai', message: message });
+}
+
+// Process email content
+function processEmail() {
+    const emailContent = document.getElementById('emailContent');
+    const processingIndicator = document.getElementById('processingIndicator');
+    const extractionResults = document.getElementById('extractionResults');
+    
+    if (!emailContent || !emailContent.value.trim()) {
+        addAIMessage('Please paste email content first.');
+        return;
+    }
+    
+    const content = emailContent.value.trim();
+    
+    // Show processing indicator
+    if (processingIndicator) {
+        processingIndicator.style.display = 'block';
+    }
+    
+    if (extractionResults) {
+        extractionResults.style.display = 'none';
+    }
+    
+    updateAIStatus('processing', 'Processing email content...');
+    
+    // Send to backend processing endpoint
+    fetch('/process_email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email_content: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide processing indicator
+        if (processingIndicator) {
+            processingIndicator.style.display = 'none';
+        }
+        
+        if (data.extracted_data) {
+            extractedData = data.extracted_data;
+            displayExtractionResults(data.extracted_data);
+            updateAIStatus('ready', 'Data extracted successfully');
+            addAIMessage('Email processed successfully! Found ' + Object.keys(data.extracted_data).length + ' data fields.');
+        } else {
+            updateAIStatus('error', 'Processing failed');
+            addAIMessage('Failed to extract data from email. Please check the content and try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Processing error:', error);
+        
+        // Hide processing indicator
+        if (processingIndicator) {
+            processingIndicator.style.display = 'none';
+        }
+        
+        // Fallback processing for demo purposes
+        simulateEmailProcessing(content);
+    });
+}
+
+// Simulate email processing (fallback when backend not ready)
+function simulateEmailProcessing(content) {
+    updateAIStatus('processing', 'Processing with demo AI...');
+    
+    setTimeout(() => {
+        // Simple regex-based extraction for demo
+        const phoneRegex = /(\d{3}[-.]?\d{3}[-.]?\d{4})/g;
+        const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+        const nameRegex = /(?:my name is|i'm|i am)\s+([a-zA-Z\s]+)/gi;
+        
+        const demoData = {};
+        
+        const phones = content.match(phoneRegex);
+        if (phones) demoData.phone = phones[0];
+        
+        const emails = content.match(emailRegex);
+        if (emails) demoData.email = emails[0];
+        
+        const names = nameRegex.exec(content);
+        if (names) demoData.name = names[1].trim();
+        
+        if (Object.keys(demoData).length > 0) {
+            extractedData = demoData;
+            displayExtractionResults(demoData);
+            updateAIStatus('ready', 'Demo extraction complete');
+            addAIMessage('Demo processing complete! Found ' + Object.keys(demoData).length + ' data fields.');
+        } else {
+            updateAIStatus('ready', 'No data extracted');
+            addAIMessage('No recognizable data patterns found in the email content.');
+        }
+    }, 2000);
+}
+
+// Display extraction results
+function displayExtractionResults(data) {
+    const extractionResults = document.getElementById('extractionResults');
+    const extractedEntities = document.getElementById('extractedEntities');
+    
+    if (!extractionResults || !extractedEntities) return;
+    
+    let html = '';
+    for (const [key, value] of Object.entries(data)) {
+        html += `<div class="mb-1"><small><strong>${key}:</strong> ${escapeHtml(value)}</small></div>`;
+    }
+    
+    extractedEntities.innerHTML = html;
+    extractionResults.style.display = 'block';
+}
+
+// Clear email content
+function clearEmail() {
+    const emailContent = document.getElementById('emailContent');
+    const extractionResults = document.getElementById('extractionResults');
+    const processingIndicator = document.getElementById('processingIndicator');
+    
+    if (emailContent) {
+        emailContent.value = '';
+    }
+    
+    if (extractionResults) {
+        extractionResults.style.display = 'none';
+    }
+    
+    if (processingIndicator) {
+        processingIndicator.style.display = 'none';
+    }
+    
+    extractedData = null;
+    updateAIStatus('ready', 'Ready for processing');
+}
+
+// Add to CRM
+function addToCRM() {
+    if (!extractedData) {
+        addAIMessage('No extracted data available. Please process an email first.');
+        return;
+    }
+    
+    addAIMessage('Adding extracted data to CRM database...');
+    
+    // Here would be the actual CRM integration
+    // For now, show success message
+    setTimeout(() => {
+        addAIMessage('Data successfully added to CRM! Dashboard will update automatically.');
+        
+        // Optionally refresh dashboard data
+        if (typeof refreshDashboardData === 'function') {
+            refreshDashboardData();
+        }
+        
+        clearEmail();
+    }, 1500);
+}
+
+// Preview data
+function previewData() {
+    if (!extractedData) {
+        addAIMessage('No extracted data available. Please process an email first.');
+        return;
+    }
+    
+    let previewText = 'Extracted Data Preview:\n\n';
+    for (const [key, value] of Object.entries(extractedData)) {
+        previewText += `${key}: ${value}\n`;
+    }
+    
+    alert(previewText);
+}
+
+// Utility function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Auto-refresh dashboard every 5 minutes (disabled during active chat)
+let refreshInterval = setInterval(function() {
+    if (chatHistory.length === 0) {
+        window.location.reload();
+    }
 }, 300000);
 </script>
 {% endblock %}

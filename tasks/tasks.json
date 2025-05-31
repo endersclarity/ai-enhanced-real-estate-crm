@@ -2,116 +2,117 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Setup Cloud Hosting Platform",
-      "description": "Configure a cloud hosting platform (DigitalOcean, AWS, or Heroku) to host the Flask application, ensuring 99.9% uptime SLA.",
-      "details": "Choose a cloud provider (DigitalOcean, AWS, or Heroku as mentioned in the PRD). Set up a virtual machine or container environment suitable for running a Python Flask application. Configure networking, firewalls, and basic security groups. Ensure the environment meets the requirements for the application and database connectivity. Allocate necessary resources (CPU, RAM, storage).",
-      "testStrategy": "Verify server instance is running and accessible via SSH. Check network configuration and firewall rules. Confirm allocated resources meet minimum requirements.",
-      "priority": "high",
+      "title": "Setup Development Environment and Branch",
+      "description": "Ensure the development environment is correctly set up and the feature branch `feature/ai-chatbot-dashboard-integration` is active and up-to-date.",
+      "details": "Verify Python environment with Flask and necessary libraries installed. Confirm access to the existing `chatbot-crm.html`, `templates/crm_dashboard.html`, and `real_estate_crm.py` files. Ensure the current Git branch is `feature/ai-chatbot-dashboard-integration` and pull the latest changes.",
+      "testStrategy": "Verify branch name using `git branch`. Check file existence and basic project structure. Run the existing Flask app to ensure it starts without errors.",
+      "priority": "medium",
       "dependencies": [],
-      "status": "done",
+      "status": "completed",
       "subtasks": []
     },
     {
       "id": 2,
-      "title": "Configure Production PostgreSQL Database",
-      "description": "Deploy and configure a production-ready PostgreSQL database instance on the cloud platform, including setting up automated backups.",
-      "details": "Set up a managed PostgreSQL database service or install PostgreSQL on a dedicated server/container within the cloud environment. Use the provided `real_estate_crm_schema.sql` to create the database schema. Configure user accounts and permissions securely. Implement automated daily backups to a separate storage location or service. Ensure the database is accessible from the application hosting environment.",
-      "testStrategy": "Connect to the database remotely using psql or a client tool. Verify schema is correctly applied. Test database user authentication. Confirm backup automation is scheduled and can be manually triggered.",
+      "title": "Integrate Chatbot HTML/CSS into Dashboard",
+      "description": "Integrate the HTML structure and CSS styles of the existing `chatbot-crm.html` into `templates/crm_dashboard.html` to create a sidebar component.",
+      "details": "Analyze `chatbot-crm.html` to identify core HTML elements for the chat interface and email processing area. Copy these elements into `templates/crm_dashboard.html`, placing them within a new sidebar container element (e.g., a `div`). Copy or adapt the relevant CSS rules from `chatbot-crm.html` or its associated stylesheets into the dashboard's CSS to style the sidebar appropriately. Ensure responsive design principles are maintained.",
+      "testStrategy": "Load `templates/crm_dashboard.html` in a web browser. Visually inspect that the chatbot interface appears as a sidebar on the dashboard page. Check responsiveness on different screen sizes. Use browser developer tools to inspect HTML structure and applied CSS rules.",
       "priority": "high",
       "dependencies": [
         1
       ],
-      "status": "done",
+      "status": "completed",
       "subtasks": []
     },
     {
       "id": 3,
-      "title": "Deploy Flask Application to Production Environment",
-      "description": "Deploy the Flask CRM application (`real_estate_crm.py`) to the configured cloud hosting environment.",
-      "details": "Set up a production-grade web server (e.g., Gunicorn, uWSGI) to serve the Flask application. Configure the web server to interface with the Flask app. Deploy the application code, including all dependencies. Configure environment variables for database connection and other settings. Ensure the application can connect to the production PostgreSQL database.",
-      "testStrategy": "Access the application's root URL via HTTP (initially). Verify the application loads without errors. Check application logs for connection issues to the database or other services.",
+      "title": "Refactor Chatbot JavaScript for Dashboard Context",
+      "description": "Refactor the JavaScript code from `chatbot-crm.html` to function correctly within the `templates/crm_dashboard.html` context, addressing potential ID conflicts and ensuring event listeners are attached correctly.",
+      "details": "Identify all JavaScript code blocks and external script includes used by `chatbot-crm.html`. Consolidate or include these scripts in `templates/crm_dashboard.html`. Update any JavaScript code that relies on specific DOM element IDs or classes to ensure they correctly target elements within the new sidebar structure. Use more robust selectors if necessary. Ensure event listeners (e.g., button clicks, input changes, paste events) are correctly attached to the elements in the dashboard DOM.",
+      "testStrategy": "Load `templates/crm_dashboard.html` in a browser. Open the browser's developer console and check for JavaScript errors. Interact with the chatbot sidebar elements (type text, click buttons, paste content) and verify that basic JavaScript functions (like reading input, showing/hiding elements) execute without errors, even if backend communication is not yet functional.",
       "priority": "high",
       "dependencies": [
-        1,
         2
       ],
-      "status": "done",
+      "status": "completed",
       "subtasks": []
     },
     {
       "id": 4,
-      "title": "Configure Custom Domain and SSL Certificates",
-      "description": "Configure the custom domain for the application and install SSL certificates for secure HTTPS access.",
-      "details": "Update DNS records (A/CNAME) with the domain registrar to point to the cloud hosting server/load balancer IP. Obtain SSL certificates (e.g., Let's Encrypt, commercial CA). Configure the web server (e.g., Nginx, Apache) or load balancer to use the SSL certificates and enforce HTTPS redirection for all traffic. Ensure the custom domain is secured with SSL as per success criteria.",
-      "testStrategy": "Access the application using the custom domain name via HTTPS. Verify the SSL certificate is valid and trusted by browsers. Check that HTTP requests are automatically redirected to HTTPS.",
+      "title": "Define Flask Endpoints for Chatbot Interaction and Data Processing",
+      "description": "Add new routes in `real_estate_crm.py` to handle incoming requests from the integrated chatbot for both chat interactions and processed email data.",
+      "details": "In `real_estate_crm.py`, define a new Flask route, e.g., `/chat`, that accepts POST requests containing user messages. Define another new route, e.g., `/process_email`, that accepts POST requests containing the extracted data from the email processing module. These endpoints should initially just receive and log the data to confirm connectivity.",
+      "testStrategy": "Run the Flask application. Use `curl` or a tool like Postman to send POST requests to the newly defined `/chat` and `/process_email` URLs with sample data (e.g., JSON payload). Verify that the Flask application logs or prints the received data, confirming the endpoints are active and receiving requests correctly.",
       "priority": "high",
       "dependencies": [
-        3
+        1
       ],
-      "status": "pending",
+      "status": "completed",
       "subtasks": []
     },
     {
       "id": 5,
-      "title": "Implement User Authentication System",
-      "description": "Implement a robust user authentication system for the CRM application.",
-      "details": "Integrate a secure authentication library (e.g., Flask-Login, Flask-Security) or implement a custom authentication flow. Store user credentials securely (hashed passwords). Implement user registration, login, logout, and password reset functionalities. Ensure authentication protects sensitive endpoints.",
-      "testStrategy": "Test user registration, login, and logout flows. Verify that unauthenticated users cannot access protected pages. Test password reset functionality. Check for secure handling of credentials (e.g., no plain text passwords in DB).",
+      "title": "Implement Gemini API Integration in Flask Backend",
+      "description": "Implement the logic in `real_estate_crm.py` to securely use the Gemini API key and make API calls to get responses for user chat messages.",
+      "details": "Inside the `/chat` route handler in `real_estate_crm.py`, retrieve the Gemini API key securely (e.g., from environment variables). Use a Python library (like `google-generativeai`) to interact with the Gemini API. Pass the user's message to the API and process the response. Return the AI's response to the frontend.",
+      "testStrategy": "Write unit tests for the function that interacts with the Gemini API, mocking the API response. Test the `/chat` endpoint by sending sample user messages. Verify that the Flask application successfully calls the Gemini API and returns a valid AI response in the expected format. Check for secure handling of the API key.",
       "priority": "high",
       "dependencies": [
-        3
+        4
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 6,
-      "title": "Implement Role-Based Authorization System",
-      "description": "Implement a role-based authorization system to control user access to different CRM features and data.",
-      "details": "Define user roles (e.g., Admin, Agent, Manager) and associate permissions with each role. Implement logic within the application to check user roles and permissions before allowing access to specific routes, data, or actions. Ensure data protection is enforced based on user roles.",
-      "testStrategy": "Create users with different roles. Log in as each user type and verify they can only access features and data allowed by their role. Attempt to access restricted areas and confirm access is denied.",
+      "title": "Implement Data Mapping and CRM Database Update Logic",
+      "description": "Implement the logic in `real_estate_crm.py` to receive extracted data from the email processing endpoint, map it to the 177-field CRM schema, handle conflicts, and update the database.",
+      "details": "Inside the `/process_email` route handler in `real_estate_crm.py`, receive the JSON data payload. Implement Python logic to map the keys from the received JSON (extracted entities) to the corresponding fields in the 177-field CRM schema. Use the database interaction layer (e.g., SQLAlchemy models or raw SQL queries based on `real_estate_crm_schema.sql`) to insert new records or update existing ones. Implement the conflict resolution logic as specified in the PRD (e.g., prompt user, overwrite, merge). Return a response indicating success, failure, or conflicts.",
+      "testStrategy": "Write unit tests for the data mapping and database update functions using sample extracted JSON data and the 177-field schema. Test scenarios for inserting new clients/properties and updating existing ones. Test conflict resolution logic with sample conflicting data. Test the `/process_email` endpoint with sample data and verify database changes using a database client or another CRM view.",
       "priority": "high",
       "dependencies": [
-        5
+        4
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 7,
-      "title": "Integrate Multi-User Management and Permissions",
-      "description": "Integrate multi-user support and manage user accounts and their assigned roles within the application.",
-      "details": "Develop an administrative interface or backend functionality to create, update, and delete user accounts. Allow administrators to assign roles to users. Ensure the system supports multiple users concurrently accessing the CRM with their respective permissions.",
-      "testStrategy": "Test user creation, update, and deletion by an administrator. Verify role assignment functionality works correctly. Log in with multiple user accounts simultaneously and confirm system stability and correct permission enforcement.",
-      "priority": "medium",
+      "title": "Connect Frontend Chat to Flask Chat Endpoint",
+      "description": "Modify the refactored chatbot JavaScript to send user chat messages to the new Flask `/chat` endpoint and display the responses received from the backend.",
+      "details": "In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles sending user messages. Use the `fetch` API or `XMLHttpRequest` to send a POST request containing the user's message to the `/chat` endpoint defined in `real_estate_crm.py`. Upon receiving a response from the backend, update the chat interface to display the AI's message.",
+      "testStrategy": "Load the dashboard. Type a message in the chatbot sidebar and send it. Use browser developer tools (Network tab) to verify that a POST request is sent to `/chat`. Verify that the response from the backend is received and the AI's message appears in the chat interface.",
+      "priority": "high",
       "dependencies": [
-        6
+        3,
+        5
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 8,
-      "title": "Setup Production Monitoring and Error Tracking",
-      "description": "Set up production monitoring, logging, and error tracking systems for the deployed application and infrastructure.",
-      "details": "Integrate monitoring tools (e.g., Prometheus, CloudWatch, built-in provider tools) to track server resource usage (CPU, memory, disk), network traffic, and application metrics. Set up centralized logging (e.g., ELK stack, cloud provider logs). Integrate an error tracking service (e.g., Sentry, Rollbar) to capture and report application errors in real-time.",
-      "testStrategy": "Verify monitoring dashboards display relevant metrics. Check that application logs are being collected. Introduce a test error in the application code and confirm it is captured and reported by the error tracking service.",
+      "title": "Connect Frontend Email Processing to Flask Data Endpoint",
+      "description": "Modify the refactored chatbot JavaScript to send the extracted email data to the new Flask `/process_email` endpoint after processing and handle the backend's response.",
+      "details": "In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles the output of the email processing and entity extraction. After the data is extracted and validated (and potentially previewed), use the `fetch` API or `XMLHttpRequest` to send a POST request containing the extracted data (likely as a JSON object) to the `/process_email` endpoint defined in `real_estate_crm.py`. Handle the response from the backend, displaying success messages, errors, or conflict resolution prompts to the user.",
+      "testStrategy": "Load the dashboard. Paste sample email content into the email processing area. Trigger the processing and data extraction. Verify that a POST request is sent to `/process_email` with the extracted data payload. Verify that the backend's response is received and handled appropriately in the frontend UI (e.g., a 'Data saved successfully' message).",
       "priority": "high",
       "dependencies": [
-        3
+        3,
+        6
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 9,
-      "title": "Perform Performance Optimization and Load Testing",
-      "description": "Analyze and optimize application and database performance to meet the specified response time criteria (<1s response, <200ms queries).",
-      "details": "Use monitoring data and profiling tools to identify performance bottlenecks in the Flask application and PostgreSQL queries. Optimize database queries (indexing, query tuning). Optimize application code for efficiency. Conduct load testing using tools (e.g., JMeter, Locust) to simulate user traffic and measure response times under load. Iterate on optimizations until performance criteria are met.",
-      "testStrategy": "Measure response times for key application actions under normal and simulated load. Verify database query execution times are within the <200ms target. Confirm overall system response time is <1 second under expected load.",
-      "priority": "high",
+      "title": "Implement Real-time Dashboard Updates",
+      "description": "Implement functionality to ensure that changes made to the CRM database via the chatbot (Tasks 6 & 8) are reflected in the main dashboard view in near real-time.",
+      "details": "Add JavaScript to `templates/crm_dashboard.html` to periodically fetch updated data from the Flask backend relevant to the currently displayed CRM view (e.g., client list, property details). Update the relevant parts of the dashboard HTML dynamically with the new data. Alternatively, after a successful data save/update via the `/process_email` endpoint (Task 8), trigger a targeted refresh of the affected dashboard component or a full page reload if necessary (though targeted updates are preferred for better UX).",
+      "testStrategy": "Load the dashboard. Use the chatbot's email processing to add or update a client or property. Observe the main CRM dashboard view. Verify that the changes made via the chatbot appear in the dashboard without manual refresh within a short timeframe. Test updating data via the standard CRM interface and ensure the chatbot sidebar doesn't interfere.",
+      "priority": "medium",
       "dependencies": [
-        3,
+        7,
         8
       ],
       "status": "pending",
@@ -119,44 +120,13 @@
     },
     {
       "id": 10,
-      "title": "Implement Data Backup and Restore Capabilities",
-      "description": "Implement capabilities for securely backing up and restoring the production database.",
-      "details": "Ensure automated database backups (configured in Task 2) are functioning correctly. Develop or configure a process for manually triggering backups. Implement a procedure and potentially tools for restoring the database from a backup in case of data loss or corruption. Store backups securely and off-site if possible.",
-      "testStrategy": "Perform a manual backup of the production database. Test the restore process in a staging or development environment using a recent backup file. Verify that the restored data is consistent and complete.",
+      "title": "Final Testing, Optimization, and Production Readiness",
+      "description": "Conduct comprehensive testing across all integrated components, optimize performance, and ensure the unified interface is production-ready for Narissa Realty operations.",
+      "details": "Execute all testing requirements outlined in the PRD: Functional Testing (chatbot, email processing, CRM integration), Email Processing Tests (95%+ accuracy with diverse emails), CRM Integration Tests (reliable 177-field population), User Experience Tests (<30s workflow), and Edge Case Testing (malformed data, conflicts). Use sample data (`simple_client_spreadsheet.csv`). Measure performance targets (processing speed <10s, UX workflow <30s, response time <5s, data quality >90%). Address any bugs or performance bottlenecks. Ensure secure handling of API keys and sensitive data. Update documentation.",
+      "testStrategy": "Follow the detailed test plan derived from the PRD's testing requirements and performance targets. Use a checklist to ensure all criteria are met. Conduct testing on target devices/browsers. Monitor application logs and performance metrics during testing. Get user feedback on the integrated workflow.",
       "priority": "high",
       "dependencies": [
-        2,
-        3
-      ],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 11,
-      "title": "Develop Data Migration Tools",
-      "description": "Develop tools or scripts for migrating data into the production CRM database.",
-      "details": "Create scripts or a simple tool to import data from external sources (e.g., spreadsheets, other databases) into the production PostgreSQL database following the `real_estate_crm_schema.sql`. Ensure data validation and error handling during migration. This is needed for initial user onboarding with existing data.",
-      "testStrategy": "Prepare sample data in a common format (e.g., CSV). Run the migration tool/script on a test database. Verify that the data is correctly imported and matches the source data. Test error handling with malformed data.",
-      "priority": "medium",
-      "dependencies": [
-        2,
-        3,
-        10
-      ],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 12,
-      "title": "Create Production Documentation",
-      "description": "Create comprehensive user guides and administrator documentation for the production CRM system.",
-      "details": "Develop user documentation covering CRM features, workflows, and common tasks. Create administrator documentation covering deployment, configuration, user management, backup/restore procedures, and troubleshooting. Ensure documentation is clear, accurate, and easy to understand for Narissa Realty staff.",
-      "testStrategy": "Have a non-developer user or administrator review the documentation for clarity and completeness. Verify that steps outlined in the documentation can be followed successfully to perform tasks.",
-      "priority": "medium",
-      "dependencies": [
-        7,
-        10,
-        11
+        9
       ],
       "status": "pending",
       "subtasks": []

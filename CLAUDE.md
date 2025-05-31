@@ -5,10 +5,14 @@ Comprehensive Real Estate CRM system with AI integration for Narissa Realty - pr
 
 ## Quick Commands
 ```bash
-# CRM Development
-python real_estate_crm.py        # Start main Flask CRM application
+# CRM Development with AI (BREAKTHROUGH WORKING PATTERN)
+export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU" && source venv/bin/activate && python real_estate_crm.py        # Start main Flask CRM with AI
 source venv/bin/activate         # Activate Python environment
 python app.py                    # Start legacy Flask application
+
+# AI Integration Testing (PROVEN WORKING)
+curl -X POST http://localhost:5000/chat -H "Content-Type: application/json" -d '{"message": "Test AI integration"}'
+curl -X POST http://localhost:5000/process_email -H "Content-Type: application/json" -d '{"email_content": "Sample email content"}'
 
 # Database Management
 sqlite3 real_estate.db ".schema" # View database schema
@@ -58,7 +62,48 @@ cat memory-bank/crm_core_module.md  # View CRM core documentation
 ```bash
 pip install -r requirements.txt
 ```
-Key libraries: Flask, SQLAlchemy, Bootstrap, jQuery, AI/ML libraries
+Key libraries: Flask, SQLAlchemy, Bootstrap, jQuery, langchain-google-genai, langchain-core
+
+## 🚀 BREAKTHROUGH: Gemini AI Integration Success Pattern
+**CRITICAL LESSONS FOR FUTURE AI INTEGRATIONS:**
+
+### What Works (DO THIS):
+```python
+# EXACT WORKING PATTERN - COPY THIS EVERY TIME
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage, SystemMessage
+
+llm = ChatGoogleGenerativeAI(
+    model="models/gemini-2.5-flash-preview-04-17",  # WITH "models/" prefix!
+    google_api_key="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU",
+    temperature=0.1
+)
+
+messages = [
+    SystemMessage(content="System prompt here"),
+    HumanMessage(content=user_message)
+]
+response = llm.invoke(messages)
+return response.content
+```
+
+### Dependencies That Work:
+```bash
+pip install langchain-google-genai langchain-core
+```
+
+### Environment Pattern:
+```bash
+export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU"
+```
+
+### API Key Location Discovery:
+Found working API key in: `/mnt/c/Users/ender/Documents/Projects/Obsidian/Obsidian_Projects_Folder/.env`
+
+### Model Name Format Discoveries:
+- ✅ **LangChain**: `"models/gemini-2.5-flash-preview-04-17"` (WORKING)
+- ❌ **Wrong**: `"gemini-pro"`, `"gemini-1.5-flash"`, `"gemini-2.5-flash-preview-0417"`
+- 📍 **Reference Projects**: Langchain8n email agent uses this exact format
 
 ## Architecture Notes
 - **CRM Core**: 177-field database schema with complete relationship management

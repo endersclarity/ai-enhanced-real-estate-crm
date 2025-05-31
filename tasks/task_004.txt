@@ -1,11 +1,11 @@
 # Task ID: 4
-# Title: Configure Custom Domain and SSL Certificates
+# Title: Define Flask Endpoints for Chatbot Interaction and Data Processing
 # Status: pending
-# Dependencies: 3
+# Dependencies: 1
 # Priority: high
-# Description: Configure the custom domain for the application and install SSL certificates for secure HTTPS access.
+# Description: Add new routes in `real_estate_crm.py` to handle incoming requests from the integrated chatbot for both chat interactions and processed email data.
 # Details:
-Update DNS records (A/CNAME) with the domain registrar to point to the cloud hosting server/load balancer IP. Obtain SSL certificates (e.g., Let's Encrypt, commercial CA). Configure the web server (e.g., Nginx, Apache) or load balancer to use the SSL certificates and enforce HTTPS redirection for all traffic. Ensure the custom domain is secured with SSL as per success criteria.
+In `real_estate_crm.py`, define a new Flask route, e.g., `/chat`, that accepts POST requests containing user messages. Define another new route, e.g., `/process_email`, that accepts POST requests containing the extracted data from the email processing module. These endpoints should initially just receive and log the data to confirm connectivity.
 
 # Test Strategy:
-Access the application using the custom domain name via HTTPS. Verify the SSL certificate is valid and trusted by browsers. Check that HTTP requests are automatically redirected to HTTPS.
+Run the Flask application. Use `curl` or a tool like Postman to send POST requests to the newly defined `/chat` and `/process_email` URLs with sample data (e.g., JSON payload). Verify that the Flask application logs or prints the received data, confirming the endpoints are active and receiving requests correctly.

@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Implement User Authentication System
+# Title: Implement Gemini API Integration in Flask Backend
 # Status: pending
-# Dependencies: 3
+# Dependencies: 4
 # Priority: high
-# Description: Implement a robust user authentication system for the CRM application.
+# Description: Implement the logic in `real_estate_crm.py` to securely use the Gemini API key and make API calls to get responses for user chat messages.
 # Details:
-Integrate a secure authentication library (e.g., Flask-Login, Flask-Security) or implement a custom authentication flow. Store user credentials securely (hashed passwords). Implement user registration, login, logout, and password reset functionalities. Ensure authentication protects sensitive endpoints.
+Inside the `/chat` route handler in `real_estate_crm.py`, retrieve the Gemini API key securely (e.g., from environment variables). Use a Python library (like `google-generativeai`) to interact with the Gemini API. Pass the user's message to the API and process the response. Return the AI's response to the frontend.
 
 # Test Strategy:
-Test user registration, login, and logout flows. Verify that unauthenticated users cannot access protected pages. Test password reset functionality. Check for secure handling of credentials (e.g., no plain text passwords in DB).
+Write unit tests for the function that interacts with the Gemini API, mocking the API response. Test the `/chat` endpoint by sending sample user messages. Verify that the Flask application successfully calls the Gemini API and returns a valid AI response in the expected format. Check for secure handling of the API key.

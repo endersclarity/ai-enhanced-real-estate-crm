@@ -1,11 +1,11 @@
 # Task ID: 2
-# Title: Configure Production PostgreSQL Database
-# Status: done
+# Title: Integrate Chatbot HTML/CSS into Dashboard
+# Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Deploy and configure a production-ready PostgreSQL database instance on the cloud platform, including setting up automated backups.
+# Description: Integrate the HTML structure and CSS styles of the existing `chatbot-crm.html` into `templates/crm_dashboard.html` to create a sidebar component.
 # Details:
-Set up a managed PostgreSQL database service or install PostgreSQL on a dedicated server/container within the cloud environment. Use the provided `real_estate_crm_schema.sql` to create the database schema. Configure user accounts and permissions securely. Implement automated daily backups to a separate storage location or service. Ensure the database is accessible from the application hosting environment.
+Analyze `chatbot-crm.html` to identify core HTML elements for the chat interface and email processing area. Copy these elements into `templates/crm_dashboard.html`, placing them within a new sidebar container element (e.g., a `div`). Copy or adapt the relevant CSS rules from `chatbot-crm.html` or its associated stylesheets into the dashboard's CSS to style the sidebar appropriately. Ensure responsive design principles are maintained.
 
 # Test Strategy:
-Connect to the database remotely using psql or a client tool. Verify schema is correctly applied. Test database user authentication. Confirm backup automation is scheduled and can be manually triggered.
+Load `templates/crm_dashboard.html` in a web browser. Visually inspect that the chatbot interface appears as a sidebar on the dashboard page. Check responsiveness on different screen sizes. Use browser developer tools to inspect HTML structure and applied CSS rules.

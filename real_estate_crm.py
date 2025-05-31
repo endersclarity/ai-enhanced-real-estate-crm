@@ -10,11 +10,79 @@ import json
 from datetime import datetime, date
 from decimal import Decimal
 import os
+import google.generativeai as genai
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change in production
 
 DATABASE_PATH = 'real_estate_crm.db'
+
+# Gemini API Configuration
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+
+# Configure Gemini API
+def configure_gemini():
+    """Configure Gemini AI with API key"""
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        return True
+    except Exception as e:
+        print(f"[GEMINI CONFIG ERROR] {str(e)}")
+        return False
+
+# Initialize Gemini configuration
+GEMINI_CONFIGURED = configure_gemini()
+
+def get_gemini_response(message, context="real estate CRM assistant"):
+    """
+    Get AI response from Gemini API using LangChain approach (same as working Langchain8n project)
+    
+    Args:
+        message (str): User message
+        context (str): Context for the AI assistant
+    
+    Returns:
+        str: AI response or error message
+    """
+    if not GEMINI_CONFIGURED:
+        return "AI service is currently unavailable. Please check configuration."
+    
+    try:
+        # Use LangChain approach (like Langchain8n project)
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        from langchain_core.messages import HumanMessage, SystemMessage
+        
+        llm = ChatGoogleGenerativeAI(
+            model="models/gemini-2.5-flash-preview-04-17",
+            google_api_key=GEMINI_API_KEY,
+            temperature=0.1
+        )
+        
+        # Create context-aware system message
+        system_prompt = f"""You are a helpful {context} for Narissa Realty. 
+        You assist real estate professionals with:
+        - Client management and communication
+        - Property information and analysis
+        - Transaction guidance and workflow
+        - Email processing and data extraction
+        - Professional real estate advice
+        
+        Be professional, helpful, and knowledgeable about real estate processes.
+        Keep responses concise but informative."""
+        
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=message)
+        ]
+        
+        # Generate response
+        response = llm.invoke(messages)
+        return response.content
+        
+    except Exception as e:
+        print(f"[GEMINI API ERROR] {str(e)}")
+        return f"I apologize, but I'm experiencing technical difficulties. Please try again later. (Error: {str(e)[:50]}...)"
 
 class DateTimeEncoder(json.JSONEncoder):
     """Custom JSON encoder for datetime objects"""
@@ -247,6 +315,63 @@ def new_transaction():
     conn.close()
     
     return render_template('transaction_form.html', clients=clients, properties=properties)
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    """Handle chat messages from the AI chatbot"""
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'No message provided'}), 400
+        
+        user_message = data['message']
+        print(f"[CHAT] Received message: {user_message}")
+        
+        # Get AI response from Gemini API
+        ai_response = get_gemini_response(user_message)
+        
+        print(f"[CHAT] AI responding with: {ai_response[:100]}...")
+        
+        return jsonify({
+            'response': ai_response,
+            'timestamp': datetime.now().isoformat(),
+            'model': 'gemini-pro'
+        })
+        
+    except Exception as e:
+        print(f"[CHAT ERROR] {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/process_email', methods=['POST'])
+def process_email():
+    """Handle email processing requests from the chatbot"""
+    try:
+        data = request.get_json()
+        if not data or 'email_content' not in data:
+            return jsonify({'error': 'No email content provided'}), 400
+        
+        email_content = data['email_content']
+        print(f"[EMAIL PROCESSING] Received content length: {len(email_content)} characters")
+        print(f"[EMAIL PROCESSING] Content preview: {email_content[:200]}...")
+        
+        # For now, log the email content and return a placeholder response
+        # TODO: Implement data mapping and CRM integration in Task #6
+        extracted_data = {
+            'status': 'received',
+            'content_length': len(email_content),
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        print(f"[EMAIL PROCESSING] Extracted data: {extracted_data}")
+        
+        return jsonify({
+            'extracted_data': extracted_data,
+            'message': 'Email received and logged successfully'
+        })
+        
+    except Exception as e:
+        print(f"[EMAIL PROCESSING ERROR] {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/generate_forms/<int:transaction_id>')
 def generate_forms(transaction_id):

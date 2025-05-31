@@ -1,11 +1,11 @@
 # Task ID: 9
-# Title: Perform Performance Optimization and Load Testing
+# Title: Implement Real-time Dashboard Updates
 # Status: pending
-# Dependencies: 3, 8
-# Priority: high
-# Description: Analyze and optimize application and database performance to meet the specified response time criteria (<1s response, <200ms queries).
+# Dependencies: 7, 8
+# Priority: medium
+# Description: Implement functionality to ensure that changes made to the CRM database via the chatbot (Tasks 6 & 8) are reflected in the main dashboard view in near real-time.
 # Details:
-Use monitoring data and profiling tools to identify performance bottlenecks in the Flask application and PostgreSQL queries. Optimize database queries (indexing, query tuning). Optimize application code for efficiency. Conduct load testing using tools (e.g., JMeter, Locust) to simulate user traffic and measure response times under load. Iterate on optimizations until performance criteria are met.
+Add JavaScript to `templates/crm_dashboard.html` to periodically fetch updated data from the Flask backend relevant to the currently displayed CRM view (e.g., client list, property details). Update the relevant parts of the dashboard HTML dynamically with the new data. Alternatively, after a successful data save/update via the `/process_email` endpoint (Task 8), trigger a targeted refresh of the affected dashboard component or a full page reload if necessary (though targeted updates are preferred for better UX).
 
 # Test Strategy:
-Measure response times for key application actions under normal and simulated load. Verify database query execution times are within the <200ms target. Confirm overall system response time is <1 second under expected load.
+Load the dashboard. Use the chatbot's email processing to add or update a client or property. Observe the main CRM dashboard view. Verify that the changes made via the chatbot appear in the dashboard without manual refresh within a short timeframe. Test updating data via the standard CRM interface and ensure the chatbot sidebar doesn't interfere.

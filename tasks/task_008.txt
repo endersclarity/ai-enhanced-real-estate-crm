@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Setup Production Monitoring and Error Tracking
+# Title: Connect Frontend Email Processing to Flask Data Endpoint
 # Status: pending
-# Dependencies: 3
+# Dependencies: 3, 6
 # Priority: high
-# Description: Set up production monitoring, logging, and error tracking systems for the deployed application and infrastructure.
+# Description: Modify the refactored chatbot JavaScript to send the extracted email data to the new Flask `/process_email` endpoint after processing and handle the backend's response.
 # Details:
-Integrate monitoring tools (e.g., Prometheus, CloudWatch, built-in provider tools) to track server resource usage (CPU, memory, disk), network traffic, and application metrics. Set up centralized logging (e.g., ELK stack, cloud provider logs). Integrate an error tracking service (e.g., Sentry, Rollbar) to capture and report application errors in real-time.
+In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles the output of the email processing and entity extraction. After the data is extracted and validated (and potentially previewed), use the `fetch` API or `XMLHttpRequest` to send a POST request containing the extracted data (likely as a JSON object) to the `/process_email` endpoint defined in `real_estate_crm.py`. Handle the response from the backend, displaying success messages, errors, or conflict resolution prompts to the user.
 
 # Test Strategy:
-Verify monitoring dashboards display relevant metrics. Check that application logs are being collected. Introduce a test error in the application code and confirm it is captured and reported by the error tracking service.
+Load the dashboard. Paste sample email content into the email processing area. Trigger the processing and data extraction. Verify that a POST request is sent to `/process_email` with the extracted data payload. Verify that the backend's response is received and handled appropriately in the frontend UI (e.g., a 'Data saved successfully' message).
