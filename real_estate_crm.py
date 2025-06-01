@@ -1047,6 +1047,284 @@ def process_email():
         print(f"[EMAIL PROCESSING ERROR] {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
+# ============================================================================
+# USER CONFIRMATION WORKFLOW ENDPOINTS
+# ============================================================================
+
+@app.route('/propose_operation', methods=['POST'])
+def propose_operation():
+    """
+    Propose a database operation for user confirmation.
+    
+    Expected payload:
+    {
+        "operation_type": "create_client|update_client|create_property|etc.",
+        "operation_data": {...},
+        "context": "Email processing|Chat request|etc.",
+        "user_message": "Original user request"
+    }
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No operation data provided'}), 400
+        
+        operation_type = data.get('operation_type')
+        operation_data = data.get('operation_data', {})
+        context = data.get('context', 'Manual request')
+        user_message = data.get('user_message', '')
+        
+        if not operation_type:
+            return jsonify({'error': 'Operation type is required'}), 400
+        
+        # Validate operation type
+        valid_operations = [
+            'create_client', 'update_client', 'find_clients',
+            'create_property', 'update_property', 'find_properties',
+            'create_transaction', 'update_transaction',
+            'schedule_showing', 'add_note'
+        ]
+        
+        if operation_type not in valid_operations:
+            return jsonify({'error': f'Invalid operation type: {operation_type}'}), 400
+        
+        # Generate unique operation ID for tracking
+        operation_id = f"op_{int(datetime.now().timestamp())}_{operation_type}"
+        
+        # Store pending operation (in production, this would be Redis or database)
+        pending_operations[operation_id] = {
+            'operation_type': operation_type,
+            'operation_data': operation_data,
+            'context': context,
+            'user_message': user_message,
+            'proposed_at': datetime.now().isoformat(),
+            'status': 'pending_confirmation'
+        }
+        
+        print(f"[OPERATION PROPOSAL] {operation_id}: {operation_type} with {len(operation_data)} fields")
+        
+        # Format operation for user review
+        formatted_operation = format_operation_for_review(operation_type, operation_data)
+        
+        return jsonify({
+            'operation_id': operation_id,
+            'operation_type': operation_type,
+            'formatted_operation': formatted_operation,
+            'operation_data': operation_data,
+            'context': context,
+            'user_message': user_message,
+            'requires_confirmation': True,
+            'estimated_impact': analyze_operation_impact(operation_type, operation_data)
+        })
+        
+    except Exception as e:
+        print(f"[OPERATION PROPOSAL ERROR] {str(e)}")
+        return jsonify({'error': 'Failed to propose operation'}), 500
+
+@app.route('/confirm_operation', methods=['POST'])
+def confirm_operation():
+    """
+    Execute a confirmed database operation.
+    
+    Expected payload:
+    {
+        "operation_id": "op_...",
+        "confirmed": true|false,
+        "modified_data": {...} // Optional: user modifications to the proposed data
+    }
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No confirmation data provided'}), 400
+        
+        operation_id = data.get('operation_id')
+        confirmed = data.get('confirmed', False)
+        modified_data = data.get('modified_data', {})
+        
+        if not operation_id:
+            return jsonify({'error': 'Operation ID is required'}), 400
+        
+        # Retrieve pending operation
+        if operation_id not in pending_operations:
+            return jsonify({'error': 'Operation not found or expired'}), 404
+        
+        operation = pending_operations[operation_id]
+        
+        if not confirmed:
+            # User rejected the operation
+            operation['status'] = 'rejected'
+            operation['rejected_at'] = datetime.now().isoformat()
+            print(f"[OPERATION REJECTED] {operation_id}: {operation['operation_type']}")
+            
+            return jsonify({
+                'operation_id': operation_id,
+                'status': 'rejected',
+                'message': 'Operation cancelled by user'
+            })
+        
+        # User confirmed - execute the operation
+        operation_type = operation['operation_type']
+        
+        # Use modified data if provided, otherwise use original
+        execution_data = modified_data if modified_data else operation['operation_data']
+        
+        # Execute the actual database operation
+        result = execute_database_operation(operation_type, execution_data)
+        
+        # Update operation status
+        operation['status'] = 'completed' if result['success'] else 'failed'
+        operation['executed_at'] = datetime.now().isoformat()
+        operation['execution_result'] = result
+        operation['final_data'] = execution_data
+        
+        print(f"[OPERATION EXECUTED] {operation_id}: {operation_type} -> {'SUCCESS' if result['success'] else 'FAILED'}")
+        
+        # Clean up completed operation (optional - could keep for audit)
+        if result['success']:
+            del pending_operations[operation_id]
+        
+        return jsonify({
+            'operation_id': operation_id,
+            'status': 'completed' if result['success'] else 'failed',
+            'result': result,
+            'execution_data': execution_data,
+            'message': result.get('message', 'Operation completed')
+        })
+        
+    except Exception as e:
+        print(f"[OPERATION CONFIRMATION ERROR] {str(e)}")
+        return jsonify({'error': 'Failed to execute operation'}), 500
+
+@app.route('/pending_operations', methods=['GET'])
+def get_pending_operations():
+    """Get all pending operations for the current session"""
+    try:
+        # Filter out expired operations (older than 1 hour)
+        current_time = datetime.now()
+        active_operations = {}
+        
+        for op_id, operation in pending_operations.items():
+            proposed_time = datetime.fromisoformat(operation['proposed_at'])
+            if (current_time - proposed_time).total_seconds() < 3600:  # 1 hour
+                active_operations[op_id] = operation
+        
+        # Update the global dict to remove expired operations
+        pending_operations.clear()
+        pending_operations.update(active_operations)
+        
+        return jsonify({
+            'pending_operations': active_operations,
+            'count': len(active_operations)
+        })
+        
+    except Exception as e:
+        print(f"[PENDING OPERATIONS ERROR] {str(e)}")
+        return jsonify({'error': 'Failed to retrieve pending operations'}), 500
+
+# ============================================================================
+# HELPER FUNCTIONS FOR CONFIRMATION WORKFLOW
+# ============================================================================
+
+def format_operation_for_review(operation_type, operation_data):
+    """Format operation data for user-friendly review"""
+    if operation_type == 'create_client':
+        return {
+            'title': 'Create New Client',
+            'description': f"Add {operation_data.get('first_name', '')} {operation_data.get('last_name', '')} to CRM",
+            'fields': [
+                {'label': 'Name', 'value': f"{operation_data.get('first_name', '')} {operation_data.get('last_name', '')}", 'key': 'name'},
+                {'label': 'Email', 'value': operation_data.get('email', 'Not provided'), 'key': 'email'},
+                {'label': 'Phone', 'value': operation_data.get('phone', 'Not provided'), 'key': 'phone'},
+                {'label': 'Type', 'value': operation_data.get('client_type', 'buyer'), 'key': 'client_type'},
+                {'label': 'Source', 'value': operation_data.get('lead_source', 'Email/Chat'), 'key': 'lead_source'}
+            ]
+        }
+    elif operation_type == 'create_property':
+        return {
+            'title': 'Create New Property',
+            'description': f"Add property at {operation_data.get('address_street', 'Address TBD')}",
+            'fields': [
+                {'label': 'Address', 'value': operation_data.get('address_street', 'TBD'), 'key': 'address_street'},
+                {'label': 'City', 'value': operation_data.get('address_city', 'TBD'), 'key': 'address_city'},
+                {'label': 'Price', 'value': f"${operation_data.get('list_price', 'TBD')}" if operation_data.get('list_price') else 'TBD', 'key': 'list_price'},
+                {'label': 'Bedrooms', 'value': operation_data.get('bedrooms', 'TBD'), 'key': 'bedrooms'},
+                {'label': 'Bathrooms', 'value': operation_data.get('bathrooms', 'TBD'), 'key': 'bathrooms'},
+                {'label': 'Square Feet', 'value': operation_data.get('square_feet', 'TBD'), 'key': 'square_feet'}
+            ]
+        }
+    elif operation_type == 'create_transaction':
+        return {
+            'title': 'Create New Transaction',
+            'description': f"Start transaction for {operation_data.get('property_address', 'property')}",
+            'fields': [
+                {'label': 'Property', 'value': operation_data.get('property_address', 'TBD'), 'key': 'property_address'},
+                {'label': 'Buyer', 'value': operation_data.get('buyer_name', 'TBD'), 'key': 'buyer_name'},
+                {'label': 'Seller', 'value': operation_data.get('seller_name', 'TBD'), 'key': 'seller_name'},
+                {'label': 'Purchase Price', 'value': f"${operation_data.get('purchase_price', 'TBD')}" if operation_data.get('purchase_price') else 'TBD', 'key': 'purchase_price'},
+                {'label': 'Status', 'value': operation_data.get('status', 'pending'), 'key': 'status'}
+            ]
+        }
+    else:
+        # Generic formatting for other operations
+        return {
+            'title': operation_type.replace('_', ' ').title(),
+            'description': f"Execute {operation_type} operation",
+            'fields': [
+                {'label': key.replace('_', ' ').title(), 'value': str(value), 'key': key}
+                for key, value in operation_data.items()
+            ]
+        }
+
+def analyze_operation_impact(operation_type, operation_data):
+    """Analyze the potential impact of an operation"""
+    impact = {
+        'risk_level': 'low',
+        'affected_records': 1,
+        'reversible': True,
+        'warnings': []
+    }
+    
+    if operation_type in ['create_client', 'create_property', 'create_transaction']:
+        impact['risk_level'] = 'low'
+        impact['affected_records'] = 1
+        impact['reversible'] = True
+    elif operation_type.startswith('update_'):
+        impact['risk_level'] = 'medium'
+        impact['affected_records'] = 1
+        impact['reversible'] = False
+        impact['warnings'].append('Updates cannot be automatically undone')
+    elif operation_type.startswith('delete_'):
+        impact['risk_level'] = 'high'
+        impact['reversible'] = False
+        impact['warnings'].append('Deletion is permanent and cannot be undone')
+    
+    return impact
+
+def execute_database_operation(operation_type, operation_data):
+    """Execute the actual database operation"""
+    try:
+        if operation_type == 'create_client':
+            return create_client(**operation_data)
+        elif operation_type == 'update_client':
+            return update_client(**operation_data)
+        elif operation_type == 'create_property':
+            return create_property(**operation_data)
+        elif operation_type == 'update_property':
+            return update_property(**operation_data)
+        elif operation_type == 'create_transaction':
+            return create_transaction(**operation_data)
+        elif operation_type == 'find_clients':
+            results = find_clients(**operation_data)
+            return {'success': True, 'results': results, 'count': len(results)}
+        else:
+            return {'success': False, 'message': f'Unknown operation type: {operation_type}'}
+    except Exception as e:
+        return {'success': False, 'message': f'Operation failed: {str(e)}'}
+
+# Global storage for pending operations (in production, use Redis or database)
+pending_operations = {}
+
 @app.route('/api/generate_forms/<int:transaction_id>')
 def generate_forms(transaction_id):
     """Generate PDF forms for a transaction"""

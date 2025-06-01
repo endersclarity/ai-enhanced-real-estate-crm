@@ -306,6 +306,78 @@
         </div>
     </div>
 </div>
+
+<!-- Operation Confirmation Modal -->
+<div class="modal fade" id="operationConfirmModal" tabindex="-1" aria-labelledby="operationConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="operationConfirmModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Confirm Database Operation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Safety Check:</strong> The AI wants to perform a database operation. Please review the details below and confirm if you want to proceed.
+                </div>
+                
+                <!-- Operation Details -->
+                <div id="operationDetails">
+                    <h6>Proposed Operation:</h6>
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <div id="operationDescription"></div>
+                        </div>
+                    </div>
+                    
+                    <h6>Data to be processed:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped" id="operationDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Value</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="operationDataBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Edit Mode -->
+                <div id="operationEditForm" style="display: none;">
+                    <h6>Edit Operation Data:</h6>
+                    <form id="editOperationForm">
+                        <div id="editableFields"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-between w-100">
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" onclick="cancelOperation()">
+                            <i class="bi bi-x"></i> Cancel
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary" id="editOperationBtn" onclick="toggleEditMode()">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-success" id="confirmOperationBtn" onclick="confirmOperation()">
+                            <i class="bi bi-check-circle"></i> Confirm & Execute
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -341,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
 let chatHistory = [];
 let extractedData = null;
 let aiReady = false;
+let pendingOperation = null;  // Current operation waiting for confirmation
 
 // Initialize chatbot functionality
 function initializeChatbot() {
@@ -459,13 +532,9 @@ function sendChatMessage() {
                 if (data.response) {
                     addAIMessage(data.response);
                     
-                    // Display function suggestions if available
+                    // Process function suggestions with confirmation workflow
                     if (data.suggested_functions && data.suggested_functions.length > 0) {
-                        let suggestions = '\n\n💡 Suggestions:\n';
-                        data.suggested_functions.forEach(func => {
-                            suggestions += `• ${func.function}: ${func.reason}\n`;
-                        });
-                        addAIMessage(suggestions);
+                        processFunctionSuggestions(data.suggested_functions, message);
                     }
                 } else {
                     addAIMessage('Sorry, I encountered an error processing your message.');
@@ -711,5 +780,493 @@ let refreshInterval = setInterval(function() {
         window.location.reload();
     }
 }, 300000);
+
+// ============================================================================
+// CONFIRMATION WORKFLOW FUNCTIONS
+// ============================================================================
+
+function proposeDatabaseOperation(operationType, operationData, context = 'Chat request', userMessage = '') {
+    """
+    Propose a database operation for user confirmation
+    
+    @param {string} operationType - Type of operation (create_client, etc.)
+    @param {object} operationData - Data for the operation
+    @param {string} context - Context where the operation was suggested
+    @param {string} userMessage - Original user message that triggered this
+    """
+    return fetch('/propose_operation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            operation_type: operationType,
+            operation_data: operationData,
+            context: context,
+            user_message: userMessage
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.operation_id) {
+            // Store the pending operation
+            pendingOperation = data;
+            
+            // Show confirmation modal
+            showOperationConfirmationModal(data);
+            
+            return data;
+        } else {
+            throw new Error(data.error || 'Failed to propose operation');
+        }
+    })
+    .catch(error => {
+        console.error('Failed to propose operation:', error);
+        addAIMessage('Error: Failed to propose database operation. Please try again.');
+        throw error;
+    });
+}
+
+function showOperationConfirmationModal(operationData) {
+    """
+    Display the confirmation modal with operation details
+    
+    @param {object} operationData - Operation data from propose_operation endpoint
+    """
+    const modal = document.getElementById('operationConfirmModal');
+    const operationDescription = document.getElementById('operationDescription');
+    const operationDataBody = document.getElementById('operationDataBody');
+    
+    if (!modal || !operationDescription || !operationDataBody) {
+        console.error('Confirmation modal elements not found');
+        return;
+    }
+    
+    // Set operation description
+    const formattedOp = operationData.formatted_operation;
+    operationDescription.innerHTML = `
+        <h6>${formattedOp.title}</h6>
+        <p class="mb-0">${formattedOp.description}</p>
+        <small class="text-muted">Context: ${operationData.context}</small>
+    `;
+    
+    // Populate data table
+    operationDataBody.innerHTML = '';
+    formattedOp.fields.forEach(field => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${field.label}</strong></td>
+            <td><span id="field-${field.key}">${field.value}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-secondary" onclick="editField('${field.key}', '${field.label}')">
+                    <i class="bi bi-pencil"></i>
+                </button>
+            </td>
+        `;
+        operationDataBody.appendChild(row);
+    });
+    
+    // Add risk warnings if any
+    const impact = operationData.estimated_impact;
+    if (impact && impact.warnings && impact.warnings.length > 0) {
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'alert alert-warning mt-2';
+        warningDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle"></i> 
+            <strong>Warnings:</strong>
+            <ul class="mb-0 mt-1">
+                ${impact.warnings.map(warning => `<li>${warning}</li>`).join('')}
+            </ul>
+        `;
+        operationDescription.appendChild(warningDiv);
+    }
+    
+    // Show the modal
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+    
+    // Add confirmation button handler
+    const confirmBtn = document.getElementById('confirmOperationBtn');
+    if (confirmBtn) {
+        // Remove any existing listeners
+        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+        const newConfirmBtn = document.getElementById('confirmOperationBtn');
+        
+        newConfirmBtn.addEventListener('click', () => {
+            confirmOperation(operationData.operation_id);
+        });
+    }
+}
+
+function editField(fieldKey, fieldLabel) {
+    """
+    Allow user to edit a field value before confirmation
+    
+    @param {string} fieldKey - Key of the field to edit
+    @param {string} fieldLabel - Display label for the field
+    """
+    const fieldSpan = document.getElementById(`field-${fieldKey}`);
+    if (!fieldSpan) return;
+    
+    const currentValue = fieldSpan.textContent;
+    
+    // Create input element
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'form-control form-control-sm';
+    input.value = currentValue === 'Not provided' || currentValue === 'TBD' ? '' : currentValue;
+    input.style.minWidth = '150px';
+    
+    // Create save/cancel buttons
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'btn-group btn-group-sm mt-1';
+    buttonGroup.innerHTML = `
+        <button class="btn btn-success btn-sm" onclick="saveFieldEdit('${fieldKey}', this)">
+            <i class="bi bi-check"></i>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelFieldEdit('${fieldKey}', '${currentValue}')">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+    
+    // Replace field content with input
+    fieldSpan.innerHTML = '';
+    fieldSpan.appendChild(input);
+    fieldSpan.appendChild(buttonGroup);
+    
+    // Focus the input
+    input.focus();
+    input.select();
+    
+    // Allow Enter to save
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveFieldEdit(fieldKey, buttonGroup.querySelector('.btn-success'));
+        } else if (e.key === 'Escape') {
+            cancelFieldEdit(fieldKey, currentValue);
+        }
+    });
+}
+
+function saveFieldEdit(fieldKey, buttonElement) {
+    """
+    Save the edited field value
+    
+    @param {string} fieldKey - Key of the field being edited
+    @param {Element} buttonElement - The save button element
+    """
+    const fieldSpan = document.getElementById(`field-${fieldKey}`);
+    const input = fieldSpan.querySelector('input');
+    
+    if (!input) return;
+    
+    const newValue = input.value.trim() || 'Not provided';
+    
+    // Update the display
+    fieldSpan.innerHTML = newValue;
+    
+    // Update the pending operation data
+    if (pendingOperation && pendingOperation.operation_data) {
+        pendingOperation.operation_data[fieldKey] = newValue === 'Not provided' ? null : newValue;
+    }
+    
+    addAIMessage(`Updated ${fieldKey.replace('_', ' ')}: ${newValue}`);
+}
+
+function cancelFieldEdit(fieldKey, originalValue) {
+    """
+    Cancel field editing and restore original value
+    
+    @param {string} fieldKey - Key of the field being edited  
+    @param {string} originalValue - Original value to restore
+    """
+    const fieldSpan = document.getElementById(`field-${fieldKey}`);
+    if (fieldSpan) {
+        fieldSpan.innerHTML = originalValue;
+    }
+}
+
+function confirmOperation(operationId) {
+    """
+    Confirm and execute the pending database operation
+    
+    @param {string} operationId - ID of the operation to confirm
+    """
+    if (!operationId) {
+        console.error('No operation ID provided');
+        return;
+    }
+    
+    // Show loading state
+    const confirmBtn = document.getElementById('confirmOperationBtn');
+    if (confirmBtn) {
+        confirmBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Executing...';
+        confirmBtn.disabled = true;
+    }
+    
+    // Get any modified data
+    const modifiedData = pendingOperation ? pendingOperation.operation_data : {};
+    
+    fetch('/confirm_operation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            operation_id: operationId,
+            confirmed: true,
+            modified_data: modifiedData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('operationConfirmModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        // Reset confirm button
+        if (confirmBtn) {
+            confirmBtn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm & Execute';
+            confirmBtn.disabled = false;
+        }
+        
+        if (data.status === 'completed') {
+            addAIMessage(`✅ Operation completed successfully! ${data.message}`);
+            
+            // Refresh dashboard to show changes
+            setTimeout(() => {
+                if (typeof refreshDashboardData === 'function') {
+                    refreshDashboardData();
+                } else {
+                    window.location.reload();
+                }
+            }, 1000);
+        } else {
+            addAIMessage(`❌ Operation failed: ${data.message || 'Unknown error'}`);
+        }
+        
+        // Clear pending operation
+        pendingOperation = null;
+    })
+    .catch(error => {
+        console.error('Failed to confirm operation:', error);
+        addAIMessage('❌ Failed to execute operation. Please try again.');
+        
+        // Reset confirm button
+        if (confirmBtn) {
+            confirmBtn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm & Execute';
+            confirmBtn.disabled = false;
+        }
+    });
+}
+
+function cancelOperation() {
+    """
+    Cancel the pending operation
+    """
+    if (pendingOperation) {
+        const operationId = pendingOperation.operation_id;
+        
+        fetch('/confirm_operation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                operation_id: operationId,
+                confirmed: false
+            })
+        })
+        .then(() => {
+            addAIMessage('Operation cancelled.');
+            pendingOperation = null;
+        })
+        .catch(error => {
+            console.error('Failed to cancel operation:', error);
+        });
+    }
+    
+    // Hide the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('operationConfirmModal'));
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Helper function for AI to trigger confirmations
+function triggerDatabaseOperationFromAI(operationType, operationData, userMessage) {
+    """
+    Called by AI chat responses to trigger confirmation workflow
+    
+    @param {string} operationType - Type of operation
+    @param {object} operationData - Operation data
+    @param {string} userMessage - Original user message
+    """
+    addAIMessage(`I'd like to ${operationType.replace('_', ' ')} for you. Let me prepare the details for your confirmation...`);
+    
+    return proposeDatabaseOperation(operationType, operationData, 'AI Chat Response', userMessage)
+        .then(result => {
+            addAIMessage('Please review the operation details in the confirmation dialog and approve if everything looks correct.');
+            return result;
+        })
+        .catch(error => {
+            addAIMessage('Sorry, I encountered an error preparing the operation. Please try again.');
+            throw error;
+        });
+}
+
+function processFunctionSuggestions(suggestedFunctions, originalMessage) {
+    /**
+     * Process AI function suggestions and trigger confirmation workflow for database operations
+     * 
+     * @param {Array} suggestedFunctions - Array of suggested functions from AI
+     * @param {string} originalMessage - Original user message that triggered suggestions
+     */
+    
+    // Database operations that require confirmation
+    const confirmationRequiredOps = [
+        'create_client', 'update_client', 
+        'create_property', 'update_property',
+        'create_transaction', 'update_transaction',
+        'schedule_showing', 'add_note'
+    ];
+    
+    // Separate operations that need confirmation vs simple displays
+    const confirmationOps = [];
+    const displayOnlyOps = [];
+    
+    suggestedFunctions.forEach(func => {
+        if (confirmationRequiredOps.includes(func.function)) {
+            confirmationOps.push(func);
+        } else {
+            displayOnlyOps.push(func);
+        }
+    });
+    
+    // Display non-database operations as simple suggestions
+    if (displayOnlyOps.length > 0) {
+        let suggestions = '\n\n💡 Available Actions:\n';
+        displayOnlyOps.forEach(func => {
+            suggestions += `• ${func.function}: ${func.reason}\n`;
+        });
+        addAIMessage(suggestions);
+    }
+    
+    // Handle database operations with confirmation workflow
+    if (confirmationOps.length > 0) {
+        if (confirmationOps.length === 1) {
+            // Single operation - trigger confirmation directly
+            const op = confirmationOps[0];
+            
+            addAIMessage(`\n🔍 I can help ${op.function.replace('_', ' ')} based on the information you provided. Let me prepare this for your confirmation...`);
+            
+            // Extract operation data from function parameters if available
+            const operationData = extractOperationDataFromSuggestion(op, originalMessage);
+            
+            triggerDatabaseOperationFromAI(op.function, operationData, originalMessage);
+            
+        } else {
+            // Multiple operations - let user choose
+            addAIMessage('\n🔍 I found several ways to help you:');
+            
+            confirmationOps.forEach((op, index) => {
+                addAIMessage(`${index + 1}. ${op.function.replace('_', ' ')}: ${op.reason}`);
+            });
+            
+            addAIMessage('\nWhich would you like me to help you with? Just tell me the number or describe what you\'d like to do.');
+            
+            // Store operations for user selection
+            window.pendingSuggestions = confirmationOps;
+            window.pendingSuggestionsMessage = originalMessage;
+        }
+    }
+}
+
+function extractOperationDataFromSuggestion(suggestion, userMessage) {
+    /**
+     * Extract operation data from AI suggestion and user message
+     * 
+     * @param {Object} suggestion - AI function suggestion
+     * @param {string} userMessage - Original user message
+     * @returns {Object} - Operation data for confirmation
+     */
+    
+    const operationData = {};
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (suggestion.function === 'create_client') {
+        // Extract name, email, phone from user message
+        const emailMatch = userMessage.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        const phoneMatch = userMessage.match(/(\d{3}[-.]?\d{3}[-.]?\d{4})/);
+        
+        // Try to extract name patterns
+        const namePatterns = [
+            /(?:my name is|i'm|i am)\s+([a-zA-Z\s]+)/i,
+            /(?:from|contact)\s+([a-zA-Z]+\s+[a-zA-Z]+)/i,
+            /([A-Z][a-z]+\s+[A-Z][a-z]+)/ // Capitalized First Last
+        ];
+        
+        let extractedName = null;
+        for (const pattern of namePatterns) {
+            const match = userMessage.match(pattern);
+            if (match) {
+                extractedName = match[1].trim();
+                break;
+            }
+        }
+        
+        if (extractedName) {
+            const nameParts = extractedName.split(' ');
+            operationData.first_name = nameParts[0];
+            operationData.last_name = nameParts.slice(1).join(' ') || '';
+        }
+        
+        if (emailMatch) operationData.email = emailMatch[1];
+        if (phoneMatch) operationData.phone = phoneMatch[1];
+        
+        // Determine client type from context
+        if (lowerMessage.includes('buying') || lowerMessage.includes('buyer') || lowerMessage.includes('purchase')) {
+            operationData.client_type = 'buyer';
+        } else if (lowerMessage.includes('selling') || lowerMessage.includes('seller') || lowerMessage.includes('list')) {
+            operationData.client_type = 'seller';
+        } else {
+            operationData.client_type = 'buyer'; // Default
+        }
+        
+        operationData.lead_source = 'Email/Chat';
+        
+    } else if (suggestion.function === 'create_property') {
+        // Extract property details
+        const priceMatch = userMessage.match(/\$([0-9,]+)/);
+        const addressMatch = userMessage.match(/(?:at|on|address|located)\s+([^,.\n]+)/i);
+        const bedroomMatch = userMessage.match(/(\d+)\s*(?:bed|br|bedroom)/i);
+        const bathroomMatch = userMessage.match(/(\d+)\s*(?:bath|ba|bathroom)/i);
+        const sqftMatch = userMessage.match(/(\d+)\s*(?:sq\s*ft|sqft|square\s+feet)/i);
+        
+        if (priceMatch) operationData.list_price = parseInt(priceMatch[1].replace(/,/g, ''));
+        if (addressMatch) operationData.address_street = addressMatch[1].trim();
+        if (bedroomMatch) operationData.bedrooms = parseInt(bedroomMatch[1]);
+        if (bathroomMatch) operationData.bathrooms = parseInt(bathroomMatch[1]);
+        if (sqftMatch) operationData.square_feet = parseInt(sqftMatch[1]);
+        
+        // Default values
+        if (!operationData.address_street) operationData.address_street = 'Address to be determined';
+        if (!operationData.list_price) operationData.list_price = null;
+    }
+    
+    // If we couldn't extract much data, provide reasonable defaults
+    if (Object.keys(operationData).length === 0) {
+        if (suggestion.function === 'create_client') {
+            operationData.first_name = 'First Name';
+            operationData.last_name = 'Last Name';
+            operationData.client_type = 'buyer';
+            operationData.lead_source = 'Email/Chat';
+        }
+    }
+    
+    return operationData;
+}
 </script>
 {% endblock %}
