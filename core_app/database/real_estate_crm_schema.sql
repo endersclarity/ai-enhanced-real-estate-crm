@@ -77,7 +77,7 @@ CREATE TABLE properties (
     pending_date DATE,
     sold_date DATE,
     sold_price DECIMAL(15,2),
-    commission_rate DECIMAL(5,4),
+    commission_rate DECIMAL(6,4), -- allows up to 99.9999%
     listing_agent_id UUID,
     selling_agent_id UUID,
     listing_office VARCHAR(255),

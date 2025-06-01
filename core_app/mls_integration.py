@@ -7,7 +7,7 @@ Handles Nevada County MLS CSV data processing
 import pandas as pd
 import os
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 
 # Global MLS data cache
 _mls_data = None
@@ -16,15 +16,15 @@ _mls_last_loaded = None
 def load_mls_data(csv_path: str) -> Dict[str, Any]:
     """
     Load Nevada County MLS data from CSV file.
-    
+
     Args:
         csv_path (str): Path to MLS CSV file
-        
+
     Returns:
         dict: {'success': bool, 'count': int, 'message': str, 'last_updated': str}
     """
     global _mls_data, _mls_last_loaded
-    
+
     try:
         if not os.path.exists(csv_path):
             return {
@@ -33,13 +33,13 @@ def load_mls_data(csv_path: str) -> Dict[str, Any]:
                 'message': f'MLS file not found: {csv_path}',
                 'last_updated': None
             }
-        
+
         # Load CSV data with error handling for malformed lines
         df = pd.read_csv(csv_path, quotechar='"', skipinitialspace=True, on_bad_lines='skip')
-        
+
         # Use "Listing Number" as the MLS identifier column
         mls_column = "Listing Number"
-        
+
         if mls_column not in df.columns:
             return {
                 'success': False,
@@ -47,23 +47,23 @@ def load_mls_data(csv_path: str) -> Dict[str, Any]:
                 'message': f'Could not find "{mls_column}" column in CSV. Available columns: {list(df.columns)}',
                 'last_updated': None
             }
-        
+
         # Create lookup dictionary
         _mls_data = {}
         for _, row in df.iterrows():
             mls_num = str(row[mls_column]).strip()
             if mls_num and mls_num.lower() != 'nan':
                 _mls_data[mls_num] = row.to_dict()
-        
+
         _mls_last_loaded = datetime.now().isoformat()
-        
+
         return {
             'success': True,
             'count': len(_mls_data),
             'message': f'Successfully loaded {len(_mls_data)} MLS listings',
             'last_updated': _mls_last_loaded
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -75,24 +75,24 @@ def load_mls_data(csv_path: str) -> Dict[str, Any]:
 def find_mls_property(mls_number: str) -> Dict[str, Any]:
     """
     Find property by MLS number in loaded data.
-    
+
     Args:
         mls_number (str): MLS listing number to search for
-        
+
     Returns:
         dict: {'success': bool, 'property': dict, 'message': str}
     """
     global _mls_data
-    
+
     if not _mls_data:
         return {
             'success': False,
             'property': None,
             'message': 'No MLS data loaded. Please load MLS CSV file first.'
         }
-    
+
     mls_number = str(mls_number).strip()
-    
+
     if mls_number in _mls_data:
         return {
             'success': True,
@@ -109,16 +109,16 @@ def find_mls_property(mls_number: str) -> Dict[str, Any]:
 def create_property_from_mls(mls_number: str) -> Dict[str, Any]:
     """
     Auto-create property record from MLS data.
-    
+
     Args:
         mls_number (str): MLS number to create property from
-        
+
     Returns:
         dict: {'success': bool, 'property_id': int, 'message': str, 'mls_data': dict}
     """
     # First find the MLS property
     mls_result = find_mls_property(mls_number)
-    
+
     if not mls_result['success']:
         return {
             'success': False,
@@ -126,13 +126,13 @@ def create_property_from_mls(mls_number: str) -> Dict[str, Any]:
             'message': mls_result['message'],
             'mls_data': None
         }
-    
+
     mls_data = mls_result['property']
-    
+
     try:
         # Import our CRM functions
         from real_estate_crm import create_property
-        
+
         # Map Nevada County MLS data to our property fields (exact column names)
         property_data = {
             'address_line1': mls_data.get('Address - Street Complete', ''),
@@ -154,7 +154,7 @@ def create_property_from_mls(mls_number: str) -> Dict[str, Any]:
             'property_description': mls_data.get('Public Remarks', ''),
             'public_remarks': mls_data.get('Public Remarks', ''),
             'private_remarks': f'''Auto-imported from Nevada County MLS #{mls_number} on {datetime.now().strftime("%Y-%m-%d")}
-            
+
 Additional MLS Details:
 - Architectural Style: {mls_data.get('Architectural Style', 'N/A')}
 - Heating: {mls_data.get('Heating', 'N/A')}
@@ -169,10 +169,10 @@ Additional MLS Details:
 - Listing Date: {mls_data.get('Listing Date', 'N/A')}
 - Status: {mls_data.get('Status', 'N/A')}'''
         }
-        
+
         # Create property using our existing function
         result = create_property(**property_data)
-        
+
         if result['success']:
             return {
                 'success': True,
@@ -187,7 +187,7 @@ Additional MLS Details:
                 'message': f'Failed to create property: {result["message"]}',
                 'mls_data': mls_data
             }
-            
+
     except Exception as e:
         return {
             'success': False,
@@ -199,12 +199,12 @@ Additional MLS Details:
 def get_mls_status() -> Dict[str, Any]:
     """
     Get current MLS data status.
-    
+
     Returns:
         dict: Status information about loaded MLS data
     """
     global _mls_data, _mls_last_loaded
-    
+
     return {
         'loaded': _mls_data is not None,
         'count': len(_mls_data) if _mls_data else 0,
@@ -256,9 +256,9 @@ def _normalize_property_type(prop_type: str) -> str:
     """Convert Nevada County property type to our standard format"""
     if not prop_type:
         return 'single_family'
-    
+
     prop_type_lower = str(prop_type).lower()
-    
+
     if 'residential' in prop_type_lower or 'single' in prop_type_lower:
         return 'single_family'
     elif 'condo' in prop_type_lower:
@@ -309,6 +309,6 @@ if __name__ == "__main__":
     print("Available functions:")
     for func_name, info in MLS_FUNCTIONS.items():
         print(f"  {func_name}: {info['description']}")
-    
+
     status = get_mls_status()
     print(f"\nCurrent status: {status}")

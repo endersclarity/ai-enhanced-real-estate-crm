@@ -6,8 +6,8 @@ Smart, normalized approach covering 95% of ZipForm needs with minimal complexity
 
 import sqlite3
 import json
-from datetime import datetime, date
-from typing import Dict, List, Optional, Any
+from datetime import datetime
+from typing import Dict
 
 DATABASE_PATH = 'real_estate_crm.db'
 
@@ -24,22 +24,22 @@ def get_db_connection():
 def create_zipform_client(first_name, last_name, **kwargs):
     """
     Create client with all ZipForm contact fields in one simple function.
-    
+
     Args:
         first_name (str): First name
         last_name (str): Last name
         **kwargs: All ZipForm contact fields
-    
+
     Returns:
         dict: {'success': bool, 'client_id': int, 'message': str}
     """
     try:
         conn = get_db_connection()
-        
+
         # Check for conflicts
         if kwargs.get('email'):
             existing = conn.execute(
-                'SELECT id, first_name, last_name FROM clients_v2 WHERE email = ?', 
+                'SELECT id, first_name, last_name FROM clients_v2 WHERE email = ?',
                 (kwargs['email'],)
             ).fetchone()
             if existing:
@@ -49,7 +49,7 @@ def create_zipform_client(first_name, last_name, **kwargs):
                     'client_id': None,
                     'message': f"Email {kwargs['email']} already exists for {existing['first_name']} {existing['last_name']}"
                 }
-        
+
         # Insert with all ZipForm fields
         cursor = conn.execute('''
             INSERT INTO clients_v2 (
@@ -69,17 +69,17 @@ def create_zipform_client(first_name, last_name, **kwargs):
             kwargs.get('occupation'), kwargs.get('annual_income'),
             kwargs.get('ssn_last_four'), kwargs.get('notes')
         ))
-        
+
         client_id = cursor.lastrowid
         conn.commit()
         conn.close()
-        
+
         return {
             'success': True,
             'client_id': client_id,
             'message': f'Created ZipForm client: {first_name} {last_name}'
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -94,26 +94,26 @@ def create_zipform_client(first_name, last_name, **kwargs):
 def create_zipform_property(street_address, city, state, zip_code, **kwargs):
     """
     Create property with all ZipForm property fields in one function.
-    
+
     Args:
         street_address (str): Property address
         city (str): City
         state (str): State
         zip_code (str): ZIP code
         **kwargs: All ZipForm property fields
-    
+
     Returns:
         dict: {'success': bool, 'property_id': int, 'message': str}
     """
     try:
         conn = get_db_connection()
-        
+
         # Check for conflicts
         existing = conn.execute(
             'SELECT id FROM properties_v2 WHERE street_address = ? AND city = ? AND state = ?',
             (street_address, city, state)
         ).fetchone()
-        
+
         if existing:
             conn.close()
             return {
@@ -121,7 +121,7 @@ def create_zipform_property(street_address, city, state, zip_code, **kwargs):
                 'property_id': None,
                 'message': f'Property already exists at {street_address}, {city}, {state}'
             }
-        
+
         # Insert with all ZipForm fields
         cursor = conn.execute('''
             INSERT INTO properties_v2 (
@@ -150,17 +150,17 @@ def create_zipform_property(street_address, city, state, zip_code, **kwargs):
             kwargs.get('property_excludes'), kwargs.get('leased_items'),
             kwargs.get('property_description'), kwargs.get('public_remarks'), kwargs.get('private_remarks')
         ))
-        
+
         property_id = cursor.lastrowid
         conn.commit()
         conn.close()
-        
+
         return {
             'success': True,
             'property_id': property_id,
             'message': f'Created ZipForm property: {street_address}, {city}'
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -175,18 +175,18 @@ def create_zipform_property(street_address, city, state, zip_code, **kwargs):
 def create_contact(contact_type, company_name, **kwargs):
     """
     Universal function to create any type of service provider/agent.
-    
+
     Args:
         contact_type (str): 'listing_agent', 'selling_agent', 'lender', 'title', 'escrow', etc.
         company_name (str): Company name
         **kwargs: Contact details and type-specific info
-    
+
     Returns:
         dict: {'success': bool, 'contact_id': int, 'message': str}
     """
     try:
         conn = get_db_connection()
-        
+
         # Prepare additional info as JSON
         additional_info = {}
         if kwargs.get('mortgage_type'):
@@ -195,7 +195,7 @@ def create_contact(contact_type, company_name, **kwargs):
             additional_info['coordinator_side'] = kwargs['coordinator_side']
         if kwargs.get('specialties'):
             additional_info['specialties'] = kwargs['specialties']
-        
+
         cursor = conn.execute('''
             INSERT INTO contacts (
                 contact_type, company_name, company_address, company_city, company_state,
@@ -209,17 +209,17 @@ def create_contact(contact_type, company_name, **kwargs):
             kwargs.get('contact_cellular'), kwargs.get('contact_email'), kwargs.get('license_number'),
             json.dumps(additional_info) if additional_info else None
         ))
-        
+
         contact_id = cursor.lastrowid
         conn.commit()
         conn.close()
-        
+
         return {
             'success': True,
             'contact_id': contact_id,
             'message': f'Created {contact_type}: {company_name}'
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -230,36 +230,36 @@ def create_contact(contact_type, company_name, **kwargs):
 def find_contacts(contact_type=None, search_term=None, limit=10):
     """
     Find contacts by type or search term.
-    
+
     Args:
         contact_type (str): Filter by contact type (optional)
         search_term (str): Search in company/contact names (optional)
         limit (int): Max results
-    
+
     Returns:
         dict: {'success': bool, 'contacts': list, 'count': int}
     """
     try:
         conn = get_db_connection()
-        
+
         query = 'SELECT * FROM contacts WHERE 1=1'
         params = []
-        
+
         if contact_type:
             query += ' AND contact_type = ?'
             params.append(contact_type)
-        
+
         if search_term:
             query += ' AND (company_name LIKE ? OR contact_name LIKE ?)'
             search_pattern = f'%{search_term}%'
             params.extend([search_pattern, search_pattern])
-        
+
         query += ' ORDER BY company_name LIMIT ?'
         params.append(limit)
-        
+
         contacts = conn.execute(query, params).fetchall()
         conn.close()
-        
+
         # Convert to list of dicts
         contact_list = []
         for contact in contacts:
@@ -271,13 +271,13 @@ def find_contacts(contact_type=None, search_term=None, limit=10):
                 except:
                     pass
             contact_list.append(contact_dict)
-        
+
         return {
             'success': True,
             'contacts': contact_list,
             'count': len(contact_list)
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -293,18 +293,18 @@ def find_contacts(contact_type=None, search_term=None, limit=10):
 def create_zipform_transaction(transaction_type, property_id, **kwargs):
     """
     Create transaction with all ZipForm fields in one comprehensive function.
-    
+
     Args:
         transaction_type (str): 'purchase', 'sale', 'lease'
         property_id (int): Property ID
         **kwargs: All ZipForm transaction fields
-    
+
     Returns:
         dict: {'success': bool, 'transaction_id': int, 'message': str}
     """
     try:
         conn = get_db_connection()
-        
+
         # Prepare other service providers as JSON
         other_providers = {}
         if kwargs.get('pest_control_ids'):
@@ -313,7 +313,7 @@ def create_zipform_transaction(transaction_type, property_id, **kwargs):
             other_providers['home_warranty'] = kwargs['home_warranty_ids']
         if kwargs.get('transaction_coordinator_ids'):
             other_providers['transaction_coordinators'] = kwargs['transaction_coordinator_ids']
-        
+
         cursor = conn.execute('''
             INSERT INTO transactions_v2 (
                 transaction_type, property_id, buyer_client_id, seller_client_id,
@@ -346,17 +346,17 @@ def create_zipform_transaction(transaction_type, property_id, **kwargs):
             kwargs.get('notes'), kwargs.get('private_remarks'), kwargs.get('escrow_number'),
             kwargs.get('escrow_deposit_one_date'), kwargs.get('escrow_deposit_two_date')
         ))
-        
+
         transaction_id = cursor.lastrowid
         conn.commit()
         conn.close()
-        
+
         return {
             'success': True,
             'transaction_id': transaction_id,
             'message': f'Created {transaction_type} transaction'
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -374,7 +374,7 @@ def create_listing_agent(firm_name, agent_name, **kwargs):
 
 def create_lender(company_name, officer_name, mortgage_type='Conv', **kwargs):
     """Quick function to create lender with mortgage type"""
-    return create_contact('lender', company_name, contact_name=officer_name, 
+    return create_contact('lender', company_name, contact_name=officer_name,
                          mortgage_type=mortgage_type, **kwargs)
 
 def create_title_company(company_name, officer_name, **kwargs):
@@ -440,3 +440,5 @@ if __name__ == "__main__":
     print("Smart, normalized approach covering 95% of ZipForm needs:")
     for func_name, info in STREAMLINED_ZIPFORM_FUNCTIONS.items():
         print(f"  {func_name}: {info['description']}")
+
+
