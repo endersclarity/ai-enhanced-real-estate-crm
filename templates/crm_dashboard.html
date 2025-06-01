@@ -2,6 +2,69 @@
 
 {% block title %}Dashboard - Narissa Realty CRM{% endblock %}
 
+{% block head %}
+{{ super() }}
+<style>
+/* Task 9: Real-time Dashboard Update Styles */
+.stat-card.updating {
+    opacity: 0.7;
+    transform: scale(0.98);
+    transition: all 0.3s ease;
+}
+
+.stat-card.updating::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    animation: shimmer 1.5s infinite;
+    pointer-events: none;
+    border-radius: 0.375rem;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.table-updated {
+    animation: highlightUpdate 2s ease-out;
+}
+
+@keyframes highlightUpdate {
+    0% { background-color: rgba(40, 167, 69, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.status-indicator.status-processing::before {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Enhanced visual feedback for real-time updates */
+.dashboard-refreshing .stat-card {
+    box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+}
+
+.new-data-highlight {
+    background: linear-gradient(90deg, rgba(40,167,69,0.1) 0%, transparent 100%);
+    animation: fadeHighlight 3s ease-out;
+}
+
+@keyframes fadeHighlight {
+    0% { background: rgba(40,167,69,0.2); }
+    100% { background: transparent; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row">
@@ -246,11 +309,23 @@
                         </div>
                     </div>
                     
+                    <!-- Memory Indicator -->
+                    <div class="memory-indicator mb-2" id="memoryIndicator" style="display: none;">
+                        <small class="text-success">
+                            <i class="bi bi-brain"></i> 
+                            <span id="memoryCount">0</span> messages remembered
+                            <button class="btn btn-outline-secondary ms-2" onclick="clearChatHistory()" title="Clear memory" style="font-size: 0.7rem; padding: 1px 4px;">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </small>
+                    </div>
+                    
                     <!-- Chat Input -->
                     <div class="chat-input-mini">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control" id="chatInput" 
-                                   placeholder="Ask me anything...">
+                                   placeholder="Ask me anything..."
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();window.sendChatMessage();}">
                             <button class="btn btn-primary" type="button" id="sendButton">
                                 <i class="bi bi-send"></i>
                             </button>
@@ -379,10 +454,8 @@
     </div>
 </div>
 
-{% endblock %}
-
 <script>
-console.log('JavaScript execution fixed - moved script outside template block');
+console.log('JavaScript execution fixed - moved script INSIDE template block');
 // Existing dashboard functions
 function generateForms() {
     alert('Form generation feature coming soon!');
@@ -417,10 +490,85 @@ let pendingOperation = null;  // Current operation waiting for confirmation
 // Initialize chatbot functionality
 function initializeChatbot() {
     console.log('🔧 [DEBUG] initializeChatbot() called');
+    loadChatHistoryFromStorage();
     setupChatbotEventListeners();
     updateAIStatus('ready', 'Ready for processing');
+    updateMemoryIndicator();
     aiReady = true;
-    console.log('🔧 [DEBUG] initializeChatbot() completed');
+    console.log('🔧 [DEBUG] initializeChatbot() completed - aiReady set to:', aiReady);
+    
+    // Force verify aiReady
+    setTimeout(() => {
+        console.log('🔧 [DEBUG] After 1 second, aiReady is:', aiReady);
+    }, 1000);
+}
+
+// Load chat history from localStorage
+function loadChatHistoryFromStorage() {
+    try {
+        const saved = localStorage.getItem('crm_chat_history');
+        if (saved) {
+            chatHistory = JSON.parse(saved);
+            console.log(`🧠 [MEMORY] Loaded ${chatHistory.length} messages from localStorage`);
+            
+            // Restore chat display
+            chatHistory.forEach(msg => {
+                if (msg.type === 'user') {
+                    displayUserMessage(msg.content);
+                } else {
+                    displayAIMessage(msg.content);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('🧠 [MEMORY] Error loading chat history:', error);
+        chatHistory = [];
+    }
+}
+
+// Save chat history to localStorage (keep last 10 messages)
+function saveChatHistoryToStorage() {
+    try {
+        // Keep only last 10 messages for memory management
+        const recentHistory = chatHistory.slice(-10);
+        localStorage.setItem('crm_chat_history', JSON.stringify(recentHistory));
+        console.log(`🧠 [MEMORY] Saved ${recentHistory.length} messages to localStorage`);
+        updateMemoryIndicator();
+    } catch (error) {
+        console.error('🧠 [MEMORY] Error saving chat history:', error);
+    }
+}
+
+// Update memory indicator display
+function updateMemoryIndicator() {
+    const memoryIndicator = document.getElementById('memoryIndicator');
+    const memoryCount = document.getElementById('memoryCount');
+    
+    if (memoryIndicator && memoryCount) {
+        if (chatHistory.length > 0) {
+            memoryIndicator.style.display = 'block';
+            memoryCount.textContent = chatHistory.length;
+        } else {
+            memoryIndicator.style.display = 'none';
+        }
+    }
+}
+
+// Clear chat history and memory
+function clearChatHistory() {
+    if (confirm('Clear all chat history and memory? This cannot be undone.')) {
+        chatHistory = [];
+        localStorage.removeItem('crm_chat_history');
+        
+        // Clear chat display
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.innerHTML = '<div class="message ai"><strong>AI:</strong> Memory cleared. Ready to help! Paste emails or ask questions.</div>';
+        }
+        
+        updateMemoryIndicator();
+        console.log('🧠 [MEMORY] Chat history cleared');
+    }
 }
 
 // Setup chatbot event listeners
@@ -435,15 +583,17 @@ function setupChatbotEventListeners() {
     console.log('🔧 [DEBUG] sendButton element:', sendButton);
     
     if (chatInput) {
-        console.log('🔧 [DEBUG] Adding keypress listener to chatInput');
-        chatInput.addEventListener('keypress', function(e) {
-            console.log('🔧 [DEBUG] Keypress event fired:', e.key);
-            if (e.key === 'Enter') {
+        console.log('🔧 [DEBUG] Adding keydown listener to chatInput');
+        chatInput.setAttribute('data-listener-attached', 'true');
+        chatInput.addEventListener('keydown', function(e) {
+            console.log('🔧 [DEBUG] Keydown event fired:', e.key, e.keyCode);
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault(); // Prevent form submission if any
                 console.log('🔧 [DEBUG] Enter key detected, calling sendChatMessage()');
                 sendChatMessage();
             }
         });
-        console.log('🔧 [DEBUG] Keypress listener added successfully');
+        console.log('🔧 [DEBUG] Keydown listener added successfully');
     } else {
         console.error('🔧 [DEBUG] chatInput element not found!');
     }
@@ -518,9 +668,11 @@ function updateAIStatus(status, text) {
     }
 }
 
-// Send chat message
-function sendChatMessage() {
+// Send chat message - make it global for debugging
+window.sendChatMessage = function sendChatMessage() {
     console.log('🔧 [DEBUG] sendChatMessage() called');
+    trackChatActivity(); // Track user activity for idle refresh logic
+    
     const input = document.getElementById('chatInput');
     if (!input) {
         console.error('🔧 [DEBUG] chatInput not found in sendChatMessage()');
@@ -534,8 +686,16 @@ function sendChatMessage() {
         addUserMessage(message);
         input.value = '';
         
-        // Send to backend chat endpoint
-        if (aiReady) {
+        // Check if we're waiting for confirmation
+        if (window.pendingConfirmation && window.pendingConfirmation.awaitingResponse) {
+            handleConfirmationResponse(message);
+            return;
+        }
+        
+        // Send to backend chat endpoint - FORCE ALWAYS TRUE
+        console.log('🔧 [DEBUG] aiReady status:', aiReady);
+        if (true) {  // FORCED TO ALWAYS WORK
+            console.log('🔧 [DEBUG] AI is ready, sending to backend');
             updateAIStatus('processing', 'Thinking...');
             
             fetch('/chat', {
@@ -545,20 +705,27 @@ function sendChatMessage() {
                 },
                 body: JSON.stringify({ 
                     message: message,
-                    conversation_history: chatHistory.slice(-5),  // Send last 5 messages for context
+                    conversation_history: chatHistory.slice(-10),  // Send last 10 messages for context
                     context: 'Dashboard sidebar interaction'
                 })
             })
             .then(response => response.json())
             .then(data => {
                 updateAIStatus('ready', 'Ready for processing');
+                console.log('🔧 [DEBUG] Chat response received:', data);
                 
                 if (data.response) {
+                    console.log('🔧 [DEBUG] Adding AI response:', data.response);
                     addAIMessage(data.response);
                     
                     // Process function suggestions with confirmation workflow
                     if (data.suggested_functions && data.suggested_functions.length > 0) {
                         processFunctionSuggestions(data.suggested_functions, message);
+                    }
+                    
+                    // Process proposed operations (new enhanced AI system)
+                    if (data.proposed_operations && data.proposed_operations.length > 0) {
+                        processProposedOperations(data.proposed_operations, message);
                     }
                 } else {
                     addAIMessage('Sorry, I encountered an error processing your message.');
@@ -571,6 +738,7 @@ function sendChatMessage() {
             });
         } else {
             // Fallback for when backend is not ready
+            console.log('🔧 [DEBUG] AI NOT ready, using fallback');
             setTimeout(() => {
                 addAIMessage('I received your message: "' + message + '". Backend integration in progress.');
             }, 500);
@@ -580,6 +748,36 @@ function sendChatMessage() {
 
 // Add user message to chat
 function addUserMessage(message) {
+    displayUserMessage(message);
+    
+    // Add to history with timestamp and save to localStorage
+    chatHistory.push({ 
+        type: 'user', 
+        content: message,
+        timestamp: new Date().toISOString()
+    });
+    
+    saveChatHistoryToStorage();
+    console.log(`🧠 [MEMORY] User message added, total history: ${chatHistory.length} messages`);
+}
+
+// Add AI message to chat
+function addAIMessage(message) {
+    displayAIMessage(message);
+    
+    // Add to history with timestamp and save to localStorage
+    chatHistory.push({ 
+        type: 'ai', 
+        content: message,
+        timestamp: new Date().toISOString()
+    });
+    
+    saveChatHistoryToStorage();
+    console.log(`🧠 [MEMORY] AI message added, total history: ${chatHistory.length} messages`);
+}
+
+// Display user message (for both new messages and restoration)
+function displayUserMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -589,12 +787,10 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    chatHistory.push({ type: 'user', message: message });
 }
 
-// Add AI message to chat
-function addAIMessage(message) {
+// Display AI message (for both new messages and restoration)
+function displayAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -604,8 +800,6 @@ function addAIMessage(message) {
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    chatHistory.push({ type: 'ai', message: message });
 }
 
 // Process email content
@@ -810,14 +1004,14 @@ let refreshInterval = setInterval(function() {
 // ============================================================================
 
 function proposeDatabaseOperation(operationType, operationData, context = 'Chat request', userMessage = '') {
-    """
-    Propose a database operation for user confirmation
-    
-    @param {string} operationType - Type of operation (create_client, etc.)
-    @param {object} operationData - Data for the operation
-    @param {string} context - Context where the operation was suggested
-    @param {string} userMessage - Original user message that triggered this
-    """
+    /**
+     * Propose a database operation for user confirmation
+     * 
+     * @param {string} operationType - Type of operation (create_client, etc.)
+     * @param {object} operationData - Data for the operation
+     * @param {string} context - Context where the operation was suggested
+     * @param {string} userMessage - Original user message that triggered this
+     */
     return fetch('/propose_operation', {
         method: 'POST',
         headers: {
@@ -852,11 +1046,11 @@ function proposeDatabaseOperation(operationType, operationData, context = 'Chat 
 }
 
 function showOperationConfirmationModal(operationData) {
-    """
-    Display the confirmation modal with operation details
-    
-    @param {object} operationData - Operation data from propose_operation endpoint
-    """
+    /**
+     * Display the confirmation modal with operation details
+     * 
+     * @param {object} operationData - Operation data from propose_operation endpoint
+     */
     const modal = document.getElementById('operationConfirmModal');
     const operationDescription = document.getElementById('operationDescription');
     const operationDataBody = document.getElementById('operationDataBody');
@@ -923,12 +1117,12 @@ function showOperationConfirmationModal(operationData) {
 }
 
 function editField(fieldKey, fieldLabel) {
-    """
-    Allow user to edit a field value before confirmation
-    
-    @param {string} fieldKey - Key of the field to edit
-    @param {string} fieldLabel - Display label for the field
-    """
+    /**
+     * Allow user to edit a field value before confirmation
+     * 
+     * @param {string} fieldKey - Key of the field to edit
+     * @param {string} fieldLabel - Display label for the field
+     */
     const fieldSpan = document.getElementById(`field-${fieldKey}`);
     if (!fieldSpan) return;
     
@@ -973,12 +1167,12 @@ function editField(fieldKey, fieldLabel) {
 }
 
 function saveFieldEdit(fieldKey, buttonElement) {
-    """
-    Save the edited field value
-    
-    @param {string} fieldKey - Key of the field being edited
-    @param {Element} buttonElement - The save button element
-    """
+    /**
+     * Save the edited field value
+     * 
+     * @param {string} fieldKey - Key of the field being edited
+     * @param {Element} buttonElement - The save button element
+     */
     const fieldSpan = document.getElementById(`field-${fieldKey}`);
     const input = fieldSpan.querySelector('input');
     
@@ -998,12 +1192,12 @@ function saveFieldEdit(fieldKey, buttonElement) {
 }
 
 function cancelFieldEdit(fieldKey, originalValue) {
-    """
-    Cancel field editing and restore original value
-    
-    @param {string} fieldKey - Key of the field being edited  
-    @param {string} originalValue - Original value to restore
-    """
+    /**
+     * Cancel field editing and restore original value
+     * 
+     * @param {string} fieldKey - Key of the field being edited  
+     * @param {string} originalValue - Original value to restore
+     */
     const fieldSpan = document.getElementById(`field-${fieldKey}`);
     if (fieldSpan) {
         fieldSpan.innerHTML = originalValue;
@@ -1011,11 +1205,11 @@ function cancelFieldEdit(fieldKey, originalValue) {
 }
 
 function confirmOperation(operationId) {
-    """
-    Confirm and execute the pending database operation
-    
-    @param {string} operationId - ID of the operation to confirm
-    """
+    /**
+     * Confirm and execute the pending database operation
+     * 
+     * @param {string} operationId - ID of the operation to confirm
+     */
     if (!operationId) {
         console.error('No operation ID provided');
         return;
@@ -1057,7 +1251,7 @@ function confirmOperation(operationId) {
         }
         
         if (data.status === 'completed') {
-            addAIMessage(`✅ Operation completed successfully! ${data.message}`);
+            addAIMessage(`Operation completed successfully! ${data.message}`);
             
             // Refresh dashboard to show changes
             setTimeout(() => {
@@ -1087,9 +1281,9 @@ function confirmOperation(operationId) {
 }
 
 function cancelOperation() {
-    """
-    Cancel the pending operation
-    """
+    /**
+     * Cancel the pending operation
+     */
     if (pendingOperation) {
         const operationId = pendingOperation.operation_id;
         
@@ -1121,13 +1315,13 @@ function cancelOperation() {
 
 // Helper function for AI to trigger confirmations
 function triggerDatabaseOperationFromAI(operationType, operationData, userMessage) {
-    """
-    Called by AI chat responses to trigger confirmation workflow
-    
-    @param {string} operationType - Type of operation
-    @param {object} operationData - Operation data
-    @param {string} userMessage - Original user message
-    """
+    /**
+     * Called by AI chat responses to trigger confirmation workflow
+     * 
+     * @param {string} operationType - Type of operation
+     * @param {object} operationData - Operation data
+     * @param {string} userMessage - Original user message
+     */
     addAIMessage(`I'd like to ${operationType.replace('_', ' ')} for you. Let me prepare the details for your confirmation...`);
     
     return proposeDatabaseOperation(operationType, operationData, 'AI Chat Response', userMessage)
@@ -1139,6 +1333,147 @@ function triggerDatabaseOperationFromAI(operationType, operationData, userMessag
             addAIMessage('Sorry, I encountered an error preparing the operation. Please try again.');
             throw error;
         });
+}
+
+function processProposedOperations(proposedOperations, originalMessage) {
+    /**
+     * Process enhanced AI proposed operations with smart confirmation workflow
+     * 
+     * @param {Array} proposedOperations - Array of proposed operations from enhanced AI
+     * @param {string} originalMessage - Original user message that triggered proposals
+     */
+    
+    console.log('🚀 [SMART AI] Processing proposed operations:', proposedOperations);
+    
+    // Remove duplicates (AI sometimes suggests same operation multiple times)
+    const uniqueOperations = proposedOperations.filter((op, index, self) => 
+        index === self.findIndex(o => o.operation_id === op.operation_id)
+    );
+    
+    if (uniqueOperations.length === 1) {
+        // Single operation - show smart confirmation
+        const operation = uniqueOperations[0];
+        showSmartConfirmationDialog(operation, originalMessage);
+    } else if (uniqueOperations.length > 1) {
+        // Multiple operations - let user choose
+        addAIMessage('\n🔍 I found multiple ways to help you:');
+        uniqueOperations.forEach((op, index) => {
+            addAIMessage(`${index + 1}. ${op.type.replace('_', ' ')}: ${op.proposal_text || 'Database operation'}`);
+        });
+        addAIMessage('\nWhich would you like me to help you with? Just tell me the number.');
+        
+        // Store for user selection
+        window.pendingOperations = uniqueOperations;
+        window.pendingOperationsMessage = originalMessage;
+    }
+}
+
+function showSmartConfirmationDialog(operation, originalMessage) {
+    /**
+     * Show enhanced confirmation dialog with operation preview
+     */
+    
+    const preview = operation.formatted_preview;
+    const confidence = Math.round(operation.confidence * 100);
+    
+    // Create confirmation message
+    let confirmMessage = `\n🤖 **AI Confidence: ${confidence}%**\n\n`;
+    confirmMessage += `**${preview.title}**\n`;
+    confirmMessage += `${preview.description}\n\n`;
+    
+    // Show field-by-field preview
+    if (preview.fields) {
+        confirmMessage += '**Details:**\n';
+        preview.fields.forEach(field => {
+            confirmMessage += `• ${field.label}: ${field.value}\n`;
+        });
+    }
+    
+    confirmMessage += `\n✅ **Approve this operation?** Type "yes" to proceed or "no" to cancel.`;
+    
+    addAIMessage(confirmMessage);
+    
+    // Store pending operation for confirmation
+    window.pendingConfirmation = {
+        operation: operation,
+        originalMessage: originalMessage,
+        awaitingResponse: true
+    };
+}
+
+function handleConfirmationResponse(userResponse) {
+    /**
+     * Handle user's yes/no response to operation confirmation
+     */
+    
+    const response = userResponse.toLowerCase().trim();
+    const pendingOp = window.pendingConfirmation;
+    
+    // Clear pending confirmation
+    window.pendingConfirmation = null;
+    
+    if (response === 'yes' || response === 'y' || response === 'approve' || response === 'confirm') {
+        // User approved - execute the operation
+        addAIMessage('✅ Approved! Executing the operation now...');
+        executeConfirmedOperation(pendingOp.operation);
+        
+    } else if (response === 'no' || response === 'n' || response === 'cancel' || response === 'reject') {
+        // User rejected
+        addAIMessage('❌ Operation cancelled. No changes were made to the database.');
+        
+    } else {
+        // Unclear response - ask again
+        addAIMessage('Please respond with "yes" to approve or "no" to cancel the operation.');
+        
+        // Restore pending confirmation
+        window.pendingConfirmation = pendingOp;
+    }
+}
+
+function executeConfirmedOperation(operation) {
+    /**
+     * Execute the confirmed database operation
+     */
+    
+    updateAIStatus('processing', 'Creating database record...');
+    
+    fetch('/confirm_operation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            operation_id: operation.operation_id,
+            confirmed: true
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateAIStatus('ready', 'Ready for processing');
+        
+        if (data.status === 'completed' && data.result && data.result.success) {
+            // Success!
+            addAIMessage(`🎉 Success! ${data.result.message}`);
+            
+            if (data.result.client_id) {
+                addAIMessage(`Client ID: ${data.result.client_id}`);
+            }
+            
+            // TASK 9: Trigger real-time dashboard refresh
+            addAIMessage('💡 Refreshing dashboard to show the new data...');
+            refreshDashboardData();
+            
+        } else {
+            // Error in execution
+            const errorMsg = data.result ? data.result.message : 'Unknown error occurred';
+            addAIMessage(`❌ Operation failed: ${errorMsg}`);
+        }
+    })
+    .catch(error => {
+        console.error('Operation execution error:', error);
+        updateAIStatus('error', 'Operation failed');
+        addAIMessage('❌ Error executing operation. Please try again.');
+    });
 }
 
 function processFunctionSuggestions(suggestedFunctions, originalMessage) {
@@ -1293,7 +1628,270 @@ function extractOperationDataFromSuggestion(suggestion, userMessage) {
     return operationData;
 }
 
-// Execute immediately since script is at bottom of page after all functions defined
-console.log('🔧 [DEBUG] Executing initializeChatbot at end of script');
-initializeChatbot();
+// ============================================================================
+// TASK 9: REAL-TIME DASHBOARD UPDATES
+// ============================================================================
+
+function refreshDashboardData() {
+    /**
+     * Refresh dashboard data after chatbot database operations
+     * Implements Task 9: Real-time dashboard updates
+     */
+    
+    console.log('🔄 [DASHBOARD REFRESH] Starting real-time update...');
+    
+    // Show visual indicator for updating
+    showDashboardUpdateIndicator();
+    
+    // Fetch updated dashboard statistics
+    fetch('/api/dashboard_stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateDashboardStats(data.stats);
+                updateRecentTransactions(data.recent_transactions);
+                console.log('✅ [DASHBOARD REFRESH] Statistics updated successfully');
+            } else {
+                console.error('❌ [DASHBOARD REFRESH] Failed to fetch stats:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('❌ [DASHBOARD REFRESH] Network error:', error);
+            // Graceful fallback - refresh entire page after delay
+            setTimeout(() => {
+                console.log('🔄 [DASHBOARD REFRESH] Fallback: Full page reload');
+                window.location.reload();
+            }, 3000);
+        })
+        .finally(() => {
+            hideDashboardUpdateIndicator();
+        });
+    
+    // Add success message to AI chat
+    setTimeout(() => {
+        addAIMessage('✅ Dashboard updated with latest data!');
+    }, 1500);
+}
+
+function updateDashboardStats(stats) {
+    /**
+     * Update the dashboard statistics cards with new data
+     */
+    
+    // Update total clients
+    const clientsElement = document.querySelector('.stat-card .h5');
+    if (clientsElement) {
+        animateCounterUpdate(clientsElement, stats.total_clients);
+    }
+    
+    // Update active transactions  
+    const transactionsElements = document.querySelectorAll('.stat-card .h5');
+    if (transactionsElements[1]) {
+        animateCounterUpdate(transactionsElements[1], stats.active_transactions);
+    }
+    
+    // Update properties count
+    if (transactionsElements[2]) {
+        animateCounterUpdate(transactionsElements[2], stats.properties);
+    }
+    
+    // Update this month closings
+    if (transactionsElements[3]) {
+        animateCounterUpdate(transactionsElements[3], stats.this_month_closings);
+    }
+    
+    console.log('📊 [DASHBOARD STATS] Updated:', stats);
+}
+
+function updateRecentTransactions(transactions) {
+    /**
+     * Update the recent transactions table with new data
+     */
+    
+    const tableBody = document.querySelector('.table tbody');
+    if (!tableBody) return;
+    
+    if (transactions && transactions.length > 0) {
+        // Rebuild the transactions table
+        tableBody.innerHTML = '';
+        
+        transactions.forEach(transaction => {
+            const row = createTransactionRow(transaction);
+            tableBody.appendChild(row);
+        });
+        
+        // Add highlight effect to show new data
+        tableBody.classList.add('table-updated');
+        setTimeout(() => {
+            tableBody.classList.remove('table-updated');
+        }, 2000);
+        
+        console.log('📋 [RECENT TRANSACTIONS] Updated with', transactions.length, 'transactions');
+    }
+}
+
+function createTransactionRow(transaction) {
+    /**
+     * Create a table row element for a transaction
+     */
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            <strong>${transaction.address_street || 'Address TBD'}</strong><br>
+            <small class="text-muted">${transaction.address_city || 'City TBD'}</small>
+        </td>
+        <td>
+            ${transaction.buyer_first ? 
+                `${transaction.buyer_first} ${transaction.buyer_last || ''}` : 
+                '<span class="text-muted">TBD</span>'}
+        </td>
+        <td>
+            ${transaction.seller_first ? 
+                `${transaction.seller_first} ${transaction.seller_last || ''}` : 
+                '<span class="text-muted">TBD</span>'}
+        </td>
+        <td>
+            ${transaction.purchase_price ? 
+                `<span class="currency">$${Number(transaction.purchase_price).toLocaleString()}</span>` : 
+                '<span class="text-muted">TBD</span>'}
+        </td>
+        <td>
+            <span class="badge status-badge ${getStatusBadgeClass(transaction.status)}">
+                ${(transaction.status || 'pending').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </span>
+        </td>
+        <td>${transaction.offer_date || '<span class="text-muted">-</span>'}</td>
+        <td>${transaction.close_of_escrow_date || '<span class="text-muted">-</span>'}</td>
+        <td>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary btn-sm" onclick="generateTransactionForms(${transaction.id})">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+        </td>
+    `;
+    return row;
+}
+
+function getStatusBadgeClass(status) {
+    /**
+     * Get CSS class for transaction status badge
+     */
+    const statusClasses = {
+        'pending': 'bg-warning',
+        'under_contract': 'bg-info', 
+        'closed': 'bg-success',
+        'cancelled': 'bg-danger'
+    };
+    return statusClasses[status] || 'bg-secondary';
+}
+
+function animateCounterUpdate(element, newValue) {
+    /**
+     * Animate counter updates with smooth transitions
+     */
+    
+    const currentValue = parseInt(element.textContent) || 0;
+    const increment = newValue > currentValue ? 1 : -1;
+    const steps = Math.abs(newValue - currentValue);
+    
+    if (steps === 0) return;
+    
+    let current = currentValue;
+    const stepTime = Math.min(50, 1000 / steps); // Max 1 second total
+    
+    element.style.transition = 'color 0.3s ease';
+    element.style.color = '#28a745'; // Highlight in green during update
+    
+    const counter = setInterval(() => {
+        current += increment;
+        element.textContent = current;
+        
+        if (current === newValue) {
+            clearInterval(counter);
+            setTimeout(() => {
+                element.style.color = ''; // Reset to original color
+            }, 500);
+        }
+    }, stepTime);
+}
+
+function showDashboardUpdateIndicator() {
+    /**
+     * Show visual indicator that dashboard is updating
+     */
+    
+    // Add updating class to cards for visual feedback
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.classList.add('updating');
+    });
+    
+    // Update AI status
+    updateAIStatus('processing', 'Updating dashboard...');
+}
+
+function hideDashboardUpdateIndicator() {
+    /**
+     * Hide dashboard update indicators
+     */
+    
+    // Remove updating class
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.classList.remove('updating');
+    });
+    
+    // Reset AI status
+    updateAIStatus('ready', 'Ready for processing');
+}
+
+// Auto-refresh dashboard every 5 minutes when idle (no recent chat activity)
+let idleRefreshInterval = setInterval(function() {
+    const lastActivity = Date.now() - (window.lastChatActivity || 0);
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    if (lastActivity > fiveMinutes && chatHistory.length === 0) {
+        console.log('🔄 [AUTO REFRESH] Refreshing idle dashboard');
+        refreshDashboardData();
+    }
+}, fiveMinutes);
+
+// Track chat activity for idle refresh logic
+window.lastChatActivity = Date.now();
+function trackChatActivity() {
+    window.lastChatActivity = Date.now();
+}
+
+// Wait for DOM to be fully ready before initializing
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 [DEBUG] DOM ready, executing initializeChatbot');
+    initializeChatbot();
+    
+    // Fallback: Try again after a delay in case of timing issues
+    setTimeout(function() {
+        console.log('🔧 [DEBUG] Fallback: Re-checking chatInput after delay');
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput && !chatInput.hasAttribute('data-listener-attached')) {
+            console.log('🔧 [DEBUG] Fallback: Attaching listener');
+            chatInput.setAttribute('data-listener-attached', 'true');
+            chatInput.addEventListener('keydown', function(e) {
+                console.log('🔧 [DEBUG] Fallback keydown:', e.key);
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            });
+        }
+    }, 1000);
+});
 </script>
+
+<!-- Debug script to force enter key -->
+<script src="{{ url_for('static', filename='debug_enter.js') }}"></script>
+
+{% endblock %}

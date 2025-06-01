@@ -94,6 +94,78 @@ def get_available_functions():
     
     return functions
 
+def extract_client_data_from_message(message):
+    """
+    Extract client data from natural language message using regex patterns
+    
+    Args:
+        message (str): User message containing client information
+        
+    Returns:
+        dict: Extracted client data or None if insufficient data
+    """
+    import re
+    
+    # Initialize extracted data
+    extracted = {}
+    
+    # Name patterns - prioritize clean name extraction
+    name_patterns = [
+        r'create\s+(?:client|contact):\s*([A-Za-z]+)\s+([A-Za-z]+)',  # "create client: John Smith"
+        r'name\s+is\s+([A-Za-z]+)\s+([A-Za-z]+)',                     # "my name is Jennifer Martinez"
+        r'Full\s+Name[:\s]+([A-Za-z]+)\s+([A-Za-z]+)',               # "Full Name: Jennifer Martinez"
+        r'^([A-Za-z]+)\s+([A-Za-z]+),?\s+email',                     # "Jennifer Martinez, email:" at start
+        r'([A-Za-z]+)\s+([A-Za-z]+)(?:,\s*email|.*@)',              # Name before email pattern
+        r'client[:\s]+([A-Za-z]+)\s+([A-Za-z]+)'                     # "client: Jennifer Martinez"
+    ]
+    
+    for pattern in name_patterns:
+        match = re.search(pattern, message, re.IGNORECASE)
+        if match:
+            extracted['first_name'] = match.group(1)
+            extracted['last_name'] = match.group(2)
+            break
+    
+    # Email pattern
+    email_match = re.search(r'email[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', message, re.IGNORECASE)
+    if email_match:
+        extracted['email'] = email_match.group(1)
+    
+    # Phone pattern
+    phone_match = re.search(r'phone[:\s]*(\([0-9]{3}\)\s*[0-9]{3}-[0-9]{4}|\([0-9]{3}\)\s*[0-9]{3}\s*[0-9]{4}|[0-9]{3}-[0-9]{3}-[0-9]{4})', message, re.IGNORECASE)
+    if phone_match:
+        extracted['phone'] = phone_match.group(1)
+    
+    # Client type detection
+    if any(word in message.lower() for word in ['buyer', 'buying', 'purchase', 'looking to buy']):
+        extracted['client_type'] = 'buyer'
+    elif any(word in message.lower() for word in ['seller', 'selling', 'list', 'listing']):
+        extracted['client_type'] = 'seller'
+    else:
+        extracted['client_type'] = 'buyer'  # Default
+    
+    # Address pattern
+    address_match = re.search(r'address[:\s]*([^,\n]+)', message, re.IGNORECASE)
+    if address_match:
+        address_parts = address_match.group(1).strip().split(',')
+        if len(address_parts) >= 1:
+            extracted['street_address'] = address_parts[0].strip()
+        if len(address_parts) >= 2:
+            extracted['city'] = address_parts[1].strip()
+        if len(address_parts) >= 3:
+            state_zip = address_parts[2].strip().split()
+            if len(state_zip) >= 1:
+                extracted['state'] = state_zip[0]
+            if len(state_zip) >= 2:
+                extracted['zip_code'] = state_zip[1]
+    
+    # Only return if we have essential data (name and either email or phone)
+    if ('first_name' in extracted and 'last_name' in extracted and 
+        ('email' in extracted or 'phone' in extracted)):
+        return extracted
+    
+    return None
+
 def build_ai_context():
     """
     Build comprehensive AI context with CRM function awareness
@@ -114,45 +186,53 @@ def build_ai_context():
   Example: {func_info.get('example', 'No example')}"""
         function_docs.append(func_doc)
     
-    system_prompt = f"""You are an intelligent Real Estate CRM Assistant for Narissa Realty.
+    system_prompt = f"""You are an intelligent Real Estate CRM Assistant for Narissa Realty. You excel at understanding casual conversation and inferring what database actions would be helpful.
 
-🏠 CORE CAPABILITIES:
-- Complete client management (buyers, sellers, contacts)
-- Property management with MLS integration
-- ZipForm Transaction Cover Sheet processing
-- Service provider and agent management
-- Email processing and data extraction
-- Workflow automation and guidance
+🧠 CONVERSATIONAL INTELLIGENCE:
+You understand real estate agent casual talk and can infer database operations from natural conversation. When someone mentions clients, properties, or business activities, you intelligently propose relevant CRM actions.
 
-🤖 AI FUNCTION CALLING:
-You have access to {len(available_functions)} database functions. When users describe real estate scenarios, analyze their needs and intelligently suggest appropriate function calls.
+🎯 CORE BEHAVIOR:
+1. **LISTEN CAREFULLY** to what users say about their real estate business
+2. **INFER ACTIONS** - What database operations would help based on their words?
+3. **PROPOSE CLEARLY** - "I can create a client record for John with this info..."
+4. **EXTRACT DATA** - Pull names, phones, emails, addresses, preferences from conversation
+5. **CONFIRM FIRST** - Always ask permission before any database operations
 
-AVAILABLE FUNCTIONS:
-{chr(10).join(function_docs[:10])}
-{'[Additional functions available...]' if len(available_functions) > 10 else ''}
+🤖 AVAILABLE DATABASE OPERATIONS:
+{chr(10).join(function_docs[:8])}
 
-🎯 INTELLIGENT RESPONSES:
-When users mention:
-- New clients/contacts → Suggest create_zipform_client() or create_contact()
-- Properties/listings → Suggest create_zipform_property() or find_mls_property()
-- Transactions/offers → Suggest create_zipform_transaction()
-- MLS numbers → Use find_mls_property() for automatic data import
-- Email content → Extract relevant data and suggest appropriate database operations
+💬 CONVERSATION EXAMPLES:
 
-🔄 WORKFLOW INTELLIGENCE:
-1. ANALYZE user input for real estate entities (names, addresses, prices, dates)
-2. IDENTIFY which database operations would be helpful
-3. PROPOSE specific function calls with extracted parameters
-4. CONFIRM with user before executing database operations
-5. EXECUTE functions and provide feedback on results
+User: "Just met Sarah Williams at the open house, she's looking for a 3BR under $500K in Grass Valley, her cell is 916-555-0123"
+You: "I can create a client record for Sarah Williams with:
+- Name: Sarah Williams  
+- Phone: 916-555-0123
+- Type: Buyer
+- Budget: Under $500K
+- Area preference: Grass Valley
+- Bedrooms: 3+
+- Lead source: Open house
+Should I add her to the CRM?"
 
-💡 CONVERSATION FLOW:
-- Ask clarifying questions when information is incomplete
-- Suggest next steps in real estate workflows
-- Reference previous conversation context
-- Provide professional real estate guidance
+User: "Christopher Brown called, his email changed to chris.brown.new@gmail.com and his budget went up to $650K"
+You: "I found Christopher Brown in your CRM. I can update his record with:
+- New email: chris.brown.new@gmail.com  
+- Updated budget: $650,000
+Should I make these changes?"
 
-Be conversational, helpful, and proactive in suggesting database operations that would benefit the user's real estate workflow."""
+User: "That property on Pine Street sold for $625K, need to update the status"
+You: "I can search for the Pine Street property and update its status to sold with a sale price of $625,000. Which Pine Street property? Do you have the address or MLS number?"
+
+🔍 ENTITY EXTRACTION:
+Always extract: Names, phones, emails, addresses, prices, dates, preferences, property features, lead sources, notes
+
+🚨 SAFETY RULES:
+- NEVER execute database operations without explicit user confirmation
+- ALWAYS show exactly what you plan to do before doing it
+- Ask clarifying questions if information is unclear
+- Propose the most helpful action based on context
+
+Be conversational, intuitive, and focus on making the agent's life easier by intelligently managing their CRM data."""
     
     return system_prompt
 
@@ -229,54 +309,130 @@ def get_gemini_response(message, context="", conversation_history=None):
 
 def analyze_response_for_functions(ai_response, user_message):
     """
-    Analyze AI response and user message to suggest relevant functions
+    Analyze AI response to detect when it's proposing database operations
     
     Args:
         ai_response (str): AI's response text
         user_message (str): Original user message
     
     Returns:
-        list: Suggested function calls with parameters
+        list: Detected database operation proposals with extracted data
     """
     suggestions = []
-    combined_text = f"{user_message} {ai_response}".lower()
-    
-    # Look for client creation triggers
-    if any(trigger in combined_text for trigger in ['new client', 'add client', 'client named', 'buyer named']):
-        suggestions.append({
-            'function': 'create_zipform_client',
-            'reason': 'Detected new client mention',
-            'confidence': 0.8
-        })
-    
-    # Look for property triggers
-    if any(trigger in combined_text for trigger in ['mls', 'property', 'listing', 'address']):
-        suggestions.append({
-            'function': 'create_zipform_property',
-            'reason': 'Detected property-related content',
-            'confidence': 0.7
-        })
-    
-    # Look for transaction triggers
-    if any(trigger in combined_text for trigger in ['offer', 'purchase', 'transaction', 'closing']):
-        suggestions.append({
-            'function': 'create_zipform_transaction',
-            'reason': 'Detected transaction-related content',
-            'confidence': 0.7
-        })
-    
-    # Look for MLS number patterns
     import re
-    mls_matches = re.findall(r'mls\s*#?(\d+)', combined_text)
-    if mls_matches:
-        suggestions.append({
-            'function': 'find_mls_property',
-            'parameters': {'mls_number': mls_matches[0]},
-            'reason': f'Found MLS number: {mls_matches[0]}',
-            'confidence': 0.9
-        })
+    
+    # Enhanced patterns to detect AI proposals
+    proposal_patterns = [
+        r"I can create a client record for ([^\n]+)",
+        r"I can update ([^']+)'s record",
+        r"I can add ([^\s]+) to the CRM",
+        r"Should I (create|add|update) ([^?]+)\?",
+        r"I can search for ([^\n]+) and update"
+    ]
+    
+    for pattern in proposal_patterns:
+        matches = re.findall(pattern, ai_response, re.IGNORECASE)
+        if matches:
+            # AI is proposing an operation - extract the details
+            proposal_data = extract_entities_from_text(f"{user_message} {ai_response}")
+            
+            if proposal_data:
+                suggestions.append({
+                    'function': determine_operation_type(ai_response, proposal_data),
+                    'parameters': proposal_data,
+                    'reason': 'AI proposed database operation',
+                    'confidence': 0.9,
+                    'proposal_text': matches[0] if isinstance(matches[0], str) else str(matches[0])
+                })
     
     return suggestions
+
+def extract_entities_from_text(text):
+    """
+    Extract CRM entities from text using regex patterns
+    
+    Args:
+        text (str): Text to analyze
+        
+    Returns:
+        dict: Extracted entity data
+    """
+    import re
+    
+    entities = {}
+    
+    # Name patterns - look for "Name: Value" or mentions after key phrases
+    name_patterns = [
+        r"(?:client record for|add|create client)\s+([A-Z][a-z]+\s+[A-Z][a-z]+)",
+        r"Name:\s*([A-Z][a-z]+\s+[A-Z][a-z]+)",
+        r"([A-Z][a-z]+\s+[A-Z][a-z]+)(?:'s record|\s+called|\s+at the)"
+    ]
+    
+    for pattern in name_patterns:
+        match = re.search(pattern, text)
+        if match:
+            full_name = match.group(1).strip()
+            name_parts = full_name.split()
+            if len(name_parts) >= 2:
+                entities['first_name'] = name_parts[0]
+                entities['last_name'] = ' '.join(name_parts[1:])
+            break
+    
+    # Phone patterns
+    phone_match = re.search(r"(?:phone|cell|number)[:\s]*([\\(]?\d{3}[\\)]?[\s.-]?\d{3}[\s.-]?\d{4})", text, re.IGNORECASE)
+    if phone_match:
+        entities['phone'] = phone_match.group(1)
+    
+    # Email patterns  
+    email_match = re.search(r"(?:email)[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", text, re.IGNORECASE)
+    if email_match:
+        entities['email'] = email_match.group(1)
+    
+    # Budget/price patterns
+    budget_match = re.search(r"(?:budget|under|up to)[:\s]*\$?([\d,]+)K?", text, re.IGNORECASE)
+    if budget_match:
+        budget_str = budget_match.group(1).replace(',', '')
+        if 'K' in budget_match.group(0):
+            entities['budget'] = int(budget_str) * 1000
+        else:
+            entities['budget'] = int(budget_str)
+    
+    # Area/location preferences
+    area_match = re.search(r"(?:in|looking in|area preference)[:\s]*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)", text, re.IGNORECASE)
+    if area_match:
+        entities['area_preference'] = area_match.group(1)
+    
+    # Bedrooms
+    bedroom_match = re.search(r"(\d+)BR|bedrooms[:\s]*(\d+)", text, re.IGNORECASE)
+    if bedroom_match:
+        entities['bedrooms'] = int(bedroom_match.group(1) or bedroom_match.group(2))
+    
+    # Client type inference
+    if any(word in text.lower() for word in ['looking for', 'buyer', 'buying', 'purchase']):
+        entities['client_type'] = 'buyer'
+    elif any(word in text.lower() for word in ['selling', 'seller', 'list', 'listing']):
+        entities['client_type'] = 'seller'
+    else:
+        entities['client_type'] = 'buyer'  # Default
+    
+    return entities if entities else None
+
+def determine_operation_type(ai_response, entities):
+    """
+    Determine what type of database operation the AI is proposing
+    """
+    response_lower = ai_response.lower()
+    
+    if 'create' in response_lower and 'client' in response_lower:
+        return 'create_client'
+    elif 'update' in response_lower and 'record' in response_lower:
+        return 'update_client'
+    elif 'create' in response_lower and 'property' in response_lower:
+        return 'create_property'
+    elif 'search' in response_lower and 'property' in response_lower:
+        return 'find_properties'
+    else:
+        return 'create_client'  # Default to client creation
 
 def calculate_response_confidence(ai_response, user_message):
     """
@@ -378,14 +534,14 @@ def create_client(first_name, last_name, email=None, phone=None, client_type='bu
         cursor = conn.execute('''
             INSERT INTO clients (
                 first_name, last_name, email, home_phone, client_type,
-                phone_secondary, address_street, address_city, 
-                address_state, address_zip, employer, occupation, annual_income,
+                business_phone, street_address, city, 
+                state, zip_code, employer, occupation, annual_income,
                 ssn_last_four, preferred_contact_method, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             first_name, last_name, email, phone, client_type,
-            kwargs.get('phone_secondary'), kwargs.get('address_street'), 
-            kwargs.get('address_city'), kwargs.get('address_state'), kwargs.get('address_zip'),
+            kwargs.get('business_phone'), kwargs.get('street_address'), 
+            kwargs.get('city'), kwargs.get('state'), kwargs.get('zip_code'),
             kwargs.get('employer'), kwargs.get('occupation'),
             kwargs.get('annual_income'), kwargs.get('ssn_last_four'),
             kwargs.get('preferred_contact_method', 'email'), kwargs.get('notes')
@@ -506,8 +662,8 @@ def update_client(client_id, **kwargs):
         # Build update query for provided fields
         valid_fields = [
             'first_name', 'last_name', 'email', 'home_phone', 
-            'phone_secondary', 'client_type', 'address_street', 'address_city',
-            'address_state', 'address_zip', 'employer', 'occupation', 'annual_income',
+            'business_phone', 'client_type', 'street_address', 'city',
+            'state', 'zip_code', 'employer', 'occupation', 'annual_income',
             'ssn_last_four', 'preferred_contact_method', 'notes'
         ]
         
@@ -790,13 +946,18 @@ def dashboard():
     conn.close()
     return render_template('crm_dashboard.html', stats=stats, recent_transactions=recent_transactions)
 
+@app.route('/debug_chat')
+def debug_chat():
+    """Debug chat interface for testing chatbot functionality"""
+    return render_template('debug_chat.html')
+
 @app.route('/clients')
 def clients_list():
     """View all clients"""
     conn = get_db_connection()
     clients = conn.execute('''
         SELECT id, client_type, first_name, last_name, email, home_phone, 
-               address_city, address_state, created_at
+               city, state, created_at
         FROM clients 
         ORDER BY last_name, first_name
     ''').fetchall()
@@ -812,14 +973,14 @@ def new_client():
         conn.execute('''
             INSERT INTO clients (
                 client_type, first_name, last_name, middle_initial, email, home_phone,
-                phone_secondary, address_street, address_city, address_state, address_zip,
+                business_phone, street_address, city, state, zip_code,
                 employer, occupation, annual_income, ssn_last_four, preferred_contact_method, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             data['client_type'], data['first_name'], data['last_name'], data.get('middle_initial'),
-            data.get('email'), data.get('home_phone'), data.get('phone_secondary'),
-            data.get('address_street'), data.get('address_city'), data.get('address_state'),
-            data.get('address_zip'), data.get('employer'), data.get('occupation'),
+            data.get('email'), data.get('home_phone'), data.get('business_phone'),
+            data.get('street_address'), data.get('city'), data.get('state'),
+            data.get('zip_code'), data.get('employer'), data.get('occupation'),
             data.get('annual_income') or None, data.get('ssn_last_four'),
             data.get('preferred_contact_method', 'email'), data.get('notes')
         ))
@@ -842,7 +1003,7 @@ def client_detail(client_id):
     
     # Get client's transactions
     transactions = conn.execute('''
-        SELECT t.*, p.address_street, p.address_city, p.address_state
+        SELECT t.*, p.street_address, p.city, p.state
         FROM transactions t
         JOIN properties p ON t.property_id = p.id
         WHERE t.buyer_client_id = ? OR t.seller_client_id = ?
@@ -854,16 +1015,57 @@ def client_detail(client_id):
 
 @app.route('/properties')
 def properties_list():
-    """View all properties"""
+    """View all properties with search functionality"""
     conn = get_db_connection()
-    properties = conn.execute('''
-        SELECT id, address_street, address_city, address_state, address_zip,
-               bedrooms, bathrooms, house_sqft, listing_price, status, created_at
+    
+    # Get search parameters
+    search = request.args.get('search', '').strip()
+    property_type = request.args.get('property_type', '')
+    status = request.args.get('status', '')
+    city = request.args.get('city', '')
+    
+    # Build query with search filters
+    query = '''
+        SELECT id, street_address, city, state, zip_code,
+               bedrooms, bathrooms, square_feet, listed_price, created_at,
+               mls_number, property_type
         FROM properties 
-        ORDER BY created_at DESC
-    ''').fetchall()
+        WHERE 1=1
+    '''
+    params = []
+    
+    if search:
+        query += ''' AND (
+            street_address LIKE ? OR 
+            city LIKE ? OR 
+            mls_number LIKE ?
+        )'''
+        search_pattern = f'%{search}%'
+        params.extend([search_pattern, search_pattern, search_pattern])
+    
+    if property_type:
+        query += ' AND property_type LIKE ?'
+        params.append(f'%{property_type}%')
+    
+    if city:
+        query += ' AND city LIKE ?'
+        params.append(f'%{city}%')
+    
+    query += ' ORDER BY created_at DESC LIMIT 100'
+    
+    properties = conn.execute(query, params).fetchall()
+    
+    # Get unique cities for dropdown
+    cities = conn.execute('SELECT DISTINCT city FROM properties WHERE city IS NOT NULL ORDER BY city').fetchall()
+    
     conn.close()
-    return render_template('properties_list.html', properties=properties)
+    
+    return render_template('properties_list.html', 
+                         properties=properties, 
+                         cities=cities,
+                         search=search,
+                         property_type=property_type,
+                         city=city)
 
 @app.route('/properties/new', methods=['GET', 'POST'])
 def new_property():
@@ -873,21 +1075,18 @@ def new_property():
         conn = get_db_connection()
         conn.execute('''
             INSERT INTO properties (
-                address_street, address_city, address_state, address_zip, address_county,
-                apn, lot_number, block_number, subdivision_name, lot_size_sqft, lot_size_acres,
-                house_sqft, bedrooms, bathrooms, half_baths, garage_spaces, parking_spaces,
-                year_built, property_type, zoning, hoa_name, hoa_dues, hoa_frequency,
-                property_description, listing_price, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                street_address, city, state, zip_code, county,
+                assessor_parcel_number, lot_number, subdivision, lot_size_sqft, lot_size_acres,
+                square_feet, bedrooms, bathrooms, year_built, property_type,
+                property_description, listed_price
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            data['address_street'], data['address_city'], data['address_state'], data['address_zip'],
-            data.get('address_county'), data.get('apn'), data.get('lot_number'), data.get('block_number'),
-            data.get('subdivision_name'), data.get('lot_size_sqft') or None, data.get('lot_size_acres') or None,
-            data.get('house_sqft') or None, data.get('bedrooms') or None, data.get('bathrooms') or None,
-            data.get('half_baths') or None, data.get('garage_spaces') or None, data.get('parking_spaces') or None,
-            data.get('year_built') or None, data.get('property_type'), data.get('zoning'),
-            data.get('hoa_name'), data.get('hoa_dues') or None, data.get('hoa_frequency'),
-            data.get('property_description'), data.get('listing_price') or None, data.get('status', 'available')
+            data['street_address'], data['city'], data['state'], data['zip_code'],
+            data.get('county'), data.get('assessor_parcel_number'), data.get('lot_number'), data.get('subdivision'),
+            data.get('lot_size_sqft') or None, data.get('lot_size_acres') or None,
+            data.get('square_feet') or None, data.get('bedrooms') or None, data.get('bathrooms') or None,
+            data.get('year_built') or None, data.get('property_type'),
+            data.get('property_description'), data.get('listed_price') or None
         ))
         conn.commit()
         conn.close()
@@ -901,8 +1100,8 @@ def transactions_list():
     """View all transactions"""
     conn = get_db_connection()
     transactions = conn.execute('''
-        SELECT t.id, t.status, t.purchase_price, t.offer_date, t.close_of_escrow_date,
-               p.address_street, p.address_city, p.address_state,
+        SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
+               p.street_address, p.city, p.state,
                bc.first_name as buyer_first, bc.last_name as buyer_last,
                sc.first_name as seller_first, sc.last_name as seller_last
         FROM transactions t
@@ -961,7 +1160,7 @@ def new_transaction():
     
     # Get clients and properties for dropdowns
     clients = conn.execute('SELECT id, first_name, last_name, client_type FROM clients ORDER BY last_name, first_name').fetchall()
-    properties = conn.execute('SELECT id, address_street, address_city, address_state FROM properties WHERE status = "available" ORDER BY address_city').fetchall()
+    properties = conn.execute('SELECT id, street_address, city, state FROM properties ORDER BY city').fetchall()
     conn.close()
     
     return render_template('transaction_form.html', clients=clients, properties=properties)
@@ -987,10 +1186,73 @@ def chat():
             conversation_history=conversation_history
         )
         
+        # Smart analysis: detect when AI proposes database operations
+        proposed_operations = []
+        suggested_functions = ai_result.get('suggested_functions', [])
+        
+        # Enhanced detection for AI proposals using new analysis functions
+        for suggestion in suggested_functions:
+            if suggestion.get('confidence', 0) >= 0.8 and suggestion.get('parameters'):
+                # AI proposed a database operation with extracted data
+                operation_id = f"op_{int(datetime.now().timestamp())}_{suggestion['function']}"
+                
+                # Store the proposed operation for user confirmation
+                pending_operations[operation_id] = {
+                    'operation_type': suggestion['function'],
+                    'operation_data': suggestion['parameters'],
+                    'context': 'AI Smart Analysis',
+                    'user_message': user_message,
+                    'ai_response': ai_result['response'],
+                    'status': 'pending_confirmation',
+                    'created_at': datetime.now().isoformat(),
+                    'ai_confidence': suggestion.get('confidence', 0),
+                    'proposal_text': suggestion.get('proposal_text', '')
+                }
+                
+                proposed_operations.append({
+                    'operation_id': operation_id,
+                    'type': suggestion['function'],
+                    'data': suggestion['parameters'],
+                    'confidence': suggestion.get('confidence', 0),
+                    'proposal_text': suggestion.get('proposal_text', ''),
+                    'formatted_preview': format_operation_for_review(suggestion['function'], suggestion['parameters'])
+                })
+                
+                print(f"[SMART PROPOSAL] {operation_id}: {suggestion['function']} with confidence {suggestion.get('confidence', 0):.2f}")
+                print(f"[SMART PROPOSAL] Extracted data: {suggestion['parameters']}")
+        
+        # Fallback: if no smart proposals detected, try basic entity extraction
+        if not proposed_operations and ai_result.get('confidence', 0) >= 0.6:
+            fallback_entities = extract_entities_from_text(f"{user_message} {ai_result['response']}")
+            if fallback_entities and len(fallback_entities) >= 2:  # At least 2 fields extracted
+                operation_type = 'create_client'  # Default to client creation
+                operation_id = f"op_{int(datetime.now().timestamp())}_fallback_{operation_type}"
+                
+                pending_operations[operation_id] = {
+                    'operation_type': operation_type,
+                    'operation_data': fallback_entities,
+                    'context': 'Fallback Entity Extraction',
+                    'user_message': user_message,
+                    'status': 'pending_confirmation',
+                    'created_at': datetime.now().isoformat(),
+                    'ai_confidence': ai_result.get('confidence', 0)
+                }
+                
+                proposed_operations.append({
+                    'operation_id': operation_id,
+                    'type': operation_type,
+                    'data': fallback_entities,
+                    'confidence': ai_result.get('confidence', 0),
+                    'formatted_preview': format_operation_for_review(operation_type, fallback_entities)
+                })
+                
+                print(f"[FALLBACK PROPOSAL] {operation_id}: Extracted {len(fallback_entities)} entities")
+        
         # Build response with enhanced capabilities
         response_data = {
             'response': ai_result['response'],
-            'suggested_functions': ai_result.get('suggested_functions', []),
+            'suggested_functions': suggested_functions,
+            'proposed_operations': proposed_operations,  # NEW: Auto-proposed operations
             'confidence': ai_result.get('confidence', 0.5),
             'timestamp': datetime.now().isoformat(),
             'model': 'gemini-2.5-flash-preview-04-17',
@@ -1147,9 +1409,18 @@ def confirm_operation():
         
         # Retrieve pending operation
         if operation_id not in pending_operations:
+            print(f"[DEBUG CONFIRM ERROR] Operation {operation_id} not found in pending_operations")
+            print(f"[DEBUG CONFIRM ERROR] Available operations: {list(pending_operations.keys())}")
             return jsonify({'error': 'Operation not found or expired'}), 404
         
         operation = pending_operations[operation_id]
+        
+        # 🚨 CRITICAL DEBUG: Log what we're retrieving from storage
+        print(f"[DEBUG CONFIRM RETRIEVAL] Operation ID: {operation_id}")
+        print(f"[DEBUG CONFIRM RETRIEVAL] Retrieved operation_type: {operation['operation_type']}")
+        print(f"[DEBUG CONFIRM RETRIEVAL] Retrieved operation_data: {operation['operation_data']}")
+        print(f"[DEBUG CONFIRM RETRIEVAL] User confirmed: {confirmed}")
+        print(f"[DEBUG CONFIRM RETRIEVAL] Modified data provided: {modified_data}")
         
         if not confirmed:
             # User rejected the operation
@@ -1168,6 +1439,13 @@ def confirm_operation():
         
         # Use modified data if provided, otherwise use original
         execution_data = modified_data if modified_data else operation['operation_data']
+        
+        # 🚨 CRITICAL DEBUG: Log data flow right before execution
+        print(f"[DEBUG PRE-EXECUTION] About to execute operation")
+        print(f"[DEBUG PRE-EXECUTION] Operation Type: {operation_type}")
+        print(f"[DEBUG PRE-EXECUTION] Execution Data: {execution_data}")
+        print(f"[DEBUG PRE-EXECUTION] Original operation_data from storage: {operation['operation_data']}")
+        print(f"[DEBUG PRE-EXECUTION] Modified data from user: {modified_data}")
         
         # Execute the actual database operation
         result = execute_database_operation(operation_type, execution_data)
@@ -1221,6 +1499,32 @@ def get_pending_operations():
     except Exception as e:
         print(f"[PENDING OPERATIONS ERROR] {str(e)}")
         return jsonify({'error': 'Failed to retrieve pending operations'}), 500
+
+@app.route('/debug/pending_operations', methods=['GET'])
+def debug_pending_operations():
+    """Enhanced debug endpoint to inspect pending operations in detail"""
+    try:
+        debug_info = {
+            'timestamp': datetime.now().isoformat(),
+            'total_operations': len(pending_operations),
+            'pending_operations_detailed': {}
+        }
+        
+        for op_id, operation in pending_operations.items():
+            debug_info['pending_operations_detailed'][op_id] = {
+                'operation_type': operation.get('operation_type'),
+                'operation_data': operation.get('operation_data'),
+                'user_message': operation.get('user_message', '')[:100] + '...',
+                'status': operation.get('status'),
+                'created_at': operation.get('created_at'),
+                'ai_confidence': operation.get('ai_confidence')
+            }
+        
+        print(f"[DEBUG ENDPOINT] Pending operations dump: {debug_info}")
+        
+        return jsonify(debug_info)
+    except Exception as e:
+        return jsonify({'error': f'Debug failed: {str(e)}'}), 500
 
 # ============================================================================
 # HELPER FUNCTIONS FOR CONFIRMATION WORKFLOW
@@ -1304,11 +1608,18 @@ def analyze_operation_impact(operation_type, operation_data):
 def execute_database_operation(operation_type, operation_data):
     """Execute the actual database operation"""
     try:
-        if operation_type == 'create_client':
+        # 🚨 CRITICAL DEBUG: Log what's actually being executed
+        print(f"[DEBUG EXECUTE] Function called: execute_database_operation")
+        print(f"[DEBUG EXECUTE] Received operation_type: {operation_type}")
+        print(f"[DEBUG EXECUTE] Received operation_data: {operation_data}")
+        
+        # Handle both legacy and ZipForm operation types
+        if operation_type in ['create_client', 'create_client_zipform']:
+            print(f"[DEBUG EXECUTE] Calling create_client with data: {operation_data}")
             return create_client(**operation_data)
-        elif operation_type == 'update_client':
+        elif operation_type in ['update_client', 'update_client_zipform']:
             return update_client(**operation_data)
-        elif operation_type == 'create_property':
+        elif operation_type in ['create_property', 'create_property_zipform']:
             return create_property(**operation_data)
         elif operation_type == 'update_property':
             return update_property(**operation_data)
@@ -1361,6 +1672,74 @@ def generate_forms(transaction_id):
         'transaction_id': transaction_id,
         'data': data
     }, cls=DateTimeEncoder)
+
+@app.route('/api/dashboard_stats', methods=['GET'])
+def get_dashboard_stats():
+    """
+    Get current dashboard statistics for real-time updates
+    Implements Task 9: Real-time dashboard refresh data
+    """
+    try:
+        conn = get_db_connection()
+        
+        # Get current statistics
+        stats = {
+            'total_clients': conn.execute('SELECT COUNT(*) as count FROM clients').fetchone()['count'],
+            'active_transactions': conn.execute('SELECT COUNT(*) as count FROM transactions WHERE status IN ("pending", "in_progress", "under_contract")').fetchone()['count'],
+            'properties': conn.execute('SELECT COUNT(*) as count FROM properties').fetchone()['count'],
+            'this_month_closings': 0  # Simplified for now
+        }
+        
+        # Get recent transactions with enhanced data
+        try:
+            recent_transactions = conn.execute('''
+                SELECT t.id, t.status, t.purchase_price, t.offer_date, t.close_of_escrow_date,
+                       'Address TBD' as address_street, 'City TBD' as address_city,
+                       'Buyer TBD' as buyer_first, '' as buyer_last,
+                       'Seller TBD' as seller_first, '' as seller_last
+                FROM transactions t
+                ORDER BY t.created_at DESC
+                LIMIT 10
+            ''').fetchall()
+            
+            # Convert to list of dicts for JSON serialization
+            transactions_list = []
+            for trans in recent_transactions:
+                transactions_list.append({
+                    'id': trans['id'],
+                    'status': trans['status'],
+                    'purchase_price': trans['purchase_price'],
+                    'offer_date': trans['offer_date'],
+                    'close_of_escrow_date': trans['close_of_escrow_date'],
+                    'address_street': trans['address_street'],
+                    'address_city': trans['address_city'],
+                    'buyer_first': trans['buyer_first'],
+                    'buyer_last': trans['buyer_last'],
+                    'seller_first': trans['seller_first'],
+                    'seller_last': trans['seller_last']
+                })
+        except Exception as trans_error:
+            print(f"[DASHBOARD STATS] Transaction query error: {trans_error}")
+            transactions_list = []
+        
+        conn.close()
+        
+        print(f"[DASHBOARD STATS] Retrieved: {stats['total_clients']} clients, {stats['properties']} properties, {len(transactions_list)} transactions")
+        
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'recent_transactions': transactions_list,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"[DASHBOARD STATS ERROR] {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 if __name__ == '__main__':
     init_database()
