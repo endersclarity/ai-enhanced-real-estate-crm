@@ -226,7 +226,8 @@
         </div>
         
         <!-- AI Chatbot Sidebar -->
-        <div class="col-lg-3">
+    </div>
+    <div class="col-lg-3">
             <div class="chatbot-sidebar">
                 <!-- AI Status -->
                 <div class="mb-3">
@@ -380,8 +381,8 @@
 
 {% endblock %}
 
-{% block extra_js %}
 <script>
+console.log('JavaScript execution fixed - moved script outside template block');
 // Existing dashboard functions
 function generateForms() {
     alert('Form generation feature coming soon!');
@@ -405,9 +406,7 @@ function generateTransactionForms(transactionId) {
 }
 
 // Chatbot Integration JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    initializeChatbot();
-});
+console.log('DEBUG: Script execution started');
 
 // Global chatbot variables
 let chatHistory = [];
@@ -417,27 +416,47 @@ let pendingOperation = null;  // Current operation waiting for confirmation
 
 // Initialize chatbot functionality
 function initializeChatbot() {
+    console.log('🔧 [DEBUG] initializeChatbot() called');
     setupChatbotEventListeners();
     updateAIStatus('ready', 'Ready for processing');
     aiReady = true;
+    console.log('🔧 [DEBUG] initializeChatbot() completed');
 }
 
 // Setup chatbot event listeners
 function setupChatbotEventListeners() {
+    console.log('🔧 [DEBUG] setupChatbotEventListeners() called');
+    
     // Chat input
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     
+    console.log('🔧 [DEBUG] chatInput element:', chatInput);
+    console.log('🔧 [DEBUG] sendButton element:', sendButton);
+    
     if (chatInput) {
+        console.log('🔧 [DEBUG] Adding keypress listener to chatInput');
         chatInput.addEventListener('keypress', function(e) {
+            console.log('🔧 [DEBUG] Keypress event fired:', e.key);
             if (e.key === 'Enter') {
+                console.log('🔧 [DEBUG] Enter key detected, calling sendChatMessage()');
                 sendChatMessage();
             }
         });
+        console.log('🔧 [DEBUG] Keypress listener added successfully');
+    } else {
+        console.error('🔧 [DEBUG] chatInput element not found!');
     }
     
     if (sendButton) {
-        sendButton.addEventListener('click', sendChatMessage);
+        console.log('🔧 [DEBUG] Adding click listener to sendButton');
+        sendButton.addEventListener('click', function() {
+            console.log('🔧 [DEBUG] Send button clicked, calling sendChatMessage()');
+            sendChatMessage();
+        });
+        console.log('🔧 [DEBUG] Click listener added successfully');
+    } else {
+        console.error('🔧 [DEBUG] sendButton element not found!');
     }
     
     // Email processing
@@ -501,10 +520,15 @@ function updateAIStatus(status, text) {
 
 // Send chat message
 function sendChatMessage() {
+    console.log('🔧 [DEBUG] sendChatMessage() called');
     const input = document.getElementById('chatInput');
-    if (!input) return;
+    if (!input) {
+        console.error('🔧 [DEBUG] chatInput not found in sendChatMessage()');
+        return;
+    }
     
     const message = input.value.trim();
+    console.log('🔧 [DEBUG] Message content:', message);
     
     if (message) {
         addUserMessage(message);
@@ -1268,5 +1292,8 @@ function extractOperationDataFromSuggestion(suggestion, userMessage) {
     
     return operationData;
 }
+
+// Execute immediately since script is at bottom of page after all functions defined
+console.log('🔧 [DEBUG] Executing initializeChatbot at end of script');
+initializeChatbot();
 </script>
-{% endblock %}
