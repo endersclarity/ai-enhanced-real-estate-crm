@@ -1,11 +1,11 @@
 # Task ID: 9
 # Title: Implement Real-time Dashboard Updates
 # Status: pending
-# Dependencies: 7, 8
-# Priority: medium
-# Description: Implement functionality to ensure that changes made to the CRM database via the chatbot (Tasks 6 & 8) are reflected in the main dashboard view in near real-time.
+# Dependencies: 8
+# Priority: high
+# Description: Implement functionality to automatically update or refresh relevant sections of the main dashboard interface after a database operation is successfully executed via the chatbot.
 # Details:
-Add JavaScript to `templates/crm_dashboard.html` to periodically fetch updated data from the Flask backend relevant to the currently displayed CRM view (e.g., client list, property details). Update the relevant parts of the dashboard HTML dynamically with the new data. Alternatively, after a successful data save/update via the `/process_email` endpoint (Task 8), trigger a targeted refresh of the affected dashboard component or a full page reload if necessary (though targeted updates are preferred for better UX).
+After a confirmed database operation is completed by the backend (e.g., client created, property updated), trigger a frontend event or AJAX call to refresh the specific dashboard components that display the affected data (e.g., client list, property details). This ensures the main dashboard view is immediately synchronized with changes made via the chatbot.
 
 # Test Strategy:
-Load the dashboard. Use the chatbot's email processing to add or update a client or property. Observe the main CRM dashboard view. Verify that the changes made via the chatbot appear in the dashboard without manual refresh within a short timeframe. Test updating data via the standard CRM interface and ensure the chatbot sidebar doesn't interfere.
+Use the chatbot to perform database operations that affect data displayed in the main dashboard area (e.g., create a new client, update an existing property). After confirming and executing the operation, verify that the relevant list or detail view in the main dashboard updates automatically and immediately without a manual page refresh.

@@ -1,11 +1,11 @@
 # Task ID: 4
-# Title: Define Flask Endpoints for Chatbot Interaction and Data Processing
+# Title: Add Python-Side Data Validation
 # Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Add new routes in `real_estate_crm.py` to handle incoming requests from the integrated chatbot for both chat interactions and processed email data.
+# Description: Add a validation layer in the Flask backend to check the data extracted by the AI for correctness, format, and basic business logic before attempting database operations.
 # Details:
-In `real_estate_crm.py`, define a new Flask route, e.g., `/chat`, that accepts POST requests containing user messages. Define another new route, e.g., `/process_email`, that accepts POST requests containing the extracted data from the email processing module. These endpoints should initially just receive and log the data to confirm connectivity.
+Implement validation logic in `real_estate_crm.py` after receiving extracted entities or function call parameters from the AI. Validate data types (e.g., ensure budget is a number), formats (e.g., email structure, phone number length/format), and check for basic business constraints (e.g., required fields for creating a client). Use Pydantic or similar validation methods.
 
 # Test Strategy:
-Run the Flask application. Use `curl` or a tool like Postman to send POST requests to the newly defined `/chat` and `/process_email` URLs with sample data (e.g., JSON payload). Verify that the Flask application logs or prints the received data, confirming the endpoints are active and receiving requests correctly.
+Test with inputs designed to produce potentially invalid or malformed data from the AI (e.g., 'create client John Doe with budget ABC'). Verify that the validation layer correctly identifies the invalid data, prevents the database operation, and prepares an appropriate error response.

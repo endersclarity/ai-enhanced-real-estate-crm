@@ -1,11 +1,11 @@
 # Task ID: 3
-# Title: Refactor Chatbot JavaScript for Dashboard Context
+# Title: Refine AI Prompts with Few-Shot Examples
 # Status: pending
-# Dependencies: 2
-# Priority: high
-# Description: Refactor the JavaScript code from `chatbot-crm.html` to function correctly within the `templates/crm_dashboard.html` context, addressing potential ID conflicts and ensuring event listeners are attached correctly.
+# Dependencies: 1
+# Priority: medium
+# Description: Refine prompts for Gemini 2.5 Flash using few-shot examples to improve the accuracy and consistency of AI-native entity extraction and function parameter identification, especially for edge cases.
 # Details:
-Identify all JavaScript code blocks and external script includes used by `chatbot-crm.html`. Consolidate or include these scripts in `templates/crm_dashboard.html`. Update any JavaScript code that relies on specific DOM element IDs or classes to ensure they correctly target elements within the new sidebar structure. Use more robust selectors if necessary. Ensure event listeners (e.g., button clicks, input changes, paste events) are correctly attached to the elements in the dashboard DOM.
+Update the system prompts or user messages sent to the Gemini API via LangChain. Include specific examples of user inputs and the desired structured output (JSON for entities, function call parameters) to guide the AI. Focus on known failure cases and complex inputs. Ensure `temperature=0.1` is used for deterministic responses.
 
 # Test Strategy:
-Load `templates/crm_dashboard.html` in a browser. Open the browser's developer console and check for JavaScript errors. Interact with the chatbot sidebar elements (type text, click buttons, paste content) and verify that basic JavaScript functions (like reading input, showing/hiding elements) execute without errors, even if backend communication is not yet functional.
+Create a test suite with various edge cases and complex natural language inputs. Run these inputs through the updated AI extraction process and verify that the AI consistently and accurately extracts the correct entities and identifies the appropriate function calls and parameters based on the few-shot examples.

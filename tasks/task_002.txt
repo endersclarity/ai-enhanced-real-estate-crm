@@ -1,11 +1,11 @@
 # Task ID: 2
-# Title: Integrate Chatbot HTML/CSS into Dashboard
-# Status: pending
+# Title: Implement AI Extraction Fallback System
+# Status: done
 # Dependencies: 1
 # Priority: high
-# Description: Integrate the HTML structure and CSS styles of the existing `chatbot-crm.html` into `templates/crm_dashboard.html` to create a sidebar component.
+# Description: Create a robust fallback mechanism for entity extraction, using the legacy regex method only if the primary AI-native extraction fails or is unavailable.
 # Details:
-Analyze `chatbot-crm.html` to identify core HTML elements for the chat interface and email processing area. Copy these elements into `templates/crm_dashboard.html`, placing them within a new sidebar container element (e.g., a `div`). Copy or adapt the relevant CSS rules from `chatbot-crm.html` or its associated stylesheets into the dashboard's CSS to style the sidebar appropriately. Ensure responsive design principles are maintained.
+Rename the existing `extract_entities_from_text()` function to `extract_entities_from_text_legacy()`. Implement logic within the entity extraction process to attempt calling the AI-native extraction first. If this fails (e.g., API error, malformed AI response), catch the error and attempt extraction using `extract_entities_from_text_legacy()`. Log instances where the fallback is used.
 
 # Test Strategy:
-Load `templates/crm_dashboard.html` in a web browser. Visually inspect that the chatbot interface appears as a sidebar on the dashboard page. Check responsiveness on different screen sizes. Use browser developer tools to inspect HTML structure and applied CSS rules.
+Simulate scenarios where the AI extraction might fail (e.g., mock an API error) and verify that the system correctly falls back to using the legacy regex function. Test inputs that were previously handled by the regex to ensure the fallback is functional and produces expected results.

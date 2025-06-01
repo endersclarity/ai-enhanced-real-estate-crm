@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Connect Frontend Email Processing to Flask Data Endpoint
+# Title: Implement User Confirmation Workflow
 # Status: pending
-# Dependencies: 3, 6
+# Dependencies: 7
 # Priority: high
-# Description: Modify the refactored chatbot JavaScript to send the extracted email data to the new Flask `/process_email` endpoint after processing and handle the backend's response.
+# Description: Implement a user confirmation workflow in the dashboard sidebar for all database operations proposed by the AI, requiring explicit user approval before execution.
 # Details:
-In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles the output of the email processing and entity extraction. After the data is extracted and validated (and potentially previewed), use the `fetch` API or `XMLHttpRequest` to send a POST request containing the extracted data (likely as a JSON object) to the `/process_email` endpoint defined in `real_estate_crm.py`. Handle the response from the backend, displaying success messages, errors, or conflict resolution prompts to the user.
+Design and implement a modal dialog or a clear UI element within the sidebar. When the AI proposes a database operation (e.g., 'Create Client', 'Update Property'), display the details of the proposed change to the user. The user must click a 'Confirm' button (or similar) for the operation to proceed. Implement the backend logic to support this two-step process (propose -> await confirmation -> execute upon confirmation). Allow users to cancel or potentially modify the proposed operation.
 
 # Test Strategy:
-Load the dashboard. Paste sample email content into the email processing area. Trigger the processing and data extraction. Verify that a POST request is sent to `/process_email` with the extracted data payload. Verify that the backend's response is received and handled appropriately in the frontend UI (e.g., a 'Data saved successfully' message).
+Initiate various database operations via the chatbot (e.g., 'create client Jane Doe', 'update John Smith's phone number'). Verify that a confirmation prompt appears in the sidebar displaying the details of the proposed change. Test confirming the operation (verifying it executes) and canceling the operation (verifying it does not execute). Test the modification flow if implemented.

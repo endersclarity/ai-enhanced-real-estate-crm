@@ -1,11 +1,11 @@
 # Task ID: 7
-# Title: Connect Frontend Chat to Flask Chat Endpoint
+# Title: Connect Sidebar Frontend to Flask Backend
 # Status: pending
-# Dependencies: 3, 5
+# Dependencies: 5
 # Priority: high
-# Description: Modify the refactored chatbot JavaScript to send user chat messages to the new Flask `/chat` endpoint and display the responses received from the backend.
+# Description: Connect the chatbot sidebar JavaScript in `crm_dashboard.html` to the Flask backend endpoints (`/chat`, `/process_email`) to enable real-time communication.
 # Details:
-In the JavaScript code integrated into `templates/crm_dashboard.html`, modify the function that handles sending user messages. Use the `fetch` API or `XMLHttpRequest` to send a POST request containing the user's message to the `/chat` endpoint defined in `real_estate_crm.py`. Upon receiving a response from the backend, update the chat interface to display the AI's message.
+Modify the JavaScript in `templates/crm_dashboard.html`. Replace the current demo/fallback logic with AJAX calls to send user input from the chat and email processing areas to the `/chat` and `/process_email` Flask endpoints. Implement handlers for receiving responses from the backend and updating the sidebar UI (displaying AI responses, processing results, errors). Include frontend error handling for network issues.
 
 # Test Strategy:
-Load the dashboard. Type a message in the chatbot sidebar and send it. Use browser developer tools (Network tab) to verify that a POST request is sent to `/chat`. Verify that the response from the backend is received and the AI's message appears in the chat interface.
+Open the dashboard in a browser. Type messages into the chatbot sidebar and paste email content into the processing area. Verify that these actions trigger AJAX requests to the correct backend endpoints and that the responses from the backend are correctly displayed in the sidebar UI. Test basic chat interactions and email processing initiation.

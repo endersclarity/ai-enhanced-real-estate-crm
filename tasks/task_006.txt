@@ -1,11 +1,11 @@
 # Task ID: 6
-# Title: Implement Data Mapping and CRM Database Update Logic
+# Title: Document AI-Native Extraction System
 # Status: pending
-# Dependencies: 4
-# Priority: high
-# Description: Implement the logic in `real_estate_crm.py` to receive extracted data from the email processing endpoint, map it to the 177-field CRM schema, handle conflicts, and update the database.
+# Dependencies: 5
+# Priority: low
+# Description: Update documentation to reflect the new AI-native entity extraction system, fallback mechanism, validation layer, and enhanced error handling.
 # Details:
-Inside the `/process_email` route handler in `real_estate_crm.py`, receive the JSON data payload. Implement Python logic to map the keys from the received JSON (extracted entities) to the corresponding fields in the 177-field CRM schema. Use the database interaction layer (e.g., SQLAlchemy models or raw SQL queries based on `real_estate_crm_schema.sql`) to insert new records or update existing ones. Implement the conflict resolution logic as specified in the PRD (e.g., prompt user, overwrite, merge). Return a response indicating success, failure, or conflicts.
+Update the system architecture documentation and developer guides. Describe the removal of regex dependencies, the implementation of direct function calling, the AI-native extraction process, the fallback logic (Task 2), the Python-side validation (Task 4), and the tiered error handling/clarification workflow (Task 5). Include examples of how the system handles different inputs and errors.
 
 # Test Strategy:
-Write unit tests for the data mapping and database update functions using sample extracted JSON data and the 177-field schema. Test scenarios for inserting new clients/properties and updating existing ones. Test conflict resolution logic with sample conflicting data. Test the `/process_email` endpoint with sample data and verify database changes using a database client or another CRM view.
+Review the updated documentation to ensure it accurately reflects the implemented system changes and provides clear guidance for developers and understanding for stakeholders.

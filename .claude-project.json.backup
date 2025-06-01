@@ -1,0 +1,43 @@
+{
+  "name": "Offer Creator - Real Estate Automation",
+  "description": "Advanced real estate automation system for Narissa Realty with ZipForm Plus integration and PDF reconstruction",
+  "version": "1.0.0",
+  "type": "python-flask-webapp",
+  "keymap": {
+    "start": "cd core_app && source ../venv/bin/activate && python real_estate_crm.py",
+    "dev": "cd core_app && source ../venv/bin/activate && python real_estate_crm.py",
+    "test": "source venv/bin/activate && python -m pytest tests/ -v",
+    "shell": "source venv/bin/activate",
+    "requirements": "source venv/bin/activate && pip install -r requirements.txt",
+    "forms": "ls -la documents/*.pdf | head -15",
+    "tasks": "cat tasks/tasks.json | jq '.tasks[] | select(.status != \"completed\")'",
+    "status": "cat documentation/activeContext.md",
+    "changelog": "cat documentation/changelog.md",
+    "context": "cat documentation/activeContext.md && echo '---' && cat tasks/tasks.json"
+  },
+  "structure": {
+    "source": ["core_app/", "templates/", "static/"],
+    "docs": ["documentation/", "tasks/"],
+    "config": ["requirements.txt", "core_app/database/"],
+    "templates": ["documents/*.pdf"],
+    "output": ["core_app/flask.log"]
+  },
+  "context": {
+    "active": "documentation/activeContext.md",
+    "changelog": "documentation/changelog.md",
+    "tasks": "tasks/tasks.json",
+    "readme": "documentation/README.md"
+  },
+  "metadata": {
+    "last_load": "2025-05-31T18:00:00Z",
+    "last_sync": "2025-05-31T23:30:00Z", 
+    "session_status": "🎆 BREAKTHROUGH ACHIEVED: Core chatbot functionality fully operational - JavaScript template issue resolved",
+    "next_milestone": "Real-time Dashboard Updates (Task #9) - Auto-refresh on chatbot operations", 
+    "breakthrough": "CRITICAL FIX: JavaScript template block issue resolved - chatbot typing, sending, AI responses working",
+    "files_ready": ["templates/crm_dashboard.html (FULLY FUNCTIONAL chatbot)", "real_estate_crm.py (AI-integrated Flask backend)", "painPoints.md (debugging case study)", "tasks/tasks.json (80% complete)", "activeContext.md (breakthrough status)"],
+    "test_results": "Chatbot functionality confirmed operational via browser testing - typing, clicking, AI responses working",
+    "branch_status": "feature/ai-chatbot-dashboard-integration (80% complete) | main (production) - 2 total branches",
+    "task_progress": "8/10 completed (80%) - Major milestone achieved, sprint to completion",
+    "capabilities": ["🚀 Real Gemini 2.5 Flash AI", "✅ WORKING chatbot interface (breakthrough)", "Working Flask endpoints (/chat, /process_email)", "AI-callable database functions", "177-field CRM schema", "User confirmation workflow", "Complete frontend-backend integration", "Multi-strategy PDF reconstruction", "ZipForm and MLS integration"]
+  }
+}

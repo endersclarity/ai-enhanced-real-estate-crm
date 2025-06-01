@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Implement Gemini API Integration in Flask Backend
+# Title: Implement Tiered Error Handling and Clarification
 # Status: pending
 # Dependencies: 4
 # Priority: high
-# Description: Implement the logic in `real_estate_crm.py` to securely use the Gemini API key and make API calls to get responses for user chat messages.
+# Description: Implement a tiered error handling system in the `/chat` endpoint to gracefully handle AI extraction failures, validation errors, and database operation errors, including prompting the user for clarification when necessary.
 # Details:
-Inside the `/chat` route handler in `real_estate_crm.py`, retrieve the Gemini API key securely (e.g., from environment variables). Use a Python library (like `google-generativeai`) to interact with the Gemini API. Pass the user's message to the API and process the response. Return the AI's response to the frontend.
+Enhance the error handling blocks in the `/chat` endpoint. Implement specific error handling for different failure types: AI API errors, AI extraction/parsing errors, validation errors from Task 4, and database errors (e.g., constraint violations). For validation errors or ambiguous requests, formulate a clarifying question to send back to the user via the chat interface. Log detailed error information on the backend.
 
 # Test Strategy:
-Write unit tests for the function that interacts with the Gemini API, mocking the API response. Test the `/chat` endpoint by sending sample user messages. Verify that the Flask application successfully calls the Gemini API and returns a valid AI response in the expected format. Check for secure handling of the API key.
+Simulate various error conditions: AI API down, input causing validation failure (e.g., invalid email format), input causing database error (e.g., duplicate entry). Verify that the system catches the error, provides a user-friendly message in the chat sidebar, and prompts for clarification when the error is due to ambiguous or invalid user input/AI interpretation.

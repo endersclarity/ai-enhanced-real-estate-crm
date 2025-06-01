@@ -709,10 +709,26 @@ window.sendChatMessage = function sendChatMessage() {
                     context: 'Dashboard sidebar interaction'
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                // TASK #7: ENHANCED ERROR HANDLING FOR VALIDATION RESPONSES
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(JSON.stringify(errorData));
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 updateAIStatus('ready', 'Ready for processing');
                 console.log('🔧 [DEBUG] Chat response received:', data);
+                
+                // TASK #7: HANDLE VALIDATION AND ERROR RESPONSES
+                if (data.error_type === 'validation') {
+                    console.log('🔧 [VALIDATION] Validation error detected:', data.validation_errors);
+                    addAIMessage(data.response);
+                    // No further processing needed - user needs to correct input
+                    return;
+                }
                 
                 if (data.response) {
                     console.log('🔧 [DEBUG] Adding AI response:', data.response);
@@ -734,7 +750,35 @@ window.sendChatMessage = function sendChatMessage() {
             .catch(error => {
                 console.error('Chat error:', error);
                 updateAIStatus('error', 'Connection failed');
-                addAIMessage('Connection error. Please check that the Flask server is running and try again.');
+                
+                // TASK #7: ENHANCED ERROR MESSAGE HANDLING
+                try {
+                    const errorData = JSON.parse(error.message);
+                    if (errorData.response) {
+                        // Use the formatted error response from backend
+                        addAIMessage(errorData.response);
+                    } else if (errorData.error_type) {
+                        // Handle specific error types
+                        switch (errorData.error_type) {
+                            case 'validation':
+                                addAIMessage(errorData.clarification || 'Please check your input and try again.');
+                                break;
+                            case 'connection':
+                                addAIMessage('🔌 I\'m having trouble connecting to the AI service. Please try again in a moment.');
+                                break;
+                            case 'database':
+                                addAIMessage('🗃️ Database issue detected. Please try again or contact support.');
+                                break;
+                            default:
+                                addAIMessage(errorData.message || 'An error occurred. Please try again.');
+                        }
+                    } else {
+                        addAIMessage('Connection error. Please check that the Flask server is running and try again.');
+                    }
+                } catch (parseError) {
+                    // Fallback for non-JSON errors
+                    addAIMessage('Connection error. Please check that the Flask server is running and try again.');
+                }
             });
         } else {
             // Fallback for when backend is not ready

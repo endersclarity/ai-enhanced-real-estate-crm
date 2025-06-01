@@ -1,193 +1,132 @@
 {
-  "metadata": {
-    "branch": "feature/ai-chatbot-dashboard-integration",
-    "status": "70% complete - Backend AI integration complete, frontend integration complete, user confirmation workflow complete",
-    "lastUpdated": "2025-05-31",
-    "totalTasks": 10,
-    "completedTasks": 7,
-    "pendingTasks": 2,
-    "obsoleteTasks": 1
-  },
   "tasks": [
     {
       "id": 1,
-      "title": "Setup Development Environment and Branch",
-      "description": "Ensure the development environment is correctly set up and the feature branch `feature/ai-chatbot-dashboard-integration` is active and up-to-date.",
-      "details": "Verify Python environment with Flask and necessary libraries installed. Confirm access to the existing `chatbot-crm.html`, `templates/crm_dashboard.html`, and `real_estate_crm.py` files. Ensure the current Git branch is `feature/ai-chatbot-dashboard-integration` and pull the latest changes.",
-      "testStrategy": "Verify branch name using `git branch`. Check file existence and basic project structure. Run the existing Flask app to ensure it starts without errors.",
-      "priority": "medium",
+      "title": "Implement Direct AI Function Calling",
+      "description": "Replace the regex-based parsing logic in `analyze_response_for_functions()` and the `/chat` endpoint with direct processing of function call results provided by LangChain's Gemini integration.",
+      "details": "Modify the `/chat` endpoint in `real_estate_crm.py` (lines 1216-1327) to remove dependencies on `analyze_response_for_functions()` (lines 310-348). Instead, directly utilize the structured function call output from the LangChain/Gemini integration to identify and execute CRM operations. Ensure the system correctly interprets and uses parameters provided by the AI.",
+      "testStrategy": "Verify that sending natural language requests for CRM operations (e.g., 'create client John Doe', 'find properties in area X') correctly triggers the corresponding backend functions without relying on regex parsing of the AI's text response. Use the Jennifer Lawrence test case ('add jennifer lawrence...747567574') to confirm accurate entity extraction and function calling.",
+      "priority": "high",
       "dependencies": [],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "Development environment fully configured with Gemini API integration working"
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 2,
-      "title": "OBSOLETE: Integrate Chatbot HTML/CSS into Dashboard",
-      "description": "TASK OBSOLETE: Dashboard already has working chatbot sidebar integrated. Browser testing confirmed AI chatbot is functional with sidebar interface in templates/crm_dashboard.html.",
-      "details": "OBSOLETE: During browser testing on 2025-05-31, confirmed that chatbot sidebar already exists and functions in dashboard. AI responds to chat messages and recognizes available functions. Integration already complete - no additional work needed.",
-      "testStrategy": "VERIFIED: Browser testing confirmed chatbot sidebar working with AI responses. Task marked obsolete as functionality already exists.",
-      "priority": "obsolete",
-      "dependencies": [],
-      "status": "obsolete",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "Chatbot sidebar UI already exists in dashboard template"
+      "title": "Implement AI Extraction Fallback System",
+      "description": "Create a robust fallback mechanism for entity extraction, using the legacy regex method only if the primary AI-native extraction fails or is unavailable.",
+      "details": "Rename the existing `extract_entities_from_text()` function to `extract_entities_from_text_legacy()`. Implement logic within the entity extraction process to attempt calling the AI-native extraction first. If this fails (e.g., API error, malformed AI response), catch the error and attempt extraction using `extract_entities_from_text_legacy()`. Log instances where the fallback is used.",
+      "testStrategy": "Simulate scenarios where the AI extraction might fail (e.g., mock an API error) and verify that the system correctly falls back to using the legacy regex function. Test inputs that were previously handled by the regex to ensure the fallback is functional and produces expected results.",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 3,
-      "title": "Connect Dashboard JavaScript to Flask Backend",
-      "description": "Connect the dashboard chatbot sidebar JavaScript to the Flask backend endpoints, replacing demo mode with real AI communication via `/chat` and `/process_email` routes.",
-      "details": "Modify the JavaScript in `templates/crm_dashboard.html` to make AJAX calls to Flask backend instead of using demo/fallback modes. Connect chat input handlers to POST requests to `/chat` endpoint. Connect email processing to `/process_email` endpoint. Implement proper error handling for network failures and API timeouts. Test basic chat functionality with real AI responses from Gemini backend.",
-      "testStrategy": "Load dashboard in browser and test chatbot sidebar functionality. Verify chat messages are sent to Flask backend and AI responses are displayed. Test email processing with sample emails. Check network tab in browser dev tools to confirm proper AJAX communication. Verify error handling for network failures.",
-      "priority": "high",
-      "dependencies": [1],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "estimatedHours": 8,
-      "subtasks": [
-        "✅ Replace demo mode placeholders with real AJAX calls",
-        "✅ Connect chat input to /chat endpoint",
-        "✅ Connect email processing to /process_email endpoint", 
-        "✅ Implement error handling for network failures",
-        "✅ Test end-to-end chat functionality",
-        "✅ Add conversation history support",
-        "✅ Add function suggestion display"
+      "title": "Refine AI Prompts with Few-Shot Examples",
+      "description": "Refine prompts for Gemini 2.5 Flash using few-shot examples to improve the accuracy and consistency of AI-native entity extraction and function parameter identification, especially for edge cases.",
+      "details": "Update the system prompts or user messages sent to the Gemini API via LangChain. Include specific examples of user inputs and the desired structured output (JSON for entities, function call parameters) to guide the AI. Focus on known failure cases and complex inputs. Ensure `temperature=0.1` is used for deterministic responses.",
+      "testStrategy": "Create a test suite with various edge cases and complex natural language inputs. Run these inputs through the updated AI extraction process and verify that the AI consistently and accurately extracts the correct entities and identifies the appropriate function calls and parameters based on the few-shot examples.",
+      "priority": "medium",
+      "dependencies": [
+        1
       ],
-      "successCriteria": "Dashboard chatbot communicates with Flask backend and displays real AI responses",
-      "notes": "✅ COMPLETED: Dashboard JavaScript now properly connects to Flask backend. Enhanced with conversation history and function suggestions."
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 4,
-      "title": "Define Flask Endpoints for Chatbot Interaction and Data Processing",
-      "description": "Add new routes in `real_estate_crm.py` to handle incoming requests from the integrated chatbot for both chat interactions and processed email data.",
-      "details": "In `real_estate_crm.py`, define a new Flask route, e.g., `/chat`, that accepts POST requests containing user messages. Define another new route, e.g., `/process_email`, that accepts POST requests containing the extracted data from the email processing module. These endpoints should initially just receive and log the data to confirm connectivity.",
-      "testStrategy": "Run the Flask application. Use `curl` or a tool like Postman to send POST requests to the newly defined `/chat` and `/process_email` URLs with sample data (e.g., JSON payload). Verify that the Flask application logs or prints the received data, confirming the endpoints are active and receiving requests correctly.",
+      "title": "Add Python-Side Data Validation",
+      "description": "Add a validation layer in the Flask backend to check the data extracted by the AI for correctness, format, and basic business logic before attempting database operations.",
+      "details": "Implement validation logic in `real_estate_crm.py` after receiving extracted entities or function call parameters from the AI. Validate data types (e.g., ensure budget is a number), formats (e.g., email structure, phone number length/format), and check for basic business constraints (e.g., required fields for creating a client). Use Pydantic or similar validation methods.",
+      "testStrategy": "Test with inputs designed to produce potentially invalid or malformed data from the AI (e.g., 'create client John Doe with budget ABC'). Verify that the validation layer correctly identifies the invalid data, prevents the database operation, and prepares an appropriate error response.",
       "priority": "high",
-      "dependencies": [1],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "/chat and /process_email endpoints implemented and working in real_estate_crm.py"
+      "dependencies": [
+        1
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 5,
-      "title": "Implement Gemini API Integration in Flask Backend",
-      "description": "Implement the logic in `real_estate_crm.py` to securely use the Gemini API key and make API calls to get responses for user chat messages.",
-      "details": "Inside the `/chat` route handler in `real_estate_crm.py`, retrieve the Gemini API key securely (e.g., from environment variables). Use LangChain with `langchain-google-genai` to interact with the Gemini 2.5 Flash API. Pass the user's message to the API and process the response. Return the AI's response to the frontend.",
-      "testStrategy": "Write unit tests for the function that interacts with the Gemini API, mocking the API response. Test the `/chat` endpoint by sending sample user messages. Verify that the Flask application successfully calls the Gemini API and returns a valid AI response in the expected format. Check for secure handling of the API key.",
+      "title": "Implement Tiered Error Handling and Clarification",
+      "description": "Implement a tiered error handling system in the `/chat` endpoint to gracefully handle AI extraction failures, validation errors, and database operation errors, including prompting the user for clarification when necessary.",
+      "details": "Enhance the error handling blocks in the `/chat` endpoint. Implement specific error handling for different failure types: AI API errors, AI extraction/parsing errors, validation errors from Task 4, and database errors (e.g., constraint violations). For validation errors or ambiguous requests, formulate a clarifying question to send back to the user via the chat interface. Log detailed error information on the backend.",
+      "testStrategy": "Simulate various error conditions: AI API down, input causing validation failure (e.g., invalid email format), input causing database error (e.g., duplicate entry). Verify that the system catches the error, provides a user-friendly message in the chat sidebar, and prompts for clarification when the error is due to ambiguous or invalid user input/AI interpretation.",
       "priority": "high",
-      "dependencies": [4],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "Gemini 2.5 Flash integration complete using LangChain with working API key"
+      "dependencies": [
+        4
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 6,
-      "title": "Build AI-Callable Database Functions",
-      "description": "Create a library of Python functions that the AI can call to perform any CRM database operation through natural language commands.",
-      "details": "In `real_estate_crm.py`, create a comprehensive set of database functions that the AI can call: `create_client()`, `update_client()`, `find_clients()`, `create_property()`, `update_property()`, `create_transaction()`, `schedule_showing()`, etc. Each function should handle validation, conflict detection, and return structured responses. Implement a function registry system so the AI knows what operations are available. Add detailed docstrings that help the AI understand when and how to use each function.",
-      "testStrategy": "Test each database function individually with sample data. Create test scenarios for client creation, property updates, transaction management, and data conflicts. Verify that functions return consistent, structured responses that the AI can interpret. Test the function registry system to ensure the AI can discover available operations.",
-      "priority": "high",
-      "dependencies": [4],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "Complete set of AI-callable CRM database functions implemented with 177-field schema support"
+      "title": "Document AI-Native Extraction System",
+      "description": "Update documentation to reflect the new AI-native entity extraction system, fallback mechanism, validation layer, and enhanced error handling.",
+      "details": "Update the system architecture documentation and developer guides. Describe the removal of regex dependencies, the implementation of direct function calling, the AI-native extraction process, the fallback logic (Task 2), the Python-side validation (Task 4), and the tiered error handling/clarification workflow (Task 5). Include examples of how the system handles different inputs and errors.",
+      "testStrategy": "Review the updated documentation to ensure it accurately reflects the implemented system changes and provides clear guidance for developers and understanding for stakeholders.",
+      "priority": "low",
+      "dependencies": [
+        5
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 7,
-      "title": "Enhanced AI Context with CRM Function Awareness",
-      "description": "Upgrade the AI assistant to understand all available CRM functions and intelligently decide when to call them based on user conversations.",
-      "details": "Enhance the `get_gemini_response()` function in `real_estate_crm.py` to include context about available CRM functions. Create a system prompt that teaches the AI about real estate workflows and available database operations. Implement function calling logic where the AI can decide to call specific CRM functions and format the responses appropriately. Add conversation memory so the AI can reference previous interactions and suggest follow-up actions.",
-      "testStrategy": "Test conversations where users describe real estate scenarios and verify the AI suggests appropriate database operations. Test multi-step workflows where the AI remembers context across messages. Verify the AI can handle ambiguous requests by asking clarifying questions. Test error handling when database operations fail.",
+      "title": "Connect Sidebar Frontend to Flask Backend",
+      "description": "Connect the chatbot sidebar JavaScript in `crm_dashboard.html` to the Flask backend endpoints (`/chat`, `/process_email`) to enable real-time communication.",
+      "details": "Modify the JavaScript in `templates/crm_dashboard.html`. Replace the current demo/fallback logic with AJAX calls to send user input from the chat and email processing areas to the `/chat` and `/process_email` Flask endpoints. Implement handlers for receiving responses from the backend and updating the sidebar UI (displaying AI responses, processing results, errors). Include frontend error handling for network issues.",
+      "testStrategy": "Open the dashboard in a browser. Type messages into the chatbot sidebar and paste email content into the processing area. Verify that these actions trigger AJAX requests to the correct backend endpoints and that the responses from the backend are correctly displayed in the sidebar UI. Test basic chat interactions and email processing initiation.",
       "priority": "high",
-      "dependencies": [5, 6],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "subtasks": [],
-      "notes": "AI context enhanced with real estate domain knowledge and function awareness"
+      "dependencies": [
+        5
+      ],
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 8,
-      "title": "User Confirmation Workflow for Database Operations",
-      "description": "Implement a safety workflow where the AI proposes database operations and requires user confirmation before execution, ensuring operational safety and user control.",
-      "details": "Create a conversation system where the AI analyzes user input (emails, text, requests) and proposes specific database operations before executing them. Implement modal confirmation dialogs in the dashboard that display: 'AI wants to create client: John Smith, Phone: 555-1234, Email: john@example.com. Proceed?' Add ability for users to modify proposed operations before confirming. Implement operation execution with clear success/failure feedback and suggested next steps.",
-      "testStrategy": "Test scenarios where users paste emails or describe situations, and verify the AI proposes appropriate database operations with confirmation dialogs. Test user responses (approve, deny, modify). Test operation execution and verify database changes are made correctly only after confirmation. Test error handling and rollback scenarios when operations fail.",
+      "title": "Implement User Confirmation Workflow",
+      "description": "Implement a user confirmation workflow in the dashboard sidebar for all database operations proposed by the AI, requiring explicit user approval before execution.",
+      "details": "Design and implement a modal dialog or a clear UI element within the sidebar. When the AI proposes a database operation (e.g., 'Create Client', 'Update Property'), display the details of the proposed change to the user. The user must click a 'Confirm' button (or similar) for the operation to proceed. Implement the backend logic to support this two-step process (propose -> await confirmation -> execute upon confirmation). Allow users to cancel or potentially modify the proposed operation.",
+      "testStrategy": "Initiate various database operations via the chatbot (e.g., 'create client Jane Doe', 'update John Smith's phone number'). Verify that a confirmation prompt appears in the sidebar displaying the details of the proposed change. Test confirming the operation (verifying it executes) and canceling the operation (verifying it does not execute). Test the modification flow if implemented.",
       "priority": "high",
-      "dependencies": [3, 6, 7],
-      "status": "completed",
-      "completedDate": "2025-05-31",
-      "estimatedHours": 12,
-      "subtasks": [
-        "✅ Design confirmation modal dialog UI",
-        "✅ Implement operation preview before execution",
-        "✅ Add user modification workflow for proposed operations",
-        "✅ Create confirmation response handling",
-        "✅ Test safety workflow with various scenarios"
+      "dependencies": [
+        7
       ],
-      "successCriteria": "All database operations require user confirmation with clear previews and modification options",
-      "notes": "✅ COMPLETED: Full confirmation workflow implemented with modal dialogs, field editing, operation preview, and safety controls"
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 9,
-      "title": "Real-time Dashboard Updates from Chatbot Operations", 
-      "description": "Implement automatic dashboard refresh functionality to show changes made by chatbot database operations immediately, providing seamless integration between AI actions and CRM interface.",
-      "details": "Add JavaScript to `templates/crm_dashboard.html` to automatically refresh dashboard components when chatbot makes database changes. Implement targeted updates for specific sections (client list, property details, etc.) rather than full page reloads. Add visual indicators for when updates are happening. Create websocket or polling mechanism to detect when chatbot operations complete successfully.",
-      "testStrategy": "Load dashboard and use chatbot to create/update clients or properties. Verify that changes appear in the main dashboard view within 3 seconds without manual refresh. Test multiple concurrent operations. Test edge cases like network failures during update process. Verify performance remains smooth during real-time updates.",
-      "priority": "medium",
-      "dependencies": [8],
-      "status": "pending", 
-      "estimatedHours": 10,
-      "subtasks": [
-        "Implement dashboard component refresh mechanism",
-        "Add visual indicators for updating state",
-        "Create targeted updates for specific data changes",
-        "Test real-time synchronization between chatbot and dashboard",
-        "Optimize performance for smooth user experience"
+      "title": "Implement Real-time Dashboard Updates",
+      "description": "Implement functionality to automatically update or refresh relevant sections of the main dashboard interface after a database operation is successfully executed via the chatbot.",
+      "details": "After a confirmed database operation is completed by the backend (e.g., client created, property updated), trigger a frontend event or AJAX call to refresh the specific dashboard components that display the affected data (e.g., client list, property details). This ensures the main dashboard view is immediately synchronized with changes made via the chatbot.",
+      "testStrategy": "Use the chatbot to perform database operations that affect data displayed in the main dashboard area (e.g., create a new client, update an existing property). After confirming and executing the operation, verify that the relevant list or detail view in the main dashboard updates automatically and immediately without a manual page refresh.",
+      "priority": "high",
+      "dependencies": [
+        8
       ],
-      "successCriteria": "Dashboard automatically reflects chatbot-initiated database changes within 3 seconds",
-      "notes": "Essential for seamless user experience between AI and CRM interface"
+      "status": "done",
+      "subtasks": []
     },
     {
       "id": 10,
-      "title": "Comprehensive Testing and Production Readiness Validation",
-      "description": "Conduct end-to-end testing of the complete integrated system, validate performance targets, and ensure production readiness for Narissa Realty deployment.",
-      "details": "Execute comprehensive testing plan: Functional Testing (chatbot communication, email processing, database operations), Integration Testing (dashboard-chatbot synchronization), User Experience Testing (complete workflow under 15 seconds), Performance Testing (AI responses under 5 seconds, database operations under 2 seconds), Security Testing (API key handling, data validation), and Edge Case Testing (network failures, malformed data, concurrent users).",
-      "testStrategy": "Follow systematic test plan with documented results. Test complete workflow: user chat → AI response → operation proposal → user confirmation → database update → dashboard refresh. Measure and document performance metrics. Test error scenarios and recovery. Validate security measures. Conduct user acceptance testing simulation.",
+      "title": "Comprehensive Testing and Production Readiness",
+      "description": "Conduct comprehensive end-to-end testing of the integrated system, covering user workflows, error handling, performance, and responsive design, and validate against all success criteria.",
+      "details": "Execute automated test suites (`test_ai_entity_extraction.py`, `test_complete_workflow.html`, etc.) covering AI extraction, validation, error handling, and the full chat-confirm-update-refresh workflow. Manually test the system on different devices and screen sizes to ensure responsive design. Simulate various error conditions and network issues. Benchmark performance against the defined targets (<5s chat response, <2s DB ops, <3s dashboard updates, <15s full workflow). Address any remaining bugs and prepare the application for production deployment (security checks, configuration).",
+      "testStrategy": "Verify all automated tests pass. Confirm successful completion of all user workflows on desktop, tablet, and mobile. Validate that error handling provides clear feedback. Measure performance metrics and confirm they meet targets. Review the application against all success criteria listed in the PRD and branch context.",
       "priority": "high",
-      "dependencies": [9],
-      "status": "pending",
-      "estimatedHours": 16,
-      "subtasks": [
-        "Execute functional testing checklist",
-        "Conduct integration testing scenarios", 
-        "Measure and validate performance targets",
-        "Test security and error handling",
-        "Document test results and deployment readiness",
-        "Create production deployment guide"
+      "dependencies": [
+        9
       ],
-      "successCriteria": "All performance targets met, comprehensive test results documented, system ready for production deployment",
-      "notes": "Final validation before merge to main branch and production deployment"
+      "status": "done",
+      "subtasks": []
     }
-  ],
-  "performanceTargets": {
-    "aiResponseTime": "<5 seconds",
-    "databaseOperations": "<2 seconds", 
-    "dashboardUpdates": "<3 seconds",
-    "completeWorkflow": "<15 seconds",
-    "systemReliability": "99%+ uptime"
-  },
-  "remainingWork": {
-    "estimatedTotalHours": 46,
-    "criticalPath": [3, 8, 9, 10],
-    "timeline": "2-3 weeks",
-    "riskFactors": [
-      "JavaScript integration complexity",
-      "User confirmation workflow UI/UX design",
-      "Real-time update performance optimization"
-    ]
-  }
+  ]
 }
