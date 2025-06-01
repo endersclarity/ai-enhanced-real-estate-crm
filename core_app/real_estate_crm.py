@@ -25,6 +25,21 @@ except ImportError:
     print("⚠️  ZipForm functions not available - run migration first")
     ZIPFORM_AVAILABLE = False
 
+# Import Offer Creation functions
+try:
+    import sys
+    import os
+    sys.path.append(os.path.dirname(__file__))
+    from ai_modules.offer_creation_functions import (
+        search_for_clients, search_for_properties, create_purchase_offer,
+        get_offer_status, list_recent_offers, OFFER_CREATION_AI_FUNCTIONS
+    )
+    OFFER_CREATION_AVAILABLE = True
+    print("✅ Offer Creation AI functions loaded successfully")
+except ImportError as e:
+    print(f"⚠️  Offer Creation functions not available: {e}")
+    OFFER_CREATION_AVAILABLE = False
+
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.secret_key = 'your-secret-key-change-this'  # Change in production
 
@@ -1476,6 +1491,13 @@ if ZIPFORM_AVAILABLE:
     print("✅ ZipForm AI functions loaded successfully")
 else:
     print("⚠️  Running with legacy functions only")
+
+# Add Offer Creation functions if available
+if OFFER_CREATION_AVAILABLE:
+    AI_CALLABLE_FUNCTIONS.update(OFFER_CREATION_AI_FUNCTIONS)
+    print("✅ Offer Creation AI functions integrated with chatbot")
+else:
+    print("⚠️  Running without offer creation capabilities")
 
 @app.route('/')
 def dashboard():
