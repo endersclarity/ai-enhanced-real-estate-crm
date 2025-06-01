@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from typing import Dict
 
-DATABASE_PATH = 'real_estate_crm.db'
+DATABASE_PATH = '../../real_estate_crm.db'
 
 def get_db_connection():
     """Get database connection with row factory"""

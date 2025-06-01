@@ -9,7 +9,7 @@ from datetime import datetime, date
 from typing import Dict, List, Optional, Any
 import json
 
-DATABASE_PATH = 'real_estate_crm.db'
+DATABASE_PATH = '../real_estate_crm.db'
 
 def get_db_connection():
     """Get database connection with row factory"""

@@ -176,9 +176,52 @@
                         </a>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-2">
-                        <button class="btn btn-outline-info w-100" onclick="generateForms()">
+                        <button class="btn btn-outline-info w-100" onclick="openFormGenerator()" data-bs-toggle="modal" data-bs-target="#formGeneratorModal">
                             <i class="bi bi-file-earmark-pdf"></i> Generate Forms
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Forms Generated -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Forms Generated</h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="refreshRecentForms()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="recentFormsContainer">
+                    <div class="text-center text-muted" id="noFormsMessage">
+                        <i class="bi bi-file-earmark-pdf fa-2x mb-2"></i>
+                        <p>No forms generated yet. Click "Generate Forms" to create your first document.</p>
+                    </div>
+                    
+                    <!-- Forms list will be populated here by JavaScript -->
+                    <div id="formsList" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Form Type</th>
+                                        <th>Client</th>
+                                        <th>Property</th>
+                                        <th>Generated</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="formsTableBody">
+                                    <!-- Forms will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -454,11 +497,932 @@
     </div>
 </div>
 
+<!-- Form Generator Modal -->
+<div class="modal fade" id="formGeneratorModal" tabindex="-1" aria-labelledby="formGeneratorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formGeneratorModalLabel">
+                    <i class="bi bi-file-earmark-pdf"></i> Generate Real Estate Forms
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <!-- Form Selection Step -->
+                    <div id="formSelectionStep" class="form-step">
+                        <h6 class="mb-3">1. Select Form Type</h6>
+                        <div class="row" id="formTypeCards">
+                            <!-- Form cards will be loaded here -->
+                        </div>
+                        <div class="selected-form-info mt-3" id="selectedFormInfo" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>Selected:</strong> <span id="selectedFormName"></span>
+                                <br><small id="selectedFormDescription"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Selection Step -->
+                    <div id="dataSelectionStep" class="form-step" style="display: none;">
+                        <h6 class="mb-3">2. Select Client and Property</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="clientSelect" class="form-label">Client</label>
+                                    <select class="form-select" id="clientSelect">
+                                        <option value="">Loading clients...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="propertySelect" class="form-label">Property</label>
+                                    <select class="form-select" id="propertySelect">
+                                        <option value="">Loading properties...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="transactionSelect" class="form-label">Transaction (Optional)</label>
+                                    <select class="form-select" id="transactionSelect">
+                                        <option value="">Select transaction (optional)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Step -->
+                    <div id="previewStep" class="form-step" style="display: none;">
+                        <h6 class="mb-3">3. Review and Generate</h6>
+                        <div class="alert alert-warning">
+                            <strong>Review the form details before generation:</strong>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm">
+                                <tbody id="formPreviewTable">
+                                    <!-- Preview data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Generation Status -->
+                    <div id="generationStatus" class="form-step" style="display: none;">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status" id="generationSpinner">
+                                <span class="visually-hidden">Generating...</span>
+                            </div>
+                            <h6 class="mt-3">Generating Form...</h6>
+                            <p class="text-muted" id="generationMessage">Please wait while we populate your form with CRM data.</p>
+                        </div>
+                    </div>
+
+                    <!-- Results Step -->
+                    <div id="resultsStep" class="form-step" style="display: none;">
+                        <div class="alert alert-success" id="successAlert" style="display: none;">
+                            <h6><i class="bi bi-check-circle"></i> Form Generated Successfully!</h6>
+                            <p id="successMessage"></p>
+                        </div>
+                        <div class="alert alert-danger" id="errorAlert" style="display: none;">
+                            <h6><i class="bi bi-exclamation-triangle"></i> Generation Failed</h6>
+                            <p id="errorMessage"></p>
+                        </div>
+                        <div id="downloadSection" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Download Form</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong id="downloadFileName"></strong>
+                                            <br><small class="text-muted" id="downloadFileDetails"></small>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-primary" id="downloadButton">
+                                                <i class="bi bi-download"></i> Download PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="backButton" onclick="previousStep()" style="display: none;">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" id="nextButton" onclick="nextStep()">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+                <button type="button" class="btn btn-success" id="generateButton" onclick="generateForm()" style="display: none;">
+                    <i class="bi bi-file-earmark-pdf"></i> Generate Form
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 console.log('JavaScript execution fixed - moved script INSIDE template block');
-// Existing dashboard functions
+
+// Form Generator Variables
+let currentStep = 1;
+let selectedFormType = null;
+let selectedClient = null;
+let selectedProperty = null;
+let selectedTransaction = null;
+let formGeneratorData = {};
+
+// Initialize form generator when modal opens
+function openFormGenerator() {
+    console.log('📝 Opening form generator modal');
+    currentStep = 1;
+    selectedFormType = null;
+    resetFormGenerator();
+    loadAvailableForms();
+    loadClientsAndProperties();
+}
+
+// Reset form generator state
+function resetFormGenerator() {
+    // Hide all steps except first
+    document.querySelectorAll('.form-step').forEach(step => step.style.display = 'none');
+    document.getElementById('formSelectionStep').style.display = 'block';
+    
+    // Reset buttons
+    document.getElementById('backButton').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'inline-block';
+    document.getElementById('generateButton').style.display = 'none';
+    
+    // Clear selection info
+    document.getElementById('selectedFormInfo').style.display = 'none';
+}
+
+// Load available forms from API
+async function loadAvailableForms() {
+    try {
+        console.log('🔍 Loading forms from /api/forms/list');
+        const response = await fetch('/api/forms/list');
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('📋 Forms data:', data);
+        
+        if (data && data.success) {
+            displayFormCards(data.forms);
+        } else {
+            console.error('Failed to load forms:', data?.error || 'Unknown error');
+            displayFormError('Failed to load available forms');
+        }
+    } catch (error) {
+        console.error('Error loading forms:', error);
+        displayFormError(`Network error: ${error.message}`);
+    }
+}
+
+// Display form cards in the selection step
+function displayFormCards(forms) {
+    const container = document.getElementById('formTypeCards');
+    container.innerHTML = '';
+    
+    forms.forEach(form => {
+        const cardHtml = `
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card form-type-card" onclick="selectFormType('${form.id}', '${form.name}', '${form.description}')">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-pdf fa-2x text-primary mb-2"></i>
+                        <h6 class="card-title">${form.name}</h6>
+                        <p class="card-text small text-muted">${form.description}</p>
+                        <div class="small">
+                            <span class="badge bg-secondary">${form.pages} pages</span>
+                            <span class="badge bg-info">${form.estimated_time}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += cardHtml;
+    });
+    
+    // Add CSS for hover effects
+    const style = document.createElement('style');
+    style.textContent = `
+        .form-type-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .form-type-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .form-type-card.selected {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Select a form type
+function selectFormType(formId, formName, formDescription) {
+    // Remove previous selection
+    document.querySelectorAll('.form-type-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Mark current selection
+    event.currentTarget.classList.add('selected');
+    
+    selectedFormType = formId;
+    
+    // Show selection info
+    document.getElementById('selectedFormName').textContent = formName;
+    document.getElementById('selectedFormDescription').textContent = formDescription;
+    document.getElementById('selectedFormInfo').style.display = 'block';
+    
+    // Enable next button
+    document.getElementById('nextButton').disabled = false;
+    
+    console.log('📝 Selected form type:', formId);
+}
+
+// Load clients and properties for selection
+async function loadClientsAndProperties() {
+    try {
+        // Load clients (using existing CRM data structure)
+        const clientsResponse = await fetch('/api/clients');
+        let clients = [];
+        
+        if (clientsResponse.ok) {
+            const clientsData = await clientsResponse.json();
+            clients = clientsData.clients || [];
+        } else {
+            // Use mock data if API not available
+            console.log('📋 Using mock client data (API not available)');
+            clients = [
+                { id: 'client_001', first_name: 'John', last_name: 'Smith', email: 'john.smith@email.com' },
+                { id: 'client_002', first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@email.com' },
+                { id: 'client_003', full_name: 'Robert Johnson', email: 'robert.johnson@email.com' },
+                { id: 'client_004', full_name: 'Mary Wilson', email: 'mary.wilson@email.com' }
+            ];
+        }
+        
+        // Load properties
+        const propertiesResponse = await fetch('/api/properties');
+        let properties = [];
+        
+        if (propertiesResponse.ok) {
+            const propertiesData = await propertiesResponse.json();
+            properties = propertiesData.properties || [];
+        } else {
+            // Use mock data if API not available
+            properties = [
+                { id: 'property_001', full_address: '456 Oak Avenue, Sacramento, CA 95814', listing_price: 550000 },
+                { id: 'property_002', full_address: '789 Pine Street, Davis, CA 95616', listing_price: 450000 },
+                { id: 'property_003', full_address: '321 Elm Drive, Roseville, CA 95661', listing_price: 625000 },
+                { id: 'property_004', full_address: '123 Main Street, Sacramento, CA 95814', listing_price: 475000 }
+            ];
+        }
+        
+        populateClientSelect(clients);
+        populatePropertySelect(properties);
+        
+    } catch (error) {
+        console.error('Error loading clients and properties:', error);
+    }
+}
+
+// Populate client select dropdown
+function populateClientSelect(clients) {
+    const select = document.getElementById('clientSelect');
+    select.innerHTML = '<option value="">Select a client...</option>';
+    
+    clients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id;
+        option.textContent = `${client.full_name || (client.first_name + ' ' + client.last_name)} (${client.email})`;
+        select.appendChild(option);
+    });
+}
+
+// Populate property select dropdown
+function populatePropertySelect(properties) {
+    const select = document.getElementById('propertySelect');
+    select.innerHTML = '<option value="">Select a property...</option>';
+    
+    properties.forEach(property => {
+        const option = document.createElement('option');
+        option.value = property.id;
+        option.textContent = `${property.full_address} - $${property.listing_price ? property.listing_price.toLocaleString() : 'Price TBD'}`;
+        select.appendChild(option);
+    });
+}
+
+// Navigate to next step
+function nextStep() {
+    if (currentStep === 1 && !selectedFormType) {
+        alert('Please select a form type first.');
+        return;
+    }
+    
+    if (currentStep === 2) {
+        selectedClient = document.getElementById('clientSelect').value;
+        selectedProperty = document.getElementById('propertySelect').value;
+        selectedTransaction = document.getElementById('transactionSelect').value;
+        
+        if (!selectedClient || !selectedProperty) {
+            alert('Please select both a client and property.');
+            return;
+        }
+        
+        loadPreviewData();
+    }
+    
+    currentStep++;
+    updateStepDisplay();
+}
+
+// Navigate to previous step
+function previousStep() {
+    currentStep--;
+    updateStepDisplay();
+}
+
+// Update step display
+function updateStepDisplay() {
+    // Hide all steps
+    document.querySelectorAll('.form-step').forEach(step => step.style.display = 'none');
+    
+    // Show current step
+    if (currentStep === 1) {
+        document.getElementById('formSelectionStep').style.display = 'block';
+        document.getElementById('backButton').style.display = 'none';
+        document.getElementById('nextButton').style.display = 'inline-block';
+        document.getElementById('generateButton').style.display = 'none';
+    } else if (currentStep === 2) {
+        document.getElementById('dataSelectionStep').style.display = 'block';
+        document.getElementById('backButton').style.display = 'inline-block';
+        document.getElementById('nextButton').style.display = 'inline-block';
+        document.getElementById('generateButton').style.display = 'none';
+    } else if (currentStep === 3) {
+        document.getElementById('previewStep').style.display = 'block';
+        document.getElementById('backButton').style.display = 'inline-block';
+        document.getElementById('nextButton').style.display = 'none';
+        document.getElementById('generateButton').style.display = 'inline-block';
+    }
+}
+
+// Load preview data
+function loadPreviewData() {
+    const previewTable = document.getElementById('formPreviewTable');
+    
+    const clientName = document.getElementById('clientSelect').selectedOptions[0].textContent;
+    const propertyAddress = document.getElementById('propertySelect').selectedOptions[0].textContent;
+    const formName = document.getElementById('selectedFormName').textContent;
+    
+    previewTable.innerHTML = `
+        <tr><td><strong>Form Type</strong></td><td>${formName}</td></tr>
+        <tr><td><strong>Client</strong></td><td>${clientName}</td></tr>
+        <tr><td><strong>Property</strong></td><td>${propertyAddress}</td></tr>
+        <tr><td><strong>Transaction</strong></td><td>${selectedTransaction || 'Auto-generated'}</td></tr>
+        <tr><td><strong>Generation Date</strong></td><td>${new Date().toLocaleDateString()}</td></tr>
+    `;
+}
+
+// Generate form
+async function generateForm() {
+    console.log('📝 Starting form generation...');
+    
+    // Show generation status
+    document.querySelectorAll('.form-step').forEach(step => step.style.display = 'none');
+    document.getElementById('generationStatus').style.display = 'block';
+    document.getElementById('backButton').style.display = 'none';
+    document.getElementById('generateButton').style.display = 'none';
+    
+    try {
+        const requestData = {
+            form_id: selectedFormType,
+            client_id: selectedClient,
+            property_id: selectedProperty,
+            transaction_id: selectedTransaction || 'auto_generated',
+            options: {
+                generation_date: new Date().toISOString(),
+                user_interface: 'dashboard'
+            }
+        };
+        
+        console.log('📝 Sending generation request:', requestData);
+        
+        const response = await fetch('/api/forms/populate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        console.log('📝 Generation response:', result);
+        
+        if (result.success && result.population_result.success) {
+            showGenerationSuccess(result.population_result);
+        } else {
+            showGenerationError(result.error || result.population_result.message || 'Unknown error');
+        }
+        
+    } catch (error) {
+        console.error('📝 Generation error:', error);
+        showGenerationError('Network error: ' + error.message);
+    }
+}
+
+// Show generation success
+function showGenerationSuccess(result) {
+    document.getElementById('generationStatus').style.display = 'none';
+    document.getElementById('resultsStep').style.display = 'block';
+    
+    document.getElementById('successAlert').style.display = 'block';
+    document.getElementById('errorAlert').style.display = 'none';
+    
+    document.getElementById('successMessage').innerHTML = `
+        Form generated successfully!<br>
+        <strong>Fields populated:</strong> ${result.field_count}<br>
+        <strong>Generation time:</strong> ${new Date(result.processing_time).toLocaleString()}
+    `;
+    
+    if (result.output_path) {
+        document.getElementById('downloadSection').style.display = 'block';
+        const fileName = result.output_path.split('/').pop();
+        document.getElementById('downloadFileName').textContent = fileName;
+        document.getElementById('downloadFileDetails').textContent = `Generated ${new Date().toLocaleString()}`;
+        
+        // Set up download button
+        document.getElementById('downloadButton').onclick = function() {
+            window.open(result.output_path, '_blank');
+        };
+    }
+}
+
+// Show generation error
+function showGenerationError(errorMessage) {
+    document.getElementById('generationStatus').style.display = 'none';
+    document.getElementById('resultsStep').style.display = 'block';
+    
+    document.getElementById('successAlert').style.display = 'none';
+    document.getElementById('errorAlert').style.display = 'block';
+    
+    document.getElementById('errorMessage').textContent = errorMessage;
+    
+    // Show back button to try again
+    document.getElementById('backButton').style.display = 'inline-block';
+}
+
+// Display form error
+function displayFormError(message) {
+    const container = document.getElementById('formTypeCards');
+    container.innerHTML = `
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> ${message}
+            </div>
+        </div>
+    `;
+}
+
+// Legacy function for compatibility
 function generateForms() {
-    alert('Form generation feature coming soon!');
+    openFormGenerator();
+    const modal = new bootstrap.Modal(document.getElementById('formGeneratorModal'));
+    modal.show();
+}
+
+// Recent Forms Management (Task #9)
+let recentForms = JSON.parse(localStorage.getItem('recentForms')) || [];
+
+// Initialize recent forms display on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📝 Page loaded, initializing recent forms...');
+    displayRecentForms();
+    loadRecentFormsFromStorage();
+});
+
+// Load recent forms from localStorage
+function loadRecentFormsFromStorage() {
+    try {
+        const stored = localStorage.getItem('recentForms');
+        if (stored) {
+            recentForms = JSON.parse(stored);
+            console.log('📝 Loaded recent forms from storage:', recentForms.length);
+            displayRecentForms();
+        }
+    } catch (error) {
+        console.error('📝 Error loading recent forms:', error);
+        recentForms = [];
+    }
+}
+
+// Save recent forms to localStorage
+function saveRecentFormsToStorage() {
+    try {
+        // Keep only last 10 forms for storage efficiency
+        const recentFormsToStore = recentForms.slice(-10);
+        localStorage.setItem('recentForms', JSON.stringify(recentFormsToStore));
+        console.log('📝 Saved recent forms to storage:', recentFormsToStore.length);
+    } catch (error) {
+        console.error('📝 Error saving recent forms:', error);
+    }
+}
+
+// Add a form to recent forms list
+function addToRecentForms(formData) {
+    const formEntry = {
+        id: Date.now(),
+        form_type: formData.form_type || formData.form_name,
+        form_name: formData.form_name || getFormDisplayName(formData.form_type),
+        client_name: formData.client_name || 'Unknown Client',
+        property_address: formData.property_address || 'Unknown Property',
+        file_path: formData.output_path,
+        file_name: formData.output_path ? formData.output_path.split('/').pop() : 'form.pdf',
+        generated_date: new Date().toISOString(),
+        field_count: formData.field_count || 0,
+        status: 'completed'
+    };
+    
+    // Add to beginning of array (most recent first)
+    recentForms.unshift(formEntry);
+    
+    // Keep only last 10 forms
+    recentForms = recentForms.slice(0, 10);
+    
+    saveRecentFormsToStorage();
+    displayRecentForms();
+    
+    console.log('📝 Added form to recent list:', formEntry);
+}
+
+// Get display name for form type
+function getFormDisplayName(formType) {
+    const formNames = {
+        'california_purchase_agreement': 'California Purchase Agreement',
+        'buyer_representation_agreement': 'Buyer Representation Agreement',
+        'transaction_record': 'Transaction Record',
+        'verification_property_condition': 'Property Condition Verification',
+        'statewide_buyer_seller_advisory': 'Buyer/Seller Advisory'
+    };
+    return formNames[formType] || formType;
+}
+
+// Display recent forms in the dashboard
+function displayRecentForms() {
+    const container = document.getElementById('recentFormsContainer');
+    
+    if (!container) {
+        console.warn('📝 Recent forms container not found');
+        return;
+    }
+    
+    if (recentForms.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="bi bi-file-earmark-pdf fa-2x mb-2"></i>
+                <p>No forms generated yet. Click "Generate Forms" to create your first document.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-hover table-sm">';
+    html += `
+        <thead class="table-light">
+            <tr>
+                <th>Form Type</th>
+                <th>Client</th>
+                <th>Property</th>
+                <th>Generated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    recentForms.forEach(form => {
+        const generatedDate = new Date(form.generated_date);
+        const timeAgo = getTimeAgo(generatedDate);
+        
+        html += `
+            <tr>
+                <td>
+                    <i class="bi bi-file-earmark-pdf text-danger"></i>
+                    <span class="fw-bold">${form.form_name}</span>
+                    <br><small class="text-muted">${form.field_count} fields populated</small>
+                </td>
+                <td>${form.client_name}</td>
+                <td><small>${form.property_address}</small></td>
+                <td>
+                    <small>${timeAgo}</small>
+                    <br><small class="text-muted">${generatedDate.toLocaleDateString()}</small>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="previewForm('${form.id}')" title="Preview">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="downloadForm('${form.id}')" title="Download">
+                            <i class="bi bi-download"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="shareForm('${form.id}')" title="Share">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+// Get time ago string
+function getTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+}
+
+// Preview form function
+function previewForm(formId) {
+    const form = recentForms.find(f => f.id == formId);
+    if (!form) {
+        alert('Form not found');
+        return;
+    }
+    
+    // Create preview modal
+    const previewModal = `
+        <div class="modal fade" id="formPreviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-file-earmark-pdf"></i> ${form.form_name}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Client:</strong> ${form.client_name}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Generated:</strong> ${new Date(form.generated_date).toLocaleString()}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <strong>Property:</strong> ${form.property_address}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Fields Populated:</strong> ${form.field_count}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>File:</strong> ${form.file_name}
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            This form has been generated and is ready for download. PDF preview functionality coming soon.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="downloadForm('${formId}')">
+                            <i class="bi bi-download"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing preview modal if any
+    const existingModal = document.getElementById('formPreviewModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add new modal to DOM
+    document.body.insertAdjacentHTML('beforeend', previewModal);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
+    modal.show();
+    
+    console.log('📝 Previewing form:', form);
+}
+
+// Download form function
+function downloadForm(formId) {
+    const form = recentForms.find(f => f.id == formId);
+    if (!form) {
+        alert('Form not found');
+        return;
+    }
+    
+    if (form.file_path) {
+        // Create a temporary download link
+        const link = document.createElement('a');
+        link.href = form.file_path;
+        link.download = form.file_name;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('📝 Downloading form:', form.file_name);
+    } else {
+        alert('File path not available for download');
+    }
+}
+
+// Share form function
+function shareForm(formId) {
+    const form = recentForms.find(f => f.id == formId);
+    if (!form) {
+        alert('Form not found');
+        return;
+    }
+    
+    // Create share modal
+    const shareModal = `
+        <div class="modal fade" id="formShareModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-share"></i> Share Form
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>${form.form_name}</strong></p>
+                        <p>Client: ${form.client_name}</p>
+                        <p>Property: ${form.property_address}</p>
+                        <div class="mb-3">
+                            <label class="form-label">Share via:</label>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="shareViaEmail('${formId}')">
+                                    <i class="bi bi-envelope"></i> Email
+                                </button>
+                                <button class="btn btn-outline-success" onclick="copyShareLink('${formId}')">
+                                    <i class="bi bi-link-45deg"></i> Copy Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing share modal if any
+    const existingModal = document.getElementById('formShareModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add new modal to DOM
+    document.body.insertAdjacentHTML('beforeend', shareModal);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('formShareModal'));
+    modal.show();
+}
+
+// Share via email
+function shareViaEmail(formId) {
+    const form = recentForms.find(f => f.id == formId);
+    if (!form) return;
+    
+    const subject = `Real Estate Form: ${form.form_name}`;
+    const body = `Please find the ${form.form_name} for ${form.client_name} at ${form.property_address}.\n\nGenerated on: ${new Date(form.generated_date).toLocaleString()}`;
+    
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+// Copy share link
+function copyShareLink(formId) {
+    const form = recentForms.find(f => f.id == formId);
+    if (!form) return;
+    
+    const shareLink = `${window.location.origin}/forms/share/${formId}`;
+    
+    navigator.clipboard.writeText(shareLink).then(() => {
+        alert('Share link copied to clipboard!');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = shareLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Share link copied to clipboard!');
+    });
+}
+
+// Refresh recent forms
+function refreshRecentForms() {
+    console.log('📝 Refreshing recent forms...');
+    loadRecentFormsFromStorage();
+    
+    // Show refresh animation
+    const refreshBtn = event.target.closest('button');
+    const icon = refreshBtn.querySelector('i');
+    icon.style.animation = 'spin 1s linear';
+    
+    setTimeout(() => {
+        icon.style.animation = '';
+    }, 1000);
+}
+
+// Add CSS for spin animation
+const spinStyle = document.createElement('style');
+spinStyle.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(spinStyle);
+
+// Enhanced success callback to add to recent forms
+function showGenerationSuccess(result) {
+    document.getElementById('generationStatus').style.display = 'none';
+    document.getElementById('resultsStep').style.display = 'block';
+    
+    document.getElementById('successAlert').style.display = 'block';
+    document.getElementById('errorAlert').style.display = 'none';
+    
+    document.getElementById('successMessage').innerHTML = `
+        Form generated successfully!<br>
+        <strong>Fields populated:</strong> ${result.field_count}<br>
+        <strong>Generation time:</strong> ${new Date(result.processing_time).toLocaleString()}
+    `;
+    
+    if (result.output_path) {
+        document.getElementById('downloadSection').style.display = 'block';
+        const fileName = result.output_path.split('/').pop();
+        document.getElementById('downloadFileName').textContent = fileName;
+        document.getElementById('downloadFileDetails').textContent = `Generated ${new Date().toLocaleString()}`;
+        
+        // Set up download button
+        document.getElementById('downloadButton').onclick = function() {
+            window.open(result.output_path, '_blank');
+        };
+        
+        // Add to recent forms
+        const formData = {
+            form_type: selectedFormType,
+            form_name: document.getElementById('selectedFormName').textContent,
+            client_name: document.getElementById('clientSelect').selectedOptions[0].textContent.split(' (')[0],
+            property_address: document.getElementById('propertySelect').selectedOptions[0].textContent.split(' - $')[0],
+            output_path: result.output_path,
+            field_count: result.field_count,
+            processing_time: result.processing_time
+        };
+        
+        addToRecentForms(formData);
+    }
 }
 
 function generateTransactionForms(transactionId) {

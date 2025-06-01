@@ -6,7 +6,7 @@ Add sample data to test offer creation workflow
 import sqlite3
 from datetime import datetime
 
-DATABASE_PATH = 'real_estate_crm.db'
+DATABASE_PATH = '../real_estate_crm.db'
 
 def add_sample_data():
     """Add sample clients, properties, and agents for testing"""

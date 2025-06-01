@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Implement User Confirmation Workflow
+# Title: Integrate with AI Chatbot for Natural Language Requests
 # Status: pending
-# Dependencies: 7
-# Priority: high
-# Description: Implement a user confirmation workflow in the dashboard sidebar for all database operations proposed by the AI, requiring explicit user approval before execution.
+# Dependencies: 6
+# Priority: medium
+# Description: Extend the existing AI chatbot (Gemini 2.5 Flash via LangChain) to understand natural language requests for form generation, such as 'Generate a purchase agreement for John Smith and 123 Main Street'.
 # Details:
-Design and implement a modal dialog or a clear UI element within the sidebar. When the AI proposes a database operation (e.g., 'Create Client', 'Update Property'), display the details of the proposed change to the user. The user must click a 'Confirm' button (or similar) for the operation to proceed. Implement the backend logic to support this two-step process (propose -> await confirmation -> execute upon confirmation). Allow users to cancel or potentially modify the proposed operation.
+Modify the LangChain agent or add a new tool/function specifically for form generation. Train or configure the AI to identify intent (form generation) and extract key entities (client name, property address, form type) from user prompts. Map extracted entities to CRM records and form identifiers. Call the backend form population endpoint (Task 6) with the identified parameters. The chatbot should respond with confirmation and potentially a link to the generated form.
 
 # Test Strategy:
-Initiate various database operations via the chatbot (e.g., 'create client Jane Doe', 'update John Smith's phone number'). Verify that a confirmation prompt appears in the sidebar displaying the details of the proposed change. Test confirming the operation (verifying it executes) and canceling the operation (verifying it does not execute). Test the modification flow if implemented.
+Interact with the chatbot using various natural language requests for form generation. Verify that the AI correctly identifies the intent, extracts entities, and triggers the form population process via the backend API. Check responses for clarity and accuracy.

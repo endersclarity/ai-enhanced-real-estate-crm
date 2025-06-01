@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Clean CRPA Form - Built from Blank Template</title>
+    <style>
+        @page {
+            size: 8.5in 11.0in;
+            margin: 0.5in;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11px;
+            line-height: 1.3;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .form-page {
+            width: 612px;
+            height: 792px;
+            position: relative;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 36px;
+        }
+        
+        /* Clean text elements */
+        .form-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-header {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+        }
+        
+        .form-label {
+            font-size: 10px;
+            font-weight: normal;
+            position: absolute;
+        }
+        
+        .instructions {
+            font-size: 9px;
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.2;
+        }
+        
+        /* Clean form fields */
+        .form-field {
+            position: absolute;
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-family: 'Times New Roman', serif;
+            font-size: 10px;
+            color: #000;
+            padding: 0 2px;
+            outline: none;
+        }
+        
+        .form-field:focus {
+            background: rgba(173, 216, 230, 0.2);
+            border-bottom: 2px solid #0066cc;
+        }
+        
+        .checkbox-field {
+            width: 12px;
+            height: 12px;
+            position: absolute;
+        }
+        
+        /* Print optimized */
+        @media print {
+            body { padding: 0; }
+            .form-page { 
+                border: none; 
+                margin: 0;
+                padding: 36px;
+            }
+            .form-field {
+                border-bottom: 1px solid #000 !important;
+                background: transparent !important;
+            }
+            .control-panel { display: none; }
+        }
+        
+        /* Control panel */
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            font-size: 12px;
+        }
+        
+        .control-panel button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .control-panel button:hover {
+            background: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h4>✨ Clean Form Controls</h4>
+        <button onclick="fillSampleData()">📝 Fill Sample</button>
+        <button onclick="clearAllFields()">🗑️ Clear All</button>
+        <button onclick="window.print()">🖨️ Print</button>
+        <div style="margin-top: 10px; font-size: 10px; color: #ccc;">
+            Built from: California_Residential_Purchase_Agreement_BLANK_TEMPLATE.pdf<br>
+            119 elements<br>
+            108 fields
+        </div>
+    </div>
+    
+    <div class="form-page">
+        <div class="form-title">CALIFORNIARESIDENTIALPURCHASEAGREEMENT</div>
+        <div class="section-header">ANDJOINTESCROWINSTRUCTIONS</div>
+        <div class="form-label" style="left: 36.0px; top: 91.11599999999999px;">1.OFFER:</div>
+        <div class="section-header">A.THISISANOFFERFROM</div>
+        <div class="form-title">(County),California,</div>
+        <div class="form-label" style="left: 110.664px; top: 146.12400000000002px;">(Postal/Mailingaddressmaybedifferentfromcityjurisdiction. Buyerisadvisedtoinvestigate.)</div>
+        <div class="form-title">C.THETERMSOFTHEPURCHASEARESPECIFIEDBELOWANDONTHEFOLLOWINGPAGES.</div>
+        <div class="form-title">D.BuyerandSellerarereferredtohereinasthe"Parties."BrokersandAgentsarenotPartiestothisAgreement.</div>
+        <div class="form-label" style="left: 36.0px; top: 177.37199999999996px;">2.AGENCY:</div>
+        <div class="instructions">A.DISCLOSURE:ThePartieseachacknowledgereceiptofa“DisclosureRegardingRealEstateAgencyRelationship”(C.A.R.</div>
+        <div class="instructions">FormAD)ifrepresentedbyarealestatelicensee.Buyer'sAgentisnotlegallyrequiredtogivetoSeller'sAgenttheADform</div>
+        <div class="instructions">Is(checkone): theSeller'sAgent.(Salespersonorbrokerassociate);or boththeBuyer'sandSeller'sAgent(DualAgent).X</div>
+        <div class="instructions">Is(checkone): theBuyer'sAgent(Salespersonorbrokerassociate);or boththeBuyer'sandSeller'sAgent(DualAgent).X</div>
+        <div class="form-title">3.TERMSOFPURCHASEANDALLOCATIONOFCOSTS:TheitemsinthisparagrapharecontractualtermsoftheAgreement.</div>
+        <div class="instructions">Referencedparagraphsprovidefurtherexplanation.Thisformis17pages.ThePartiesareadvisedtoreadall17pages.</div>
+        <div class="form-title">PurchasePrice5,5B(cash)</div>
+        <div class="form-title">%ofpurchaseprice)within3(or</div>
+        <div class="form-label" style="left: 127.944px; top: 523.216px;">LoanAmount(s):</div>
+        <div class="form-title">%ofpurchaseprice)Conventionalor,ifchecked,805,000.00</div>
+        <div class="form-label" style="left: 462.528px; top: 562.168px;">Other:</div>
+        <div class="form-title">%ofpurchaseprice)</div>
+        <div class="form-title">PURCHASEPRICETOTAL$930,000.00</div>
+        <div class="form-title">©2024,CaliforniaAssociationofREALTORS®,Inc.</div>
+        <div class="section-header">RPAREVISED12/24(PAGE1OF17)</div>
+        <div class="form-title">CALIFORNIARESIDENTIALPURCHASEAGREEMENTANDJOINTESCROWINSTRUCTIONS(RPAPAGE1OF17)</div>
+        <div class="form-label" style="left: 366.0px; top: 752.88px;">Phone:</div>
+        <div class="form-label" style="left: 450.024px; top: 752.88px;">Fax:</div>
+        <div class="instructions">ProducedwithLoneWolfTransactions(zipFormEdition)717NHarwoodSt,Suite2200,Dallas,TX 75201   www.lwolf.comNarissa Jennings</div>
+        <input type="text" 
+               name="field_0" 
+               class="form-field"
+               style="left: 99.504px; top: 89.42399999999998px; width: 100.008px; height: 1px;"
+               placeholder="Field 0">
+        <input type="text" 
+               name="field_1" 
+               class="form-field"
+               style="left: 183.528px; top: 111.38400000000001px; width: 349.99199999999996px; height: 1px;"
+               placeholder="Field 1">
+        <input type="text" 
+               name="field_2" 
+               class="form-field"
+               style="left: 214.272px; top: 122.39999999999998px; width: 325.008px; height: 1px;"
+               placeholder="Field 2">
+        <input type="text" 
+               name="field_3" 
+               class="form-field"
+               style="left: 81.936px; top: 133.41600000000005px; width: 139.968px; height: 1px;"
+               placeholder="Field 3">
+        <input type="text" 
+               name="field_4" 
+               class="form-field"
+               style="left: 251.712px; top: 133.41600000000005px; width: 130.03200000000004px; height: 1px;"
+               placeholder="Field 4">
+        <input type="text" 
+               name="field_5" 
+               class="form-field"
+               style="left: 467.784px; top: 133.41600000000005px; width: 60.048px; height: 1px;"
+               placeholder="Field 5">
+        <input type="text" 
+               name="field_6" 
+               class="form-field"
+               style="left: 172.728px; top: 144.43200000000002px; width: 349.992px; height: 1px;"
+               placeholder="Field 6">
+        <input type="text" 
+               name="field_7" 
+               class="form-field"
+               style="left: 175.176px; top: 236.37599999999998px; width: 249.98400000000004px; height: 1px;"
+               placeholder="Field 7">
+        <input type="text" 
+               name="field_8" 
+               class="form-field"
+               style="left: 500.0px; top: 236.37599999999998px; width: 76.0px; height: 1px;"
+               placeholder="Field 8">
+        <input type="text" 
+               name="field_9" 
+               class="form-field"
+               style="left: 129.672px; top: 259.41600000000005px; width: 295.05600000000004px; height: 1px;"
+               placeholder="Field 9">
+        <input type="text" 
+               name="field_10" 
+               class="form-field"
+               style="left: 500.0px; top: 259.41600000000005px; width: 76.0px; height: 1px;"
+               placeholder="Field 10">
+        <input type="text" 
+               name="field_11" 
+               class="form-field"
+               style="left: 176.0px; top: 282.384px; width: 250.0px; height: 1px;"
+               placeholder="Field 11">
+        <input type="text" 
+               name="field_12" 
+               class="form-field"
+               style="left: 500.0px; top: 282.384px; width: 76.0px; height: 1px;"
+               placeholder="Field 12">
+        <input type="text" 
+               name="field_13" 
+               class="form-field"
+               style="left: 135.072px; top: 305.424px; width: 290.016px; height: 1px;"
+               placeholder="Field 13">
+        <input type="text" 
+               name="field_14" 
+               class="form-field"
+               style="left: 500.0px; top: 305.424px; width: 76.0px; height: 1px;"
+               placeholder="Field 14">
+        <input type="text" 
+               name="field_15" 
+               class="form-field"
+               style="left: 67.248px; top: 372.816px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 15">
+        <input type="text" 
+               name="field_16" 
+               class="form-field"
+               style="left: 67.248px; top: 394.92px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 16">
+        <input type="text" 
+               name="field_17" 
+               class="form-field"
+               style="left: 122.544px; top: 372.816px; width: 144.288px; height: 1px;"
+               placeholder="Field 17">
+        <input type="text" 
+               name="field_18" 
+               class="form-field"
+               style="left: 122.544px; top: 394.92px; width: 144.288px; height: 1px;"
+               placeholder="Field 18">
+        <input type="text" 
+               name="field_19" 
+               class="form-field"
+               style="left: 266.832px; top: 372.816px; width: 183.168px; height: 1px;"
+               placeholder="Field 19">
+        <input type="text" 
+               name="field_20" 
+               class="form-field"
+               style="left: 266.832px; top: 394.92px; width: 183.168px; height: 1px;"
+               placeholder="Field 20">
+        <input type="text" 
+               name="field_21" 
+               class="form-field"
+               style="left: 450.0px; top: 372.816px; width: 135.0px; height: 1px;"
+               placeholder="Field 21">
+        <input type="text" 
+               name="field_22" 
+               class="form-field"
+               style="left: 450.0px; top: 394.92px; width: 135.0px; height: 1px;"
+               placeholder="Field 22">
+        <input type="text" 
+               name="field_23" 
+               class="form-field"
+               style="left: 278.928px; top: 409.392px; width: 155.736px; height: 1px;"
+               placeholder="Field 23">
+        <input type="text" 
+               name="field_24" 
+               class="form-field"
+               style="left: 67.248px; top: 396.432px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 24">
+        <input type="text" 
+               name="field_25" 
+               class="form-field"
+               style="left: 67.248px; top: 413.568px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 25">
+        <input type="text" 
+               name="field_26" 
+               class="form-field"
+               style="left: 122.544px; top: 396.432px; width: 144.288px; height: 1px;"
+               placeholder="Field 26">
+        <input type="text" 
+               name="field_27" 
+               class="form-field"
+               style="left: 122.544px; top: 413.568px; width: 144.288px; height: 1px;"
+               placeholder="Field 27">
+        <input type="text" 
+               name="field_28" 
+               class="form-field"
+               style="left: 266.832px; top: 396.432px; width: 183.168px; height: 1px;"
+               placeholder="Field 28">
+        <input type="text" 
+               name="field_29" 
+               class="form-field"
+               style="left: 266.832px; top: 413.568px; width: 183.168px; height: 1px;"
+               placeholder="Field 29">
+        <input type="text" 
+               name="field_30" 
+               class="form-field"
+               style="left: 450.0px; top: 396.432px; width: 135.0px; height: 1px;"
+               placeholder="Field 30">
+        <input type="text" 
+               name="field_31" 
+               class="form-field"
+               style="left: 450.0px; top: 413.568px; width: 135.0px; height: 1px;"
+               placeholder="Field 31">
+        <input type="text" 
+               name="field_32" 
+               class="form-field"
+               style="left: 306.936px; top: 435.0px; width: 53.424000000000035px; height: 1px;"
+               placeholder="Field 32">
+        <input type="text" 
+               name="field_33" 
+               class="form-field"
+               style="left: 67.248px; top: 415.0px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 33">
+        <input type="text" 
+               name="field_34" 
+               class="form-field"
+               style="left: 67.248px; top: 437.544px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 34">
+        <input type="text" 
+               name="field_35" 
+               class="form-field"
+               style="left: 122.544px; top: 415.0px; width: 144.288px; height: 1px;"
+               placeholder="Field 35">
+        <input type="text" 
+               name="field_36" 
+               class="form-field"
+               style="left: 122.544px; top: 437.544px; width: 144.288px; height: 1px;"
+               placeholder="Field 36">
+        <input type="text" 
+               name="field_37" 
+               class="form-field"
+               style="left: 266.832px; top: 415.0px; width: 183.168px; height: 1px;"
+               placeholder="Field 37">
+        <input type="text" 
+               name="field_38" 
+               class="form-field"
+               style="left: 266.832px; top: 437.544px; width: 183.168px; height: 1px;"
+               placeholder="Field 38">
+        <input type="text" 
+               name="field_39" 
+               class="form-field"
+               style="left: 450px; top: 415px; width: 135px; height: 1px;"
+               placeholder="Field 39">
+        <input type="text" 
+               name="field_40" 
+               class="form-field"
+               style="left: 281.52px; top: 460.584px; width: 133.56px; height: 1px;"
+               placeholder="Field 40">
+        <input type="text" 
+               name="field_41" 
+               class="form-field"
+               style="left: 67.248px; top: 473.256px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 41">
+        <input type="text" 
+               name="field_42" 
+               class="form-field"
+               style="left: 122.544px; top: 473.256px; width: 144.288px; height: 1px;"
+               placeholder="Field 42">
+        <input type="text" 
+               name="field_43" 
+               class="form-field"
+               style="left: 266.832px; top: 473.256px; width: 183.168px; height: 1px;"
+               placeholder="Field 43">
+        <input type="text" 
+               name="field_44" 
+               class="form-field"
+               style="left: 450.0px; top: 473.256px; width: 135.0px; height: 1px;"
+               placeholder="Field 44">
+        <input type="text" 
+               name="field_45" 
+               class="form-field"
+               style="left: 278.928px; top: 485.712px; width: 53.42399999999998px; height: 1px;"
+               placeholder="Field 45">
+        <input type="text" 
+               name="field_46" 
+               class="form-field"
+               style="left: 478.944px; top: 503.496px; width: 93.45599999999996px; height: 1px;"
+               placeholder="Field 46">
+        <input type="text" 
+               name="field_47" 
+               class="form-field"
+               style="left: 67.248px; top: 474.696px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 47">
+        <input type="text" 
+               name="field_48" 
+               class="form-field"
+               style="left: 67.248px; top: 505.656px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 48">
+        <input type="text" 
+               name="field_49" 
+               class="form-field"
+               style="left: 122.544px; top: 474.696px; width: 144.288px; height: 1px;"
+               placeholder="Field 49">
+        <input type="text" 
+               name="field_50" 
+               class="form-field"
+               style="left: 122.544px; top: 505.656px; width: 144.288px; height: 1px;"
+               placeholder="Field 50">
+        <input type="text" 
+               name="field_51" 
+               class="form-field"
+               style="left: 266.832px; top: 474.696px; width: 183.168px; height: 1px;"
+               placeholder="Field 51">
+        <input type="text" 
+               name="field_52" 
+               class="form-field"
+               style="left: 266.832px; top: 505.656px; width: 183.168px; height: 1px;"
+               placeholder="Field 52">
+        <input type="text" 
+               name="field_53" 
+               class="form-field"
+               style="left: 450.0px; top: 474.696px; width: 135.0px; height: 1px;"
+               placeholder="Field 53">
+        <input type="text" 
+               name="field_54" 
+               class="form-field"
+               style="left: 450.0px; top: 505.656px; width: 135.0px; height: 1px;"
+               placeholder="Field 54">
+        <input type="text" 
+               name="field_55" 
+               class="form-field"
+               style="left: 67.248px; top: 518.616px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 55">
+        <input type="text" 
+               name="field_56" 
+               class="form-field"
+               style="left: 122.544px; top: 518.616px; width: 144.288px; height: 1px;"
+               placeholder="Field 56">
+        <input type="text" 
+               name="field_57" 
+               class="form-field"
+               style="left: 266.832px; top: 505.656px; width: 318.168px; height: 1px;"
+               placeholder="Field 57">
+        <input type="text" 
+               name="field_58" 
+               class="form-field"
+               style="left: 266.832px; top: 518.616px; width: 318.168px; height: 1px;"
+               placeholder="Field 58">
+        <input type="text" 
+               name="field_59" 
+               class="form-field"
+               style="left: 278.928px; top: 531.216px; width: 53.42399999999998px; height: 1px;"
+               placeholder="Field 59">
+        <input type="text" 
+               name="field_60" 
+               class="form-field"
+               style="left: 67.248px; top: 520.056px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 60">
+        <input type="text" 
+               name="field_61" 
+               class="form-field"
+               style="left: 122.544px; top: 520.056px; width: 84.456px; height: 1px;"
+               placeholder="Field 61">
+        <input type="text" 
+               name="field_62" 
+               class="form-field"
+               style="left: 207.0px; top: 520.056px; width: 59.831999999999994px; height: 1px;"
+               placeholder="Field 62">
+        <input type="text" 
+               name="field_63" 
+               class="form-field"
+               style="left: 266.832px; top: 520.056px; width: 183.168px; height: 1px;"
+               placeholder="Field 63">
+        <input type="text" 
+               name="field_64" 
+               class="form-field"
+               style="left: 450.0px; top: 520.056px; width: 135.0px; height: 1px;"
+               placeholder="Field 64">
+        <input type="text" 
+               name="field_65" 
+               class="form-field"
+               style="left: 464.184px; top: 584.0px; width: 111.23999999999995px; height: 1px;"
+               placeholder="Field 65">
+        <input type="text" 
+               name="field_66" 
+               class="form-field"
+               style="left: 67.248px; top: 595.8px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 66">
+        <input type="text" 
+               name="field_67" 
+               class="form-field"
+               style="left: 122.544px; top: 595.8px; width: 144.288px; height: 1px;"
+               placeholder="Field 67">
+        <input type="text" 
+               name="field_68" 
+               class="form-field"
+               style="left: 266.832px; top: 595.8px; width: 183.168px; height: 1px;"
+               placeholder="Field 68">
+        <input type="text" 
+               name="field_69" 
+               class="form-field"
+               style="left: 450.0px; top: 595.8px; width: 135.0px; height: 1px;"
+               placeholder="Field 69">
+        <input type="text" 
+               name="field_70" 
+               class="form-field"
+               style="left: 278.928px; top: 608.832px; width: 53.42399999999998px; height: 1px;"
+               placeholder="Field 70">
+        <input type="text" 
+               name="field_71" 
+               class="form-field"
+               style="left: 464.184px; top: 635.904px; width: 111.23999999999995px; height: 1px;"
+               placeholder="Field 71">
+        <input type="text" 
+               name="field_72" 
+               class="form-field"
+               style="left: 67.248px; top: 648.504px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 72">
+        <input type="text" 
+               name="field_73" 
+               class="form-field"
+               style="left: 122.544px; top: 648.504px; width: 144.288px; height: 1px;"
+               placeholder="Field 73">
+        <input type="text" 
+               name="field_74" 
+               class="form-field"
+               style="left: 266.832px; top: 648.504px; width: 183.168px; height: 1px;"
+               placeholder="Field 74">
+        <input type="text" 
+               name="field_75" 
+               class="form-field"
+               style="left: 450.0px; top: 648.504px; width: 135.0px; height: 1px;"
+               placeholder="Field 75">
+        <input type="text" 
+               name="field_76" 
+               class="form-field"
+               style="left: 67.248px; top: 661.4639999999999px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 76">
+        <input type="text" 
+               name="field_77" 
+               class="form-field"
+               style="left: 122.544px; top: 661.4639999999999px; width: 144.288px; height: 1px;"
+               placeholder="Field 77">
+        <input type="text" 
+               name="field_78" 
+               class="form-field"
+               style="left: 266.832px; top: 648.504px; width: 318.168px; height: 1px;"
+               placeholder="Field 78">
+        <input type="text" 
+               name="field_79" 
+               class="form-field"
+               style="left: 266.832px; top: 661.4639999999999px; width: 318.168px; height: 1px;"
+               placeholder="Field 79">
+        <input type="text" 
+               name="field_80" 
+               class="form-field"
+               style="left: 278.928px; top: 673.776px; width: 146.88px; height: 1px;"
+               placeholder="Field 80">
+        <input type="text" 
+               name="field_81" 
+               class="form-field"
+               style="left: 67.248px; top: 662.904px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 81">
+        <input type="text" 
+               name="field_82" 
+               class="form-field"
+               style="left: 67.248px; top: 675.864px; width: 55.29599999999999px; height: 1px;"
+               placeholder="Field 82">
+        <input type="text" 
+               name="field_83" 
+               class="form-field"
+               style="left: 122.544px; top: 662.904px; width: 144.288px; height: 1px;"
+               placeholder="Field 83">
+        <input type="text" 
+               name="field_84" 
+               class="form-field"
+               style="left: 122.544px; top: 675.864px; width: 144.288px; height: 1px;"
+               placeholder="Field 84">
+        <input type="text" 
+               name="field_85" 
+               class="form-field"
+               style="left: 266.832px; top: 662.904px; width: 183.168px; height: 1px;"
+               placeholder="Field 85">
+        <input type="text" 
+               name="field_86" 
+               class="form-field"
+               style="left: 266.832px; top: 675.864px; width: 183.168px; height: 1px;"
+               placeholder="Field 86">
+        <input type="text" 
+               name="field_87" 
+               class="form-field"
+               style="left: 450.0px; top: 662.904px; width: 135.0px; height: 1px;"
+               placeholder="Field 87">
+        <input type="text" 
+               name="field_88" 
+               class="form-field"
+               style="left: 278.928px; top: 688.176px; width: 146.88px; height: 1px;"
+               placeholder="Field 88">
+        <input type="text" 
+               name="date" 
+               class="form-field"
+               style="left: 162.47799999999998px; top: 78.38800000000003px; width: 150px; height: 18px;"
+               placeholder="Date">
+        <input type="text" 
+               name="field_90" 
+               class="form-field"
+               style="left: 97.462px; top: 89.11599999999999px; width: 150px; height: 18px;"
+               placeholder="Field 90">
+        <input type="text" 
+               name="city" 
+               class="form-field"
+               style="left: 258.37300000000005px; top: 122.38px; width: 150px; height: 18px;"
+               placeholder="City">
+        <input type="text" 
+               name="city" 
+               class="form-field"
+               style="left: 586.0000000000003px; top: 122.38px; width: 150px; height: 18px;"
+               placeholder="City">
+        <input type="text" 
+               name="buyer_name" 
+               class="form-field"
+               style="left: 529.3360000000002px; top: 144.12400000000002px; width: 150px; height: 18px;"
+               placeholder="Buyer Name">
+        <input type="text" 
+               name="field_94" 
+               class="form-field"
+               style="left: 105.472px; top: 175.37199999999996px; width: 150px; height: 18px;"
+               placeholder="Field 94">
+        <input type="text" 
+               name="state" 
+               class="form-field"
+               style="left: 585.9930006500003px; top: 184.65999999999997px; width: 150px; height: 18px;"
+               placeholder="State">
+        <input type="text" 
+               name="buyer_name" 
+               class="form-field"
+               style="left: 585.9940013200002px; top: 194.164px; width: 150px; height: 18px;"
+               placeholder="Buyer Name">
+        <input type="text" 
+               name="purchase_price" 
+               class="form-field"
+               style="left: 195.70400000000004px; top: 399.32px; width: 150px; height: 18px;"
+               placeholder="Purchase Price">
+        <input type="text" 
+               name="date" 
+               class="form-field"
+               style="left: 393.392px; top: 425.096px; width: 150px; height: 18px;"
+               placeholder="Date">
+        <input type="text" 
+               name="date" 
+               class="form-field"
+               style="left: 450.40000000000003px; top: 450.584px; width: 150px; height: 18px;"
+               placeholder="Date">
+        <input type="text" 
+               name="purchase_price" 
+               class="form-field"
+               style="left: 504.496px; top: 475.688px; width: 150px; height: 18px;"
+               placeholder="Purchase Price">
+        <input type="text" 
+               name="field_101" 
+               class="form-field"
+               style="left: 201.88px; top: 521.216px; width: 150px; height: 18px;"
+               placeholder="Field 101">
+        <input type="text" 
+               name="purchase_price" 
+               class="form-field"
+               style="left: 564.056px; top: 521.216px; width: 150px; height: 18px;"
+               placeholder="Purchase Price">
+        <input type="text" 
+               name="field_103" 
+               class="form-field"
+               style="left: 496.95200000000006px; top: 560.168px; width: 150px; height: 18px;"
+               placeholder="Field 103">
+        <input type="text" 
+               name="purchase_price" 
+               class="form-field"
+               style="left: 447.144px; top: 598.832px; width: 150px; height: 18px;"
+               placeholder="Purchase Price">
+        <input type="text" 
+               name="purchase_price" 
+               class="form-field"
+               style="left: 328.94399999999996px; top: 678.104px; width: 150px; height: 18px;"
+               placeholder="Purchase Price">
+        <input type="text" 
+               name="field_106" 
+               class="form-field"
+               style="left: 398.32599999999996px; top: 750.88px; width: 150px; height: 18px;"
+               placeholder="Field 106">
+        <input type="text" 
+               name="field_107" 
+               class="form-field"
+               style="left: 475.006px; top: 750.88px; width: 150px; height: 18px;"
+               placeholder="Field 107">
+    </div>
+    
+    <script>
+        function fillSampleData() {
+            const cleanSampleData = {
+                'buyer_name': 'John & Jane Smith',
+                'seller_name': 'Robert & Patricia Wilson',
+                'property_address': '123 Main Street',
+                'city': 'Los Angeles',
+                'state': 'CA',
+                'purchase_price': '$750,000.00',
+                'date': '2025-06-01'
+            };
+            
+            for (const [fieldName, value] of Object.entries(cleanSampleData)) {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) field.value = value;
+            }
+        }
+        
+        function clearAllFields() {
+            document.querySelectorAll('.form-field').forEach(field => {
+                field.value = '';
+            });
+        }
+        
+        console.log('✨ Clean CRPA form loaded - built from blank template');
+    </script>
+</body>
+</html>

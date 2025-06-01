@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California Residential Purchase Agreement</title>
+    <style>
+        @page {
+            size: 8.5in 11in;
+            margin: 0.5in;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        
+        .form-container {
+            width: 7.5in;
+            min-height: 10in;
+            position: relative;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .subheader {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .form-field {
+            position: absolute;
+            border: 1px solid #666;
+            padding: 2px;
+            font-size: 10px;
+            background: white;
+        }
+        
+        .text-field {
+            height: 18px;
+        }
+        
+        .checkbox {
+            width: 15px;
+            height: 15px;
+        }
+        
+        .label {
+            position: absolute;
+            font-size: 10px;
+            color: black;
+        }
+        
+        /* Specific field positions based on the original PDF layout */
+        .field-date {
+            top: 80px;
+            left: 500px;
+            width: 120px;
+        }
+        
+        .field-buyer-name {
+            top: 140px;
+            left: 280px;
+            width: 250px;
+        }
+        
+        .field-property-address {
+            top: 170px;
+            left: 280px;
+            width: 250px;
+        }
+        
+        .field-city {
+            top: 200px;
+            left: 180px;
+            width: 120px;
+        }
+        
+        .field-state {
+            top: 200px;
+            left: 320px;
+            width: 30px;
+        }
+        
+        .field-zip {
+            top: 200px;
+            left: 370px;
+            width: 60px;
+        }
+        
+        .field-purchase-price {
+            top: 280px;
+            left: 200px;
+            width: 120px;
+        }
+        
+        .field-earnest-money {
+            top: 320px;
+            left: 150px;
+            width: 100px;
+        }
+        
+        .static-text {
+            position: absolute;
+            font-size: 10px;
+            color: black;
+        }
+        
+        .section-header {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: #007cba;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        @media print {
+            .print-button { display: none; }
+            .form-container { border: none; }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">Print/Save as PDF</button>
+    
+    <div class="form-container">
+        <!-- Header -->
+        <div class="header">CALIFORNIA RESIDENTIAL PURCHASE AGREEMENT</div>
+        <div class="subheader">AND JOINT ESCROW INSTRUCTIONS</div>
+        
+        <!-- Date Prepared -->
+        <div class="label" style="top: 60px; left: 450px;">Date Prepared:</div>
+        <input type="text" name="date_prepared" class="form-field text-field field-date" 
+               value="2025-06-01" placeholder="Date">
+        
+        <!-- Section 1: OFFER -->
+        <div class="static-text section-header" style="top: 120px; left: 20px;">1. OFFER:</div>
+        
+        <div class="static-text" style="top: 140px; left: 20px;">A. THIS IS AN OFFER FROM</div>
+        <input type="text" name="buyer_name" class="form-field text-field field-buyer-name" 
+               value="John & Jane Smith" placeholder="Buyer Name(s)">
+        <div class="static-text" style="top: 140px; left: 540px;">("Buyer").</div>
+        
+        <div class="static-text" style="top: 170px; left: 20px;">B. THE PROPERTY to be acquired is</div>
+        <input type="text" name="property_address" class="form-field text-field field-property-address" 
+               value="1234 Luxury Boulevard" placeholder="Property Address">
+        <div class="static-text" style="top: 170px; left: 540px;">, situated</div>
+        
+        <div class="static-text" style="top: 200px; left: 20px;">in</div>
+        <input type="text" name="city" class="form-field text-field field-city" 
+               value="Beverly Hills" placeholder="City">
+        <div class="static-text" style="top: 200px; left: 310px;">(City),</div>
+        <input type="text" name="state" class="form-field text-field field-state" 
+               value="CA" placeholder="State">
+        <div class="static-text" style="top: 200px; left: 360px;">(County), California,</div>
+        <input type="text" name="zip_code" class="form-field text-field field-zip" 
+               value="90210" placeholder="ZIP">
+        
+        <!-- Section 2: PURCHASE PRICE -->
+        <div class="static-text section-header" style="top: 260px; left: 20px;">2. PURCHASE PRICE:</div>
+        <div class="static-text" style="top: 280px; left: 20px;">The total purchase price is $</div>
+        <input type="text" name="purchase_price" class="form-field text-field field-purchase-price" 
+               value="2,500,000.00" placeholder="Purchase Price">
+        
+        <!-- Earnest Money -->
+        <div class="static-text" style="top: 320px; left: 20px;">Earnest Money: $</div>
+        <input type="text" name="earnest_money" class="form-field text-field field-earnest-money" 
+               value="50,000.00" placeholder="Earnest Money">
+        
+        <!-- Sample Checkboxes -->
+        <div class="static-text section-header" style="top: 360px; left: 20px;">3. CONTINGENCIES:</div>
+        
+        <input type="checkbox" name="inspection_contingency" class="form-field checkbox" 
+               style="top: 380px; left: 20px;" checked>
+        <div class="static-text" style="top: 382px; left: 40px;">Inspection Contingency</div>
+        
+        <input type="checkbox" name="loan_contingency" class="form-field checkbox" 
+               style="top: 380px; left: 200px;" checked>
+        <div class="static-text" style="top: 382px; left: 220px;">Loan Contingency</div>
+        
+        <input type="checkbox" name="appraisal_contingency" class="form-field checkbox" 
+               style="top: 380px; left: 350px;" >
+        <div class="static-text" style="top: 382px; left: 370px;">Appraisal Contingency</div>
+        
+        <!-- Agent Information -->
+        <div class="static-text section-header" style="top: 420px; left: 20px;">4. LISTING AGENT:</div>
+        
+        <div class="static-text" style="top: 440px; left: 20px;">Agent Name:</div>
+        <input type="text" name="listing_agent" class="form-field text-field" 
+               style="top: 440px; left: 100px; width: 150px;" 
+               value="Narissa Thompson" placeholder="Agent Name">
+        
+        <div class="static-text" style="top: 440px; left: 270px;">License #:</div>
+        <input type="text" name="agent_license" class="form-field text-field" 
+               style="top: 440px; left: 330px; width: 120px;" 
+               value="CA-DRE-02145678" placeholder="License Number">
+        
+        <div class="static-text" style="top: 470px; left: 20px;">Brokerage:</div>
+        <input type="text" name="brokerage" class="form-field text-field" 
+               style="top: 470px; left: 100px; width: 200px;" 
+               value="Narissa Realty Group" placeholder="Brokerage Name">
+        
+        <!-- Footer -->
+        <div class="static-text" style="top: 520px; left: 20px; font-size: 8px;">
+            Page 1 of 1 - Generated by Real Estate CRM System
+        </div>
+    </div>
+</body>
+</html>
+        

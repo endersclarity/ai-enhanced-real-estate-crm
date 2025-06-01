@@ -8,7 +8,7 @@ import sqlite3
 import os
 from datetime import datetime
 
-DATABASE_PATH = 'real_estate_crm.db'
+DATABASE_PATH = '../real_estate_crm.db'
 
 # SQLite-compatible schema based on the original PostgreSQL schema
 SQLITE_SCHEMA = """

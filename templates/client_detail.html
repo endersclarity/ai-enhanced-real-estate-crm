@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Client Details{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Client Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ client.first_name }} {{ client.last_name }}</h5>
+            <p class="card-text">Email: {{ client.email or 'Not provided' }}</p>
+            <p class="card-text">Phone: {{ client.home_phone or 'Not provided' }}</p>
+            <p class="card-text">Type: {{ client.client_type or 'Not specified' }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
