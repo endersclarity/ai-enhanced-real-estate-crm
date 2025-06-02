@@ -27,7 +27,18 @@ except ImportError as e:
 # Import production configuration and database
 try:
     import sys
-    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    # Try local first (for when running from core_app/), then parent directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    
+    # Add both directories to path
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+    
+    print(f"🔍 Import paths: {[current_dir, parent_dir]}")
+    
     from config import current_config
     from database_config import db
     print("✅ Production configuration and Supabase database loaded")
