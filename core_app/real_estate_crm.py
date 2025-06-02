@@ -1677,14 +1677,20 @@ def debug_chat():
 @app.route('/clients')
 def clients_list():
     """View all clients"""
-    conn = get_db_connection()
-    clients = conn.execute('''
-        SELECT id, client_type, first_name, last_name, email, home_phone, 
-               city, created_at
-        FROM clients 
-        ORDER BY last_name, first_name
-    ''').fetchall()
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        clients = db.get_all_clients()
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        clients = conn.execute('''
+            SELECT id, client_type, first_name, last_name, email, home_phone, 
+                   city, created_at
+            FROM clients 
+            ORDER BY last_name, first_name
+        ''').fetchall()
+        conn.close()
+        clients = [dict(row) for row in clients]
     return render_template('clients_list.html', clients=clients)
 
 @app.route('/clients/new', methods=['GET', 'POST'])
@@ -1742,56 +1748,65 @@ def client_detail(client_id):
 @app.route('/properties')
 def properties_list():
     """View all properties with search functionality"""
-    conn = get_db_connection()
-    
-    # Get search parameters
-    search = request.args.get('search', '').strip()
-    property_type = request.args.get('property_type', '')
-    status = request.args.get('status', '')
-    city = request.args.get('city', '')
-    
-    # Build query with search filters
-    query = '''
-        SELECT id, street_address, city, state, zip_code,
-               bedrooms, bathrooms, square_feet, listed_price, created_at,
-               mls_number, property_type
-        FROM properties 
-        WHERE 1=1
-    '''
-    params = []
-    
-    if search:
-        query += ''' AND (
-            street_address LIKE ? OR 
-            city LIKE ? OR 
-            mls_number LIKE ?
-        )'''
-        search_pattern = f'%{search}%'
-        params.extend([search_pattern, search_pattern, search_pattern])
-    
-    if property_type:
-        query += ' AND property_type LIKE ?'
-        params.append(f'%{property_type}%')
-    
-    if city:
-        query += ' AND city LIKE ?'
-        params.append(f'%{city}%')
-    
-    query += ' ORDER BY created_at DESC LIMIT 100'
-    
-    properties = conn.execute(query, params).fetchall()
-    
-    # Get unique cities for dropdown
-    cities = conn.execute('SELECT DISTINCT city FROM properties WHERE city IS NOT NULL ORDER BY city').fetchall()
-    
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        properties = db.get_all_properties()
+        # For now, return all properties without filtering (can add filtering later)
+        cities = []  # Can implement city filtering in database_config.py later
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        
+        # Get search parameters
+        search = request.args.get('search', '').strip()
+        property_type = request.args.get('property_type', '')
+        status = request.args.get('status', '')
+        city = request.args.get('city', '')
+        
+        # Build query with search filters
+        query = '''
+            SELECT id, street_address, city, state, zip_code,
+                   bedrooms, bathrooms, square_feet, listed_price, created_at,
+                   mls_number, property_type
+            FROM properties 
+            WHERE 1=1
+        '''
+        params = []
+        
+        if search:
+            query += ''' AND (
+                street_address LIKE ? OR 
+                city LIKE ? OR 
+                mls_number LIKE ?
+            )'''
+            search_pattern = f'%{search}%'
+            params.extend([search_pattern, search_pattern, search_pattern])
+        
+        if property_type:
+            query += ' AND property_type LIKE ?'
+            params.append(f'%{property_type}%')
+        
+        if city:
+            query += ' AND city LIKE ?'
+            params.append(f'%{city}%')
+        
+        query += ' ORDER BY created_at DESC LIMIT 100'
+        
+        properties = conn.execute(query, params).fetchall()
+        properties = [dict(row) for row in properties]
+        
+        # Get unique cities for dropdown
+        cities = conn.execute('SELECT DISTINCT city FROM properties WHERE city IS NOT NULL ORDER BY city').fetchall()
+        cities = [dict(row) for row in cities]
+        
+        conn.close()
     
     return render_template('properties_list.html', 
                          properties=properties, 
                          cities=cities,
-                         search=search,
-                         property_type=property_type,
-                         city=city)
+                         search=request.args.get('search', ''),
+                         property_type=request.args.get('property_type', ''),
+                         city=request.args.get('city', ''))
 
 @app.route('/properties/new', methods=['GET', 'POST'])
 def new_property():
