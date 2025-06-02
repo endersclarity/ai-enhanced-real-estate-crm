@@ -1839,19 +1839,25 @@ def new_property():
 @app.route('/transactions')
 def transactions_list():
     """View all transactions"""
-    conn = get_db_connection()
-    transactions = conn.execute('''
-        SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
-               p.street_address, p.city, p.state,
-               bc.first_name as buyer_first, bc.last_name as buyer_last,
-               sc.first_name as seller_first, sc.last_name as seller_last
-        FROM transactions t
-        JOIN properties p ON t.property_id = p.id
-        LEFT JOIN clients bc ON t.buyer_client_id = bc.id
-        LEFT JOIN clients sc ON t.seller_client_id = sc.id
-        ORDER BY t.created_at DESC
-    ''').fetchall()
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        transactions = db.get_all_transactions()
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        transactions = conn.execute('''
+            SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
+                   p.street_address, p.city, p.state,
+                   bc.first_name as buyer_first, bc.last_name as buyer_last,
+                   sc.first_name as seller_first, sc.last_name as seller_last
+            FROM transactions t
+            JOIN properties p ON t.property_id = p.id
+            LEFT JOIN clients bc ON t.buyer_client_id = bc.id
+            LEFT JOIN clients sc ON t.seller_client_id = sc.id
+            ORDER BY t.created_at DESC
+        ''').fetchall()
+        conn.close()
+        transactions = [dict(row) for row in transactions]
     return render_template('transactions_list.html', transactions=transactions)
 
 @app.route('/transactions/new', methods=['GET', 'POST'])

@@ -42,11 +42,22 @@ class DatabaseConfig:
                         elif line.startswith('SUPABASE_ANON_KEY='):
                             self.supabase_key = line.split('=', 1)[1].strip()
         
-        # Fallback to hardcoded values
+        # Security: Require environment variables in production
         if not self.supabase_url:
-            self.supabase_url = "https://pfcdqrxnjyarhueofrsn.supabase.co"
+            print("⚠️ WARNING: SUPABASE_URL not set in environment variables")
+            # Only use fallback in development
+            if os.environ.get('FLASK_ENV') == 'development':
+                self.supabase_url = "https://pfcdqrxnjyarhueofrsn.supabase.co"
+            else:
+                raise ValueError("SUPABASE_URL must be set in production")
+        
         if not self.supabase_key:
-            self.supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmY2Rxcnhuanlhcmh1ZW9mcnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MTUyMzEsImV4cCI6MjA2NDM5MTIzMX0.04ZvxzZn43utA1SNnqTvhjquhI801gNDcH-rJTMbIzA"
+            print("⚠️ WARNING: SUPABASE_ANON_KEY not set in environment variables")
+            # Only use fallback in development
+            if os.environ.get('FLASK_ENV') == 'development':
+                self.supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmY2Rxcnhuanlhcmh1ZW9mcnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MTUyMzEsImV4cCI6MjA2NDM5MTIzMX0.04ZvxzZn43utA1SNnqTvhjquhI801gNDcH-rJTMbIzA"
+            else:
+                raise ValueError("SUPABASE_ANON_KEY must be set in production")
     
     def get_connection(self):
         """Get database connection based on configuration"""
@@ -320,6 +331,46 @@ class DatabaseConfig:
                 return [dict(row) for row in rows]
             except Exception as e:
                 print(f"Error fetching properties from SQLite: {e}")
+                return []
+    
+    def get_all_transactions(self):
+        """Get all transaction records"""
+        if self.use_supabase:
+            try:
+                # For now, just get basic transaction data
+                # In a full implementation, we'd join with properties and clients
+                response = requests.get(
+                    f"{self.supabase_url}/rest/v1/transactions",
+                    headers=self.headers
+                )
+                if response.status_code == 200:
+                    return response.json()
+                return []
+            except Exception as e:
+                print(f"Error fetching transactions from Supabase: {e}")
+                return []
+        else:
+            # SQLite fallback
+            try:
+                conn = sqlite3.connect(self.sqlite_path)
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
+                           p.street_address, p.city, p.state,
+                           bc.first_name as buyer_first, bc.last_name as buyer_last,
+                           sc.first_name as seller_first, sc.last_name as seller_last
+                    FROM transactions t
+                    JOIN properties p ON t.property_id = p.id
+                    LEFT JOIN clients bc ON t.buyer_client_id = bc.id
+                    LEFT JOIN clients sc ON t.seller_client_id = sc.id
+                    ORDER BY t.created_at DESC
+                ''')
+                rows = cursor.fetchall()
+                conn.close()
+                return [dict(row) for row in rows]
+            except Exception as e:
+                print(f"Error fetching transactions from SQLite: {e}")
                 return []
 
 # Global database instance
