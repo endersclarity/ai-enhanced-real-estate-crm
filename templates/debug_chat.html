@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Debug Chat{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Debug Chat Interface</h2>
+    <div id="chat-messages" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll;"></div>
+    <div class="input-group">
+        <input type="text" id="chat-input" class="form-control" placeholder="Type your message...">
+        <button class="btn btn-primary" id="send-btn">Send</button>
+    </div>
+</div>
+{% endblock %}

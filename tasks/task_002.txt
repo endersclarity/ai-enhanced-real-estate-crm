@@ -1,11 +1,11 @@
 # Task ID: 2
-# Title: Implement AI Extraction Fallback System
-# Status: done
+# Title: Analyze CAR Forms and Create Templates
+# Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Create a robust fallback mechanism for entity extraction, using the legacy regex method only if the primary AI-native extraction fails or is unavailable.
+# Description: Analyze the 13 CAR forms from attachments.zip to identify all fillable fields. Extract field names, types, and coordinates/positions within each PDF. Create blank, fillable template files for each form type.
 # Details:
-Rename the existing `extract_entities_from_text()` function to `extract_entities_from_text_legacy()`. Implement logic within the entity extraction process to attempt calling the AI-native extraction first. If this fails (e.g., API error, malformed AI response), catch the error and attempt extraction using `extract_entities_from_text_legacy()`. Log instances where the fallback is used.
+Use `pdfplumber` or `PyPDF2` to open each of the 13 PDF forms. Iterate through form fields to extract names and bounding boxes/coordinates. Document the identified fields for each form. Create a process or script to generate a 'blank' template version of each form, potentially by clearing existing field values or storing field locations for later population. Store templates and field data in a structured format (e.g., JSON, database table).
 
 # Test Strategy:
-Simulate scenarios where the AI extraction might fail (e.g., mock an API error) and verify that the system correctly falls back to using the legacy regex function. Test inputs that were previously handled by the regex to ensure the fallback is functional and produces expected results.
+Generate a report listing all identified fields for each of the 13 forms, including their extracted properties. Manually verify a sample of fields against the original PDFs. Ensure blank templates are created successfully.

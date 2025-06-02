@@ -4,6 +4,9 @@ reportlab==4.0.4
 pdfplumber==0.9.0
 Werkzeug==2.3.7
 Jinja2==3.1.2
-google-generativeai==0.8.5
-langchain-google-genai==2.1.5
-langchain-core==0.3.63
+google-generativeai>=0.8.0
+langchain-google-genai>=2.0.0
+langchain-core>=0.3.0
+psycopg2-binary>=2.9.0
+supabase>=2.0.0
+requests>=2.28.0

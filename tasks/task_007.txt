@@ -1,11 +1,11 @@
 # Task ID: 7
-# Title: Connect Sidebar Frontend to Flask Backend
+# Title: Develop User Interface Components for Form Selection and Preview
 # Status: pending
-# Dependencies: 5
-# Priority: high
-# Description: Connect the chatbot sidebar JavaScript in `crm_dashboard.html` to the Flask backend endpoints (`/chat`, `/process_email`) to enable real-time communication.
+# Dependencies: 6
+# Priority: medium
+# Description: Develop the user interface components within the existing dashboard that allow users (Narissa) to select a client and property from the CRM, choose one of the 13 CAR forms, preview the populated form, and confirm generation.
 # Details:
-Modify the JavaScript in `templates/crm_dashboard.html`. Replace the current demo/fallback logic with AJAX calls to send user input from the chat and email processing areas to the `/chat` and `/process_email` Flask endpoints. Implement handlers for receiving responses from the backend and updating the sidebar UI (displaying AI responses, processing results, errors). Include frontend error handling for network issues.
+Create UI elements: dropdowns or lists to select client and property (leveraging existing CRM UI components), a list or gallery of the 13 CAR forms for selection. Add a button to trigger population (calling the backend endpoint from Task 6). Implement a PDF viewer component to display the generated form for preview. Include a confirmation step before finalization/saving.
 
 # Test Strategy:
-Open the dashboard in a browser. Type messages into the chatbot sidebar and paste email content into the processing area. Verify that these actions trigger AJAX requests to the correct backend endpoints and that the responses from the backend are correctly displayed in the sidebar UI. Test basic chat interactions and email processing initiation.
+Manually test the UI flow: select client, select property, select form, click populate. Verify that the preview displays the generated PDF correctly. Test selecting different forms and data combinations.

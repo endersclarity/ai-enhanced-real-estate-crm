@@ -2,130 +2,147 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Implement Direct AI Function Calling",
-      "description": "Replace the regex-based parsing logic in `analyze_response_for_functions()` and the `/chat` endpoint with direct processing of function call results provided by LangChain's Gemini integration.",
-      "details": "Modify the `/chat` endpoint in `real_estate_crm.py` (lines 1216-1327) to remove dependencies on `analyze_response_for_functions()` (lines 310-348). Instead, directly utilize the structured function call output from the LangChain/Gemini integration to identify and execute CRM operations. Ensure the system correctly interprets and uses parameters provided by the AI.",
-      "testStrategy": "Verify that sending natural language requests for CRM operations (e.g., 'create client John Doe', 'find properties in area X') correctly triggers the corresponding backend functions without relying on regex parsing of the AI's text response. Use the Jennifer Lawrence test case ('add jennifer lawrence...747567574') to confirm accurate entity extraction and function calling.",
+      "title": "Environment Setup and Library Installation",
+      "description": "Set up the development environment for the feature/formPopulation branch, including installing necessary PDF processing libraries (PyPDF2, pdfplumber, reportlab) and ensuring compatibility with the existing CRM database and AI layers.",
+      "details": "Create the new branch `feature/formPopulation` from main. Install Python libraries: `pip install PyPDF2 pdfplumber reportlab`. Verify basic import functionality. Ensure access to the CRM database schema and the existing LangChain/Gemini 2.5 Flash setup.",
+      "testStrategy": "Run simple scripts to import installed libraries and confirm database connectivity. Verify branch creation and checkout.",
       "priority": "high",
       "dependencies": [],
-      "status": "done",
+      "status": "in-progress",
       "subtasks": []
     },
     {
       "id": 2,
-      "title": "Implement AI Extraction Fallback System",
-      "description": "Create a robust fallback mechanism for entity extraction, using the legacy regex method only if the primary AI-native extraction fails or is unavailable.",
-      "details": "Rename the existing `extract_entities_from_text()` function to `extract_entities_from_text_legacy()`. Implement logic within the entity extraction process to attempt calling the AI-native extraction first. If this fails (e.g., API error, malformed AI response), catch the error and attempt extraction using `extract_entities_from_text_legacy()`. Log instances where the fallback is used.",
-      "testStrategy": "Simulate scenarios where the AI extraction might fail (e.g., mock an API error) and verify that the system correctly falls back to using the legacy regex function. Test inputs that were previously handled by the regex to ensure the fallback is functional and produces expected results.",
+      "title": "Analyze CAR Forms and Create Templates",
+      "description": "Analyze the 13 CAR forms from attachments.zip to identify all fillable fields. Extract field names, types, and coordinates/positions within each PDF. Create blank, fillable template files for each form type.",
+      "details": "Use `pdfplumber` or `PyPDF2` to open each of the 13 PDF forms. Iterate through form fields to extract names and bounding boxes/coordinates. Document the identified fields for each form. Create a process or script to generate a 'blank' template version of each form, potentially by clearing existing field values or storing field locations for later population. Store templates and field data in a structured format (e.g., JSON, database table).",
+      "testStrategy": "Generate a report listing all identified fields for each of the 13 forms, including their extracted properties. Manually verify a sample of fields against the original PDFs. Ensure blank templates are created successfully.",
       "priority": "high",
       "dependencies": [
         1
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 3,
-      "title": "Refine AI Prompts with Few-Shot Examples",
-      "description": "Refine prompts for Gemini 2.5 Flash using few-shot examples to improve the accuracy and consistency of AI-native entity extraction and function parameter identification, especially for edge cases.",
-      "details": "Update the system prompts or user messages sent to the Gemini API via LangChain. Include specific examples of user inputs and the desired structured output (JSON for entities, function call parameters) to guide the AI. Focus on known failure cases and complex inputs. Ensure `temperature=0.1` is used for deterministic responses.",
-      "testStrategy": "Create a test suite with various edge cases and complex natural language inputs. Run these inputs through the updated AI extraction process and verify that the AI consistently and accurately extracts the correct entities and identifies the appropriate function calls and parameters based on the few-shot examples.",
-      "priority": "medium",
+      "title": "Design and Implement CRM-to-Form Field Mapping",
+      "description": "Design and implement the data structure and system for mapping the 177 fields from the CRM database schema to the identified fields in the 13 CAR forms. This system should handle variations and potential missing data gracefully.",
+      "details": "Create a database table or configuration file structure (e.g., JSON, YAML) to store the mapping. Each entry should link a CRM field identifier (e.g., `client.firstName`, `property.address`) to one or more form field identifiers across different forms. Implement logic to handle cases where a CRM field maps to multiple form fields or where a form field might be populated by a combination of CRM fields. Include rules for handling null or missing CRM data (e.g., leave form field blank, insert 'N/A').",
+      "testStrategy": "Create test mapping configurations for a few forms. Write unit tests to verify that given a CRM field name, the system correctly identifies the corresponding form fields across different forms. Test edge cases like missing CRM fields.",
+      "priority": "high",
       "dependencies": [
-        1
+        2
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 4,
-      "title": "Add Python-Side Data Validation",
-      "description": "Add a validation layer in the Flask backend to check the data extracted by the AI for correctness, format, and basic business logic before attempting database operations.",
-      "details": "Implement validation logic in `real_estate_crm.py` after receiving extracted entities or function call parameters from the AI. Validate data types (e.g., ensure budget is a number), formats (e.g., email structure, phone number length/format), and check for basic business constraints (e.g., required fields for creating a client). Use Pydantic or similar validation methods.",
-      "testStrategy": "Test with inputs designed to produce potentially invalid or malformed data from the AI (e.g., 'create client John Doe with budget ABC'). Verify that the validation layer correctly identifies the invalid data, prevents the database operation, and prepares an appropriate error response.",
+      "title": "Develop Automated Form Population Engine",
+      "description": "Develop the core engine responsible for taking CRM data records (client, property, transaction) and a selected blank form template, applying the field mapping, and populating the form fields using PDF libraries.",
+      "details": "Create a function or class that accepts CRM data (as a dictionary or object) and a form template identifier. Load the corresponding blank template and the field mapping. Iterate through the form fields identified in Task 2. For each form field, look up the corresponding CRM field(s) using the mapping from Task 3. Retrieve the data from the provided CRM record. Use `PyPDF2` or `reportlab` to write the data into the appropriate field coordinates/locations on the blank PDF template. Handle different field types (text, checkboxes).",
+      "testStrategy": "Create mock CRM data records. Select a few form templates. Run the population engine with mock data and templates. Verify that the output PDF contains the mock data correctly placed in the expected fields. Check different data types and lengths.",
       "priority": "high",
       "dependencies": [
-        1
+        2,
+        3
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 5,
-      "title": "Implement Tiered Error Handling and Clarification",
-      "description": "Implement a tiered error handling system in the `/chat` endpoint to gracefully handle AI extraction failures, validation errors, and database operation errors, including prompting the user for clarification when necessary.",
-      "details": "Enhance the error handling blocks in the `/chat` endpoint. Implement specific error handling for different failure types: AI API errors, AI extraction/parsing errors, validation errors from Task 4, and database errors (e.g., constraint violations). For validation errors or ambiguous requests, formulate a clarifying question to send back to the user via the chat interface. Log detailed error information on the backend.",
-      "testStrategy": "Simulate various error conditions: AI API down, input causing validation failure (e.g., invalid email format), input causing database error (e.g., duplicate entry). Verify that the system catches the error, provides a user-friendly message in the chat sidebar, and prompts for clarification when the error is due to ambiguous or invalid user input/AI interpretation.",
-      "priority": "high",
+      "title": "Implement Form Validation Framework",
+      "description": "Implement a validation framework to ensure that the populated forms meet legal and business requirements. This includes checking for critical missing data and data format issues based on form field types.",
+      "details": "Extend the population engine or create a separate validation module. Define validation rules based on form field requirements (e.g., required fields, data format like dates or numbers). After populating a form, run validation checks. If validation fails, generate clear error messages indicating which fields have issues. This framework should integrate with the error handling mentioned in the success criteria.",
+      "testStrategy": "Create mock CRM data with missing required fields or invalid data formats. Run the population and validation process. Verify that the validation framework correctly identifies and reports the errors.",
+      "priority": "medium",
       "dependencies": [
         4
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 6,
-      "title": "Document AI-Native Extraction System",
-      "description": "Update documentation to reflect the new AI-native entity extraction system, fallback mechanism, validation layer, and enhanced error handling.",
-      "details": "Update the system architecture documentation and developer guides. Describe the removal of regex dependencies, the implementation of direct function calling, the AI-native extraction process, the fallback logic (Task 2), the Python-side validation (Task 4), and the tiered error handling/clarification workflow (Task 5). Include examples of how the system handles different inputs and errors.",
-      "testStrategy": "Review the updated documentation to ensure it accurately reflects the implemented system changes and provides clear guidance for developers and understanding for stakeholders.",
-      "priority": "low",
+      "title": "Build Multi-Form Support Backend",
+      "description": "Build the backend logic and API endpoints required for the multi-form support system. This includes functions to list available forms, select a specific form, and initiate the population process with provided CRM record identifiers.",
+      "details": "Create API endpoints (e.g., `/forms/list`, `/forms/populate`). The list endpoint should return the names/identifiers of the 13 available CAR forms. The populate endpoint should accept parameters like `form_id` and CRM record identifiers (e.g., `client_id`, `property_id`). Retrieve the full CRM data for the given IDs. Call the form population engine (Task 4) and validation framework (Task 5) with the retrieved data and selected form template. Return the generated PDF (or a link to it) and any validation errors.",
+      "testStrategy": "Use API testing tools (e.g., Postman) to call the `/forms/list` endpoint and verify the list of forms. Call the `/forms/populate` endpoint with valid and invalid CRM IDs and form IDs. Verify that a PDF is returned for valid requests and appropriate error messages for invalid ones.",
+      "priority": "medium",
       "dependencies": [
+        4,
         5
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 7,
-      "title": "Connect Sidebar Frontend to Flask Backend",
-      "description": "Connect the chatbot sidebar JavaScript in `crm_dashboard.html` to the Flask backend endpoints (`/chat`, `/process_email`) to enable real-time communication.",
-      "details": "Modify the JavaScript in `templates/crm_dashboard.html`. Replace the current demo/fallback logic with AJAX calls to send user input from the chat and email processing areas to the `/chat` and `/process_email` Flask endpoints. Implement handlers for receiving responses from the backend and updating the sidebar UI (displaying AI responses, processing results, errors). Include frontend error handling for network issues.",
-      "testStrategy": "Open the dashboard in a browser. Type messages into the chatbot sidebar and paste email content into the processing area. Verify that these actions trigger AJAX requests to the correct backend endpoints and that the responses from the backend are correctly displayed in the sidebar UI. Test basic chat interactions and email processing initiation.",
-      "priority": "high",
+      "title": "Develop User Interface Components for Form Selection and Preview",
+      "description": "Develop the user interface components within the existing dashboard that allow users (Narissa) to select a client and property from the CRM, choose one of the 13 CAR forms, preview the populated form, and confirm generation.",
+      "details": "Create UI elements: dropdowns or lists to select client and property (leveraging existing CRM UI components), a list or gallery of the 13 CAR forms for selection. Add a button to trigger population (calling the backend endpoint from Task 6). Implement a PDF viewer component to display the generated form for preview. Include a confirmation step before finalization/saving.",
+      "testStrategy": "Manually test the UI flow: select client, select property, select form, click populate. Verify that the preview displays the generated PDF correctly. Test selecting different forms and data combinations.",
+      "priority": "medium",
       "dependencies": [
-        5
+        6
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 8,
-      "title": "Implement User Confirmation Workflow",
-      "description": "Implement a user confirmation workflow in the dashboard sidebar for all database operations proposed by the AI, requiring explicit user approval before execution.",
-      "details": "Design and implement a modal dialog or a clear UI element within the sidebar. When the AI proposes a database operation (e.g., 'Create Client', 'Update Property'), display the details of the proposed change to the user. The user must click a 'Confirm' button (or similar) for the operation to proceed. Implement the backend logic to support this two-step process (propose -> await confirmation -> execute upon confirmation). Allow users to cancel or potentially modify the proposed operation.",
-      "testStrategy": "Initiate various database operations via the chatbot (e.g., 'create client Jane Doe', 'update John Smith's phone number'). Verify that a confirmation prompt appears in the sidebar displaying the details of the proposed change. Test confirming the operation (verifying it executes) and canceling the operation (verifying it does not execute). Test the modification flow if implemented.",
-      "priority": "high",
+      "title": "Integrate with AI Chatbot for Natural Language Requests",
+      "description": "Extend the existing AI chatbot (Gemini 2.5 Flash via LangChain) to understand natural language requests for form generation, such as 'Generate a purchase agreement for John Smith and 123 Main Street'.",
+      "details": "Modify the LangChain agent or add a new tool/function specifically for form generation. Train or configure the AI to identify intent (form generation) and extract key entities (client name, property address, form type) from user prompts. Map extracted entities to CRM records and form identifiers. Call the backend form population endpoint (Task 6) with the identified parameters. The chatbot should respond with confirmation and potentially a link to the generated form.",
+      "testStrategy": "Interact with the chatbot using various natural language requests for form generation. Verify that the AI correctly identifies the intent, extracts entities, and triggers the form population process via the backend API. Check responses for clarity and accuracy.",
+      "priority": "medium",
       "dependencies": [
-        7
+        6
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 9,
-      "title": "Implement Real-time Dashboard Updates",
-      "description": "Implement functionality to automatically update or refresh relevant sections of the main dashboard interface after a database operation is successfully executed via the chatbot.",
-      "details": "After a confirmed database operation is completed by the backend (e.g., client created, property updated), trigger a frontend event or AJAX call to refresh the specific dashboard components that display the affected data (e.g., client list, property details). This ensures the main dashboard view is immediately synchronized with changes made via the chatbot.",
-      "testStrategy": "Use the chatbot to perform database operations that affect data displayed in the main dashboard area (e.g., create a new client, update an existing property). After confirming and executing the operation, verify that the relevant list or detail view in the main dashboard updates automatically and immediately without a manual page refresh.",
+      "title": "Integrate Form Population into CRM Dashboard",
+      "description": "Integrate the developed multi-form support backend (Task 6) and UI components (Task 7) seamlessly into the existing CRM dashboard architecture.",
+      "details": "Incorporate the UI components into the relevant sections of the CRM dashboard (e.g., client or property detail pages). Ensure smooth navigation and data flow between existing CRM features and the new form population functionality. Configure routing and state management within the dashboard application to support the new feature.",
+      "testStrategy": "Navigate through the CRM dashboard. Access the new form population feature from different entry points (e.g., client profile, property listing). Verify that the UI loads correctly and interacts properly with the backend within the integrated environment.",
       "priority": "high",
       "dependencies": [
-        8
+        6,
+        7
       ],
-      "status": "done",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 10,
-      "title": "Comprehensive Testing and Production Readiness",
-      "description": "Conduct comprehensive end-to-end testing of the integrated system, covering user workflows, error handling, performance, and responsive design, and validate against all success criteria.",
-      "details": "Execute automated test suites (`test_ai_entity_extraction.py`, `test_complete_workflow.html`, etc.) covering AI extraction, validation, error handling, and the full chat-confirm-update-refresh workflow. Manually test the system on different devices and screen sizes to ensure responsive design. Simulate various error conditions and network issues. Benchmark performance against the defined targets (<5s chat response, <2s DB ops, <3s dashboard updates, <15s full workflow). Address any remaining bugs and prepare the application for production deployment (security checks, configuration).",
-      "testStrategy": "Verify all automated tests pass. Confirm successful completion of all user workflows on desktop, tablet, and mobile. Validate that error handling provides clear feedback. Measure performance metrics and confirm they meet targets. Review the application against all success criteria listed in the PRD and branch context.",
+      "title": "End-to-End Testing and Refinement",
+      "description": "Perform comprehensive end-to-end testing of the entire form population workflow, from user request (UI or AI) to generated PDF output. This includes testing with various CRM data sets, different forms, and handling edge cases like missing data.",
+      "details": "Execute test cases covering all 13 forms, using diverse CRM data (complete, partial, edge cases). Test both UI-driven and AI-driven form generation requests. Verify form accuracy (100% field population for available data), processing speed (<5 seconds), and error handling (graceful handling of missing data, clear feedback). Address any bugs or performance issues found.",
+      "testStrategy": "Develop a suite of end-to-end test cases. Execute tests systematically, comparing generated PDFs against expected outputs. Measure processing time. Log and track errors. Verify user feedback for errors is clear and actionable.",
       "priority": "high",
       "dependencies": [
+        8,
         9
       ],
-      "status": "done",
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Production Readiness and Final Validation",
+      "description": "Prepare the feature for production deployment. This includes code review, documentation, performance optimization, and final validation against production-like data and environment.",
+      "details": "Conduct thorough code review. Write or update documentation for the form population system, API endpoints, and AI integration. Perform performance profiling and optimize code where necessary to meet the <5 seconds processing speed goal. Deploy to a staging environment mirroring production. Perform final validation tests using anonymized production data or realistic mock data.",
+      "testStrategy": "Complete code review checklist. Verify documentation is accurate and complete. Run performance tests under load. Execute final validation test suite on staging environment. Obtain sign-off for production deployment.",
+      "priority": "high",
+      "dependencies": [
+        10
+      ],
+      "status": "pending",
       "subtasks": []
     }
   ]

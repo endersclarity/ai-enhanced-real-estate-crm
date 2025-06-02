@@ -4,7 +4,7 @@ Real Estate CRM Application
 Comprehensive client and transaction management for Narissa Realty
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_file
 import sqlite3
 import json
 from datetime import datetime, date
@@ -13,22 +13,91 @@ import os
 import google.generativeai as genai
 from functools import wraps
 
+# Import database configuration with fallback
+try:
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from database_config import db
+    print("✅ Supabase database configuration loaded")
+except ImportError as e:
+    print(f"⚠️ Supabase not available, using SQLite fallback: {e}")
+    # Fallback to direct SQLite
+    import sqlite3
+    class FallbackDB:
+        def get_clients_summary(self):
+            try:
+                conn = sqlite3.connect('real_estate_crm.db')
+                result = conn.execute('''
+                    SELECT 
+                        COUNT(*) as total_clients,
+                        COUNT(CASE WHEN client_type = 'buyer' THEN 1 END) as buyers,
+                        COUNT(CASE WHEN client_type = 'seller' THEN 1 END) as sellers,
+                        COUNT(CASE WHEN status = 'active' THEN 1 END) as active_clients
+                    FROM clients
+                ''').fetchone()
+                conn.close()
+                return {
+                    'total_clients': result[0] or 0,
+                    'buyers': result[1] or 0,
+                    'sellers': result[2] or 0,
+                    'active_clients': result[3] or 0
+                }
+            except:
+                return {'total_clients': 0, 'buyers': 0, 'sellers': 0, 'active_clients': 0}
+        
+        def execute_query(self, query, params=None, fetch_all=False, fetch_one=False):
+            try:
+                conn = sqlite3.connect('real_estate_crm.db')
+                cursor = conn.cursor()
+                cursor.execute(query, params or ())
+                
+                if fetch_all:
+                    result = cursor.fetchall()
+                elif fetch_one:
+                    result = cursor.fetchone()
+                else:
+                    conn.commit()
+                    result = cursor.rowcount
+                
+                conn.close()
+                return result
+            except:
+                return [] if fetch_all else None
+    
+    db = FallbackDB()
+
 # Import ZipForm functions
 try:
-    from zipform_ai_functions import (
-        create_client_zipform, create_property_zipform, create_transaction,
-        create_broker_agent, create_lender, create_title_company, 
-        create_escrow_company, create_service_provider, ZIPFORM_AI_FUNCTIONS
+    from database.streamlined_zipform_functions import (
+        create_zipform_client, create_zipform_property, create_zipform_transaction,
+        create_lender, create_title_company, 
+        create_escrow_company, STREAMLINED_ZIPFORM_FUNCTIONS
     )
     ZIPFORM_AVAILABLE = True
-except ImportError:
-    print("⚠️  ZipForm functions not available - run migration first")
+    print("✅ ZipForm AI functions loaded successfully")
+except ImportError as e:
+    print(f"⚠️  ZipForm functions not available: {e}")
     ZIPFORM_AVAILABLE = False
+
+# Import Offer Creation functions
+try:
+    import sys
+    import os
+    sys.path.append(os.path.dirname(__file__))
+    from ai_modules.offer_creation_functions import (
+        search_for_clients, search_for_properties, create_purchase_offer,
+        get_offer_status, list_recent_offers, OFFER_CREATION_AI_FUNCTIONS
+    )
+    OFFER_CREATION_AVAILABLE = True
+    print("✅ Offer Creation AI functions loaded successfully")
+except ImportError as e:
+    print(f"⚠️  Offer Creation functions not available: {e}")
+    OFFER_CREATION_AVAILABLE = False
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.secret_key = 'your-secret-key-change-this'  # Change in production
 
-DATABASE_PATH = 'real_estate_crm.db'
+DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'real_estate_crm.db')
 
 # Gemini API Configuration
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
@@ -1037,7 +1106,7 @@ class DateTimeEncoder(json.JSONEncoder):
 def init_database():
     """Initialize the database with schema"""
     if not os.path.exists(DATABASE_PATH):
-        with open('real_estate_crm_schema.sql', 'r') as f:
+        with open('database/real_estate_crm_schema.sql', 'r') as f:
             schema = f.read()
         
         conn = sqlite3.connect(DATABASE_PATH)
@@ -1472,28 +1541,47 @@ AI_CALLABLE_FUNCTIONS = {
 
 # Add ZipForm functions if available
 if ZIPFORM_AVAILABLE:
-    AI_CALLABLE_FUNCTIONS.update(ZIPFORM_AI_FUNCTIONS)
-    print("✅ ZipForm AI functions loaded successfully")
+    AI_CALLABLE_FUNCTIONS.update(STREAMLINED_ZIPFORM_FUNCTIONS)
+    print("✅ ZipForm AI functions integrated with chatbot")
 else:
     print("⚠️  Running with legacy functions only")
+
+# Add Offer Creation functions if available
+if OFFER_CREATION_AVAILABLE:
+    AI_CALLABLE_FUNCTIONS.update(OFFER_CREATION_AI_FUNCTIONS)
+    print("✅ Offer Creation AI functions integrated with chatbot")
+else:
+    print("⚠️  Running without offer creation capabilities")
 
 @app.route('/')
 def dashboard():
     """Main dashboard view"""
-    conn = get_db_connection()
-    
-    # Get dashboard statistics
-    stats = {
-        'total_clients': conn.execute('SELECT COUNT(*) as count FROM clients').fetchone()['count'],
-        'active_transactions': conn.execute('SELECT COUNT(*) as count FROM transactions WHERE status IN ("pending", "in_progress", "under_contract")').fetchone()['count'],
-        'properties': conn.execute('SELECT COUNT(*) as count FROM properties').fetchone()['count'],
-        'this_month_closings': 0  # Simplified for now
-    }
-    
-    # Get recent transactions
-    # Get recent transactions (simplified query to avoid schema issues)
+    # Get dashboard statistics using new database configuration
     try:
-        recent_transactions = conn.execute('''
+        client_stats = db.get_clients_summary()
+        
+        # Get other statistics
+        total_transactions = db.execute_query('SELECT COUNT(*) as count FROM transactions', fetch_one=True)
+        total_properties = db.execute_query('SELECT COUNT(*) as count FROM properties', fetch_one=True)
+        
+        stats = {
+            'total_clients': client_stats.get('total_clients', 0),
+            'active_transactions': total_transactions[0] if total_transactions else 0,
+            'properties': total_properties[0] if total_properties else 0,
+            'this_month_closings': 0  # Simplified for now
+        }
+    except Exception as e:
+        print(f"Error getting dashboard stats: {e}")
+        stats = {
+            'total_clients': 0,
+            'active_transactions': 0,
+            'properties': 0,
+            'this_month_closings': 0
+        }
+    
+    # Get recent transactions using new database configuration
+    try:
+        recent_transactions = db.execute_query('''
             SELECT t.id, t.status, t.purchase_price, t.offer_date, 
                    'Address TBD' as address_street, 'City TBD' as address_city,
                    'Buyer TBD' as buyer_first, '' as buyer_last,
@@ -1501,12 +1589,11 @@ def dashboard():
             FROM transactions t
             ORDER BY t.created_at DESC
             LIMIT 10
-        ''').fetchall()
-    except:
-        # Fallback to empty list if transactions table has issues
+        ''', fetch_all=True)
+    except Exception as e:
+        print(f"Error getting recent transactions: {e}")
         recent_transactions = []
     
-    conn.close()
     return render_template('crm_dashboard.html', stats=stats, recent_transactions=recent_transactions)
 
 @app.route('/debug_chat')
@@ -1520,7 +1607,7 @@ def clients_list():
     conn = get_db_connection()
     clients = conn.execute('''
         SELECT id, client_type, first_name, last_name, email, home_phone, 
-               city, state, created_at
+               city, created_at
         FROM clients 
         ORDER BY last_name, first_name
     ''').fetchall()
@@ -1535,17 +1622,20 @@ def new_client():
         conn = get_db_connection()
         conn.execute('''
             INSERT INTO clients (
-                client_type, first_name, last_name, middle_initial, email, home_phone,
-                business_phone, street_address, city, state, zip_code,
-                employer, occupation, annual_income, ssn_last_four, preferred_contact_method, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                client_type, first_name, last_name, email, home_phone, city, 
+                budget_min, budget_max, area_preference, bedrooms
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            data['client_type'], data['first_name'], data['last_name'], data.get('middle_initial'),
-            data.get('email'), data.get('home_phone'), data.get('business_phone'),
-            data.get('street_address'), data.get('city'), data.get('state'),
-            data.get('zip_code'), data.get('employer'), data.get('occupation'),
-            data.get('annual_income') or None, data.get('ssn_last_four'),
-            data.get('preferred_contact_method', 'email'), data.get('notes')
+            data.get('client_type', 'Buyer'), 
+            data.get('first_name', ''), 
+            data.get('last_name', ''), 
+            data.get('email'),
+            data.get('home_phone'), 
+            data.get('city'),
+            data.get('budget_min') or None,
+            data.get('budget_max') or None,
+            data.get('area_preference'),
+            data.get('bedrooms') or None
         ))
         conn.commit()
         conn.close()
@@ -2503,7 +2593,224 @@ def get_dashboard_stats():
             'timestamp': datetime.now().isoformat()
         }), 500
 
+# ============================================================================
+# FORM API ENDPOINTS (Integration from form_api_backend.py)
+# ============================================================================
+
+@app.route('/api/forms/list', methods=['GET'])
+def api_list_forms():
+    """Get list of available forms"""
+    try:
+        print(f"🔍 API call received: /api/forms/list")
+        # Return the forms we support
+        forms = [
+            {
+                'id': 'california_purchase_agreement',
+                'name': 'California Residential Purchase Agreement',
+                'description': 'Standard CAR form for residential property purchases',
+                'pages': 12,
+                'category': 'purchase',
+                'estimated_time': '5-10 minutes',
+                'required_data': ['client', 'property']
+            },
+            {
+                'id': 'buyer_representation_agreement', 
+                'name': 'Buyer Representation Agreement',
+                'description': 'Agreement between buyer and real estate agent',
+                'pages': 6,
+                'category': 'representation',
+                'estimated_time': '3-5 minutes',
+                'required_data': ['client']
+            },
+            {
+                'id': 'listing_agreement',
+                'name': 'Residential Listing Agreement',
+                'description': 'Agreement to list property for sale',
+                'pages': 8,
+                'category': 'listing',
+                'estimated_time': '5-8 minutes', 
+                'required_data': ['client', 'property']
+            }
+        ]
+        
+        return jsonify({
+            'success': True,
+            'forms': forms,
+            'total_count': len(forms),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/forms/populate', methods=['POST'])
+def api_populate_form():
+    """Populate a form with CRM data using the real form population system"""
+    try:
+        data = request.get_json()
+        form_id = data.get('form_id')
+        client_id = data.get('client_id') 
+        property_id = data.get('property_id')
+        transaction_id = data.get('transaction_id')
+        
+        # Import the gorgeous CRPA system
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        from crpa_crm_system import CRPACRMSystem
+        
+        # Initialize CRPA system
+        crpa_system = CRPACRMSystem()
+        
+        # Use transaction_id if provided
+        if transaction_id:
+            # Create gorgeous CRPA form with real CRM data
+            output_filename = f'CRPA_Transaction_{transaction_id}.pdf'
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output')
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, output_filename)
+            
+            result = crpa_system.create_crpa_form(transaction_id, output_path)
+        else:
+            return jsonify({'success': False, 'error': 'transaction_id is required for CRPA system'}), 400
+        
+        if result and os.path.exists(output_path):
+            return jsonify({
+                'success': True,
+                'message': f'Gorgeous CRPA form created for transaction {transaction_id} using clean template',
+                'pdf_url': f'/download/{output_filename}',
+                'pdf_path': output_path,
+                'form_type': 'gorgeous_crpa',
+                'file_size': os.path.getsize(output_path),
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Form generation failed'}), 500
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    """Download generated PDF files"""
+    try:
+        output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output')
+        file_path = os.path.join(output_dir, filename)
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True, download_name=filename)
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/transactions')
+def api_transactions():
+    """Get transactions for dropdown (fix for empty transaction dropdown)"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+        SELECT t.id, t.purchase_price, t.status, p.street_address as property_address, p.city as property_city
+        FROM transactions t 
+        LEFT JOIN properties p ON t.property_id = p.id
+        ORDER BY t.created_at DESC 
+        LIMIT 50
+        """)
+        
+        transactions = []
+        for row in cursor.fetchall():
+            address = row['property_address'] or 'Unknown Address'
+            price = row['purchase_price'] or 0
+            transactions.append({
+                'id': row['id'],
+                'name': f"{address} - ${price:,}" if price > 0 else address,
+                'address': address,
+                'city': row['property_city'] or 'Unknown City',
+                'price': price,
+                'status': row['status'] or 'Unknown'
+            })
+        
+        conn.close()
+        
+        # If no transactions, provide mock data
+        if not transactions:
+            transactions = [
+                {
+                    'id': 'trans_001',
+                    'name': '456 Oak Avenue - $450,000',
+                    'address': '456 Oak Avenue',
+                    'city': 'San Francisco',
+                    'price': 450000,
+                    'status': 'Pending'
+                }
+            ]
+        
+        return jsonify({
+            'success': True,
+            'transactions': transactions
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+def init_basic_database():
+    """Initialize basic database tables if they don't exist"""
+    try:
+        conn = sqlite3.connect('real_estate_crm.db')
+        
+        # Create clients table
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS clients (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                first_name VARCHAR(100),
+                last_name VARCHAR(100),
+                email VARCHAR(255),
+                client_type VARCHAR(50) DEFAULT 'buyer',
+                status VARCHAR(50) DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Create properties table
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS properties (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                street_address VARCHAR(255),
+                city VARCHAR(100),
+                state VARCHAR(50),
+                zip_code VARCHAR(20),
+                listed_price DECIMAL(15,2),
+                status VARCHAR(50) DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Create transactions table
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                property_id INTEGER,
+                purchase_price DECIMAL(15,2),
+                status VARCHAR(50) DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Insert sample data if empty
+        if conn.execute('SELECT COUNT(*) FROM clients').fetchone()[0] == 0:
+            conn.execute('''
+                INSERT INTO clients (first_name, last_name, email, client_type)
+                VALUES ('John', 'Smith', 'john.smith@email.com', 'buyer')
+            ''')
+        
+        conn.commit()
+        conn.close()
+        print("✅ Basic database initialized")
+        
+    except Exception as e:
+        print(f"⚠️ Database initialization error: {e}")
+
 if __name__ == '__main__':
-    # Database already initialized with basic schema
-    # init_database()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Initialize database
+    init_basic_database()
+    app.run(debug=True, host='0.0.0.0', port=5001)

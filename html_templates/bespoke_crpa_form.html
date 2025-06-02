@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Bespoke CRPA Form - Pixel Perfect Recreation</title>
+    <style>
+        @page {
+            size: 8.50in 11.00in;
+            margin: 0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .form-page {
+            width: 612.0px;
+            height: 792.0px;
+            position: relative;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        
+        .form-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Recreate original text elements */
+        .original-text {
+            position: absolute;
+            font-family: 'Times New Roman', serif;
+            color: #000;
+            white-space: nowrap;
+        }
+        
+        /* Recreate original lines */
+        .original-line {
+            position: absolute;
+            background-color: #000;
+        }
+        
+        /* Form input fields */
+        .form-field {
+            position: absolute;
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-family: 'Times New Roman', serif;
+            font-size: 10px;
+            color: #000;
+            padding: 0 2px;
+            outline: none;
+        }
+        
+        .form-field:focus {
+            background: rgba(173, 216, 230, 0.3);
+            border-bottom: 2px solid #0066cc;
+        }
+        
+        /* Print styles */
+        @media print {
+            .form-page {
+                border: none;
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .form-field {
+                border-bottom: 1px solid #000 !important;
+                background: transparent !important;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+        }
+        
+        /* Control panel */
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+        }
+        
+        .control-panel button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .control-panel button:hover {
+            background: #005a87;
+        }
+        
+        @media print {
+            .control-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h4>🎨 Bespoke Form Controls</h4>
+        <button onclick="fillSampleData()">📝 Fill Sample Data</button>
+        <button onclick="clearAllFields()">🗑️ Clear All</button>
+        <button onclick="window.print()">🖨️ Print Form</button>
+        <button onclick="toggleFieldHighlight()">👁️ Toggle Field Highlight</button>
+        <div style="margin-top: 10px; font-size: 10px;">
+            <strong>128 Fields Detected</strong><br>
+            <strong>145 Text Elements</strong><br>
+            <strong>130 Lines</strong>
+        </div>
+    </div>
+    
+    <div class="form-page">
+        <div class="form-container">
+            <div class="original-text" style="
+                left: 188.1px;
+                top: 30.120000000000005px;
+                font-size: 12.0px;
+            ">CALIFORNIARESIDENTIALPURCHASEAGREEMENT</div>
+            <div class="original-text" style="
+                left: 234.396px;
+                top: 44.08800000000008px;
+                font-size: 12.0px;
+            ">ANDJOINTESCROWINSTRUCTIONS</div>
+            <div class="original-text" style="
+                left: 276.264px;
+                top: 57.15999999999997px;
+                font-size: 8.0px;
+            ">(C.A.R.FORMRPA,Revised12/24)</div>
+            <div class="original-text" style="
+                left: 36.0px;
+                top: 91.11599999999999px;
+                font-size: 9.0px;
+            ">1.OFFER:</div>
+            <div class="original-text" style="
+                left: 54.0px;
+                top: 102.13199999999995px;
+                font-size: 9.0px;
+            ">A.THISISANOFFERFROM</div>
+            <div class="original-text" style="
+                left: 283.824px;
+                top: 102.42250000000001px;
+                font-size: 9.0px;
+            ">Benjamin J. Brown, Marya L. Hicks</div>
+            <div class="original-text" style="
+                left: 324.504px;
+                top: 113.36400000000003px;
+                font-size: 9.0px;
+            ">,situated13190  Slate Creek Road</div>
+            <div class="original-text" style="
+                left: 72.0px;
+                top: 124.38px;
+                font-size: 9.0px;
+            ">in</div>
+            <div class="original-text" style="
+                left: 381.672px;
+                top: 124.38px;
+                font-size: 9.0px;
+            ">(County),California,</div>
+            <div class="original-text" style="
+                left: 300.672px;
+                top: 124.67049999999995px;
+                font-size: 9.0px;
+            ">Nevada</div>
+            <div class="original-text" style="
+                left: 485.208px;
+                top: 124.67049999999995px;
+                font-size: 9.0px;
+            ">95959</div>
+            <div class="original-text" style="
+                left: 72.0px;
+                top: 135.39599999999996px;
+                font-size: 9.0px;
+            ">Assessor'sParcelNo(s).</div>
+            <div class="original-text" style="
+                left: 54.0px;
+                top: 157.14px;
+                font-size: 9.0px;
+            ">C.THETERMSOFTHEPURCHASEARESPECIFIEDBELOWANDONTHEFOLLOWINGPAGES.</div>
+            <div class="original-text" style="
+                left: 36.0px;
+                top: 177.37199999999996px;
+                font-size: 9.0px;
+            ">2.AGENCY:</div>
+            <div class="original-text" style="
+                left: 54.0px;
+                top: 214.668px;
+                font-size: 9.0px;
+            ">B.CONFIRMATION:Thefollowingagencyrelationshipsareherebyconfirmedforthistransaction.</div>
+            <div class="original-text" style="
+                left: 271.224px;
+                top: 227.41449999999998px;
+                font-size: 9.0px;
+            ">RE/MAX Gold</div>
+            <div class="original-text" style="
+                left: 432.0px;
+                top: 227.41200000000003px;
+                font-size: 9.0px;
+            ">LicenseNumber</div>
+            <div class="original-text" style="
+                left: 517.824px;
+                top: 227.7025px;
+                font-size: 9.0px;
+            ">01949144</div>
+            <div class="original-text" style="
+                left: 245.88px;
+                top: 250.38px;
+                font-size: 9.0px;
+            ">LicenseNumberClare L. Moran</div>
+            <div class="original-text" style="
+                left: 517.824px;
+                top: 250.67050000000006px;
+                font-size: 9.0px;
+            ">02068824</div>
+            <div class="original-text" style="
+                left: 223.056px;
+                top: 273.41999999999996px;
+                font-size: 9.000000000000057px;
+            ">LicenseNumberColdwell Banker Grass Roots Realty</div>
+            <div class="original-text" style="
+                left: 517.824px;
+                top: 273.7105px;
+                font-size: 8.999999999999943px;
+            ">00873741</div>
+            <div class="original-text" style="
+                left: 242.712px;
+                top: 296.388px;
+                font-size: 9.0px;
+            ">LicenseNumberNarissa Jennings</div>
+            <div class="original-text" style="
+                left: 517.824px;
+                top: 296.6785px;
+                font-size: 9.0px;
+            ">02129287</div>
+            <div class="original-text" style="
+                left: 54.0px;
+                top: 317.124px;
+                font-size: 9.0px;
+            ">C.</div>
+            <div class="original-text" style="
+                left: 525.456px;
+                top: 327.899px;
+                font-size: 9.0px;
+            ">“PossibleX</div>
+            <div class="original-text" style="
+                left: 36.0px;
+                top: 347.652px;
+                font-size: 9.0px;
+            ">3.TERMSOFPURCHASEANDALLOCATIONOFCOSTS:TheitemsinthisparagrapharecontractualtermsoftheAgreement.</div>
+            <div class="original-text" style="
+                left: 54.0px;
+                top: 357.372px;
+                font-size: 9.0px;
+            ">Referencedparagraphsprovidefurtherexplanation.Thisformis17pages.ThePartiesareadvisedtoreadall17pages.</div>
+            <div class="original-text" style="
+                left: 72.648px;
+                top: 375.084px;
+                font-size: 9.0px;
+            ">Para#</div>
+            <div class="original-text" style="
+                left: 127.944px;
+                top: 375.084px;
+                font-size: 9.0px;
+            ">ParagraphTitleorContract</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 375.084px;
+                font-size: 9.0px;
+            ">TermsandConditions</div>
+            <div class="original-text" style="
+                left: 455.40000000000003px;
+                top: 375.084px;
+                font-size: 9.0px;
+            ">AdditionalTerms</div>
+            <div class="original-text" style="
+                left: 127.944px;
+                top: 385.38px;
+                font-size: 9.0px;
+            ">Term</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 401.32px;
+                font-size: 8.0px;
+            ">A</div>
+            <div class="original-text" style="
+                left: 278.928px;
+                top: 401.464px;
+                font-size: 8.0px;
+            ">AllCash930,000.00</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 418.24px;
+                font-size: 8.0px;
+            ">B</div>
+            <div class="original-text" style="
+                left: 127.94399999999999px;
+                top: 418.24px;
+                font-size: 8.0px;
+            ">CloseOf Escrow(COE)</div>
+            <div class="original-text" style="
+                left: 273.168px;
+                top: 418.168px;
+                font-size: 8.0px;
+            ">DaysafterAcceptance14X</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 427.096px;
+                font-size: 8.0px;
+            ">ORon</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 439.912px;
+                font-size: 8.0px;
+            ">C</div>
+            <div class="original-text" style="
+                left: 72.648px;
+                top: 439.912px;
+                font-size: 8.0px;
+            ">33A</div>
+            <div class="original-text" style="
+                left: 127.944px;
+                top: 439.912px;
+                font-size: 8.0px;
+            ">ExpirationofOffer</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 452.584px;
+                font-size: 8.0px;
+            ">or</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 461.512px;
+                font-size: 8.0px;
+            ">at5PMor</div>
+            <div class="original-text" style="
+                left: 331.27200000000005px;
+                top: 461.512px;
+                font-size: 8.0px;
+            ">AM/ PM</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 475.62399999999997px;
+                font-size: 8.0px;
+            ">D(1)5A(1)</div>
+            <div class="original-text" style="
+                left: 332.28000000000003px;
+                top: 477.688px;
+                font-size: 8.0px;
+            ">(</div>
+            <div class="original-text" style="
+                left: 455.4px;
+                top: 477.688px;
+                font-size: 8.0px;
+            ">within3(or</div>
+            <div class="original-text" style="
+                left: 278.928px;
+                top: 477.688px;
+                font-size: 8.0px;
+            ">)businessdays9,300.00</div>
+            <div class="original-text" style="
+                left: 342.72px;
+                top: 477.97020000000003px;
+                font-size: 8.0px;
+            ">1.00</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 486.688px;
+                font-size: 8.0px;
+            ">(%numberaboveisforcalculationpurposes</div>
+            <div class="original-text" style="
+                left: 455.4px;
+                top: 486.688px;
+                font-size: 8.0px;
+            ">afterAcceptancebywiretransfer</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 495.496px;
+                font-size: 8.0px;
+            ">andisnotacontractualterm)</div>
+            <div class="original-text" style="
+                left: 455.4px;
+                top: 495.496px;
+                font-size: 8.0px;
+            ">OR</div>
+            <div class="original-text" style="
+                left: 72.648px;
+                top: 508.816px;
+                font-size: 8.0px;
+            ">5A(2)</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 508.816px;
+                font-size: 8.0px;
+            ">SeeattachedIncreasedDepositAddendum(C.A.R.FormIDA) D(2)</div>
+            <div class="original-text" style="
+                left: 135.072px;
+                top: 508.888px;
+                font-size: 8.0px;
+            ">IncreasedDeposit</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 523.216px;
+                font-size: 8.0px;
+            ">E(1)5C(1)</div>
+            <div class="original-text" style="
+                left: 332.28000000000003px;
+                top: 523.216px;
+                font-size: 8.0px;
+            ">(</div>
+            <div class="original-text" style="
+                left: 278.928px;
+                top: 523.216px;
+                font-size: 8.0px;
+            ">Conventionalor,ifchecked,805,000.00</div>
+            <div class="original-text" style="
+                left: 340.488px;
+                top: 523.4742000000001px;
+                font-size: 8.0px;
+            ">86.56</div>
+            <div class="original-text" style="
+                left: 215.784px;
+                top: 532.144px;
+                font-size: 7.999999999999972px;
+            ">InterestRateFixedrateor Initialadjustablerate</div>
+            <div class="original-text" style="
+                left: 462.528px;
+                top: 535.456px;
+                font-size: 7.999999999999972px;
+            ">FHA(FormsFVAC/HIDattached)</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 541.0px;
+                font-size: 8.0px;
+            ">● nottoexceed</div>
+            <div class="original-text" style="
+                left: 361.00800000000004px;
+                top: 541.0px;
+                font-size: 8.0px;
+            ">%</div>
+            <div class="original-text" style="
+                left: 462.528px;
+                top: 544.384px;
+                font-size: 8.0px;
+            ">VA(FormFVACattached)</div>
+            <div class="original-text" style="
+                left: 373.46400000000006px;
+                top: 549.928px;
+                font-size: 8.0px;
+            ">pointstoobtainthe</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 558.856px;
+                font-size: 8.0px;
+            ">rateabove</div>
+            <div class="original-text" style="
+                left: 462.528px;
+                top: 562.168px;
+                font-size: 8.0px;
+            ">Other:</div>
+            <div class="original-text" style="
+                left: 127.944px;
+                top: 576.064px;
+                font-size: 8.0px;
+            ">IfFHAorVAchecked,Deliverlistof</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 576.064px;
+                font-size: 8.0px;
+            ">17(or</div>
+            <div class="original-text" style="
+                left: 317.52000000000004px;
+                top: 576.064px;
+                font-size: 8.0px;
+            ">)DaysafterAcceptance</div>
+            <div class="original-text" style="
+                left: 127.944px;
+                top: 584.92px;
+                font-size: 8.0px;
+            ">lenderrequiredrepairs</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 598.96px;
+                font-size: 8.0px;
+            ">E(2)5C(2)</div>
+            <div class="original-text" style="
+                left: 332.28000000000003px;
+                top: 600.832px;
+                font-size: 8.0px;
+            ">(</div>
+            <div class="original-text" style="
+                left: 462.528px;
+                top: 616.744px;
+                font-size: 8.0px;
+            ">Other:</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 620.848px;
+                font-size: 8.0px;
+            ">● nottoexceed</div>
+            <div class="original-text" style="
+                left: 361.00800000000004px;
+                top: 620.848px;
+                font-size: 8.0px;
+            ">%</div>
+            <div class="original-text" style="
+                left: 237.0px;
+                top: 627.904px;
+                font-size: 8.0px;
+            ">Points</div>
+            <div class="original-text" style="
+                left: 373.46400000000006px;
+                top: 629.776px;
+                font-size: 8.0px;
+            ">pointstoobtain</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 638.688px;
+                font-size: 8.0px;
+            ">rateabove</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 651.304px;
+                font-size: 8.0px;
+            ">E(3)</div>
+            <div class="original-text" style="
+                left: 72.648px;
+                top: 651.304px;
+                font-size: 8.0px;
+            ">OccupancyType7A</div>
+            <div class="original-text" style="
+                left: 272.232px;
+                top: 651.448px;
+                font-size: 8.0px;
+            ">Primary,orifchecked, Secondary Investment</div>
+            <div class="original-text" style="
+                left: 41.4px;
+                top: 665.688px;
+                font-size: 8.0px;
+            ">F</div>
+            <div class="original-text" style="
+                left: 72.648px;
+                top: 665.688px;
+                font-size: 8.0px;
+            ">BalanceofDownPayment5D</div>
+            <div class="original-text" style="
+                left: 36.0px;
+                top: 709.94px;
+                font-size: 7.0px;
+            ">©2024,CaliforniaAssociationofREALTORS®,Inc.</div>
+            <div class="original-text" style="
+                left: 36.0px;
+                top: 723.204px;
+                font-size: 9.000000000000007px;
+            ">RPAREVISED12/24(PAGE1OF17)</div>
+            <div class="original-text" style="
+                left: 330.336px;
+                top: 724.456px;
+                font-size: 8.0px;
+            ">/</div>
+            <div class="original-text" style="
+                left: 491.9040000000001px;
+                top: 724.456px;
+                font-size: 8.0px;
+            ">/</div>
+            <div class="original-text" style="
+                left: 41.0px;
+                top: 740.744px;
+                font-size: 10.0px;
+            ">CALIFORNIARESIDENTIALPURCHASEAGREEMENTANDJOINTESCROWINSTRUCTIONS(RPAPAGE1OF17)</div>
+            <div class="original-text" style="
+                left: 450.024px;
+                top: 752.88px;
+                font-size: 6.0px;
+            ">Fax:</div>
+            <div class="original-text" style="
+                left: 390.024px;
+                top: 753.0786999999999px;
+                font-size: 6.0px;
+            ">(530) 276-5970</div>
+            <div class="original-text" style="
+                left: 466.56px;
+                top: 753.0786999999999px;
+                font-size: 6.0px;
+            ">(530) 477-9330</div>
+            <div class="original-text" style="
+                left: 527.112px;
+                top: 753.0786999999999px;
+                font-size: 6.0px;
+            ">13190 Slate Creek</div>
+            <div class="original-line" style="
+                left: 99.504px;
+                top: 89.42399999999998px;
+                width: 100.008px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 183.528px;
+                top: 111.38400000000001px;
+                width: 349.99199999999996px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 214.272px;
+                top: 122.39999999999998px;
+                width: 325.008px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 81.936px;
+                top: 133.41600000000005px;
+                width: 139.968px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 251.712px;
+                top: 133.41600000000005px;
+                width: 130.03200000000004px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 467.784px;
+                top: 133.41600000000005px;
+                width: 60.048px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 172.728px;
+                top: 144.43200000000002px;
+                width: 349.992px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 175.176px;
+                top: 236.37599999999998px;
+                width: 249.98400000000004px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 500.0px;
+                top: 236.37599999999998px;
+                width: 76.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 129.672px;
+                top: 259.41600000000005px;
+                width: 295.05600000000004px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 500.0px;
+                top: 259.41600000000005px;
+                width: 76.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 176.0px;
+                top: 282.384px;
+                width: 250.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 500.0px;
+                top: 282.384px;
+                width: 76.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 135.072px;
+                top: 305.424px;
+                width: 290.016px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 500.0px;
+                top: 305.424px;
+                width: 76.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 371.376px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 372.816px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 372.816px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 394.92px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 372.816px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 394.92px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 372.816px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 394.92px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 372.816px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 394.92px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 372.816px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 394.92px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 394.92px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 396.432px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 409.392px;
+                width: 155.736px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 396.432px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 413.568px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 396.432px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 413.568px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 396.432px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 413.568px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 396.432px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 413.568px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 396.432px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 413.568px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 413.568px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 415.0px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 306.936px;
+                top: 435.0px;
+                width: 53.424000000000035px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 415.0px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 437.544px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 415.0px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 437.544px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 415.0px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 437.544px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 415.0px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 437.544px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 415.0px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 437.544px;
+                width: 414.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 439.0px;
+                width: 414.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 281.52px;
+                top: 460.584px;
+                width: 133.56px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 473.256px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 473.256px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 473.256px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 473.256px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 473.256px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 473.256px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 474.696px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 485.712px;
+                width: 53.42399999999998px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 478.944px;
+                top: 503.496px;
+                width: 93.45599999999996px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 474.696px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 505.656px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 474.696px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 505.656px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 474.696px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 505.656px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 474.696px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 505.656px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 474.696px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 505.656px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 518.616px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 518.616px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 518.616px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 505.656px;
+                width: 318.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 518.616px;
+                width: 318.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 518.616px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 520.056px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 531.216px;
+                width: 53.42399999999998px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 520.056px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 520.056px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 520.056px;
+                width: 84.456px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 207.0px;
+                top: 520.056px;
+                width: 59.831999999999994px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 520.056px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 520.056px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 464.184px;
+                top: 584.0px;
+                width: 111.23999999999995px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 595.8px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 595.8px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 595.8px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 595.8px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 595.8px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 608.832px;
+                width: 53.42399999999998px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 464.184px;
+                top: 635.904px;
+                width: 111.23999999999995px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 648.504px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 648.504px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 648.504px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 648.504px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 648.504px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 661.4639999999999px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 661.4639999999999px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 661.4639999999999px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 648.504px;
+                width: 318.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 661.4639999999999px;
+                width: 318.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 661.4639999999999px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 662.904px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 673.776px;
+                width: 146.88px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 662.904px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 675.864px;
+                width: 31.248000000000005px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 662.904px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 67.248px;
+                top: 675.864px;
+                width: 55.29599999999999px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 662.904px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 122.544px;
+                top: 675.864px;
+                width: 144.288px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 662.904px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 266.832px;
+                top: 675.864px;
+                width: 183.168px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 450.0px;
+                top: 662.904px;
+                width: 135.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 675.864px;
+                width: 414.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 677.304px;
+                width: 414.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 278.928px;
+                top: 688.176px;
+                width: 146.88px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 690.264px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 36.0px;
+                top: 691.704px;
+                width: 549.0px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 294.696px;
+                top: 732.456px;
+                width: 35.639999999999986px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 339.624px;
+                top: 732.456px;
+                width: 35.639999999999986px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 456.336px;
+                top: 732.456px;
+                width: 35.567999999999984px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 501.264px;
+                top: 732.456px;
+                width: 35.567999999999984px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 30.6px;
+                top: 751.0px;
+                width: 550.8px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 30.6px;
+                top: 766.728px;
+                width: 550.8px;
+                height: 1.0px;
+            "></div>
+            <div class="original-line" style="
+                left: 445.188px;
+                top: 764.91px;
+                width: 39.648000000000025px;
+                height: 1.0px;
+            "></div>
+            <input type="text" 
+                   name="date" 
+                   class="form-field"
+                   placeholder="Date"
+                   title="DatePrepared:April 7, 2025"
+                   style="
+                       left: 162.47799999999998px;
+                       top: 78.38800000000003px;
+                       width: 120.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="(“Buyer”)."
+                   style="
+                       left: 583.993px;
+                       top: 100.41999999999996px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="property_address" 
+                   class="form-field"
+                   placeholder="Property Address"
+                   title="B.THEPROPERTYtobeacquiredis"
+                   style="
+                       left: 219.51499976px;
+                       top: 111.14800000000002px;
+                       width: 300.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="city" 
+                   class="form-field"
+                   placeholder="City"
+                   title="(City),"
+                   style="
+                       left: 258.37300000000005px;
+                       top: 122.38px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="city" 
+                   class="form-field"
+                   placeholder="City"
+                   title="(ZipCode),Nevada City"
+                   style="
+                       left: 586.0000000000003px;
+                       top: 122.38px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="property_address" 
+                   class="form-field"
+                   placeholder="Property Address"
+                   title="(“Property”).004-161-020-000"
+                   style="
+                       left: 583.6870000000001px;
+                       top: 133.39599999999996px;
+                       width: 300.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="(Postal/Mailingaddressmaybedifferentfromcityjurisdiction. Buyerisadvisedtoinvestigate.)"
+                   style="
+                       left: 529.3360000000002px;
+                       top: 144.12400000000002px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="D.BuyerandSellerarereferredtohereinasthe"Parties."BrokersandAgentsarenotPartiestothisAgreement."
+                   style="
+                       left: 521.2180000000001px;
+                       top: 166.15599999999995px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="state" 
+                   class="form-field"
+                   placeholder="State"
+                   title="A.DISCLOSURE:ThePartieseachacknowledgereceiptofa“DisclosureRegardingRealEstateAgencyRelationship”(C.A.R."
+                   style="
+                       left: 585.9930006500003px;
+                       top: 184.65999999999997px;
+                       width: 50.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="FormAD)ifrepresentedbyarealestatelicensee.Buyer'sAgentisnotlegallyrequiredtogivetoSeller'sAgenttheADform"
+                   style="
+                       left: 585.9940013200002px;
+                       top: 194.164px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="SignedbyBuyer.Seller'sAgentisnotlegallyobligatedtogivetoBuyer'sAgenttheADformSignedbySeller."
+                   style="
+                       left: 517.2850000000001px;
+                       top: 203.38px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="seller_name" 
+                   class="form-field"
+                   placeholder="Seller Name"
+                   title="Seller'sBrokerageFirm"
+                   style="
+                       left: 182.593px;
+                       top: 225.12400000000002px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Isthebrokerof(checkone):  theSeller;or  boththeBuyerandSeller(DualAgent).X"
+                   style="
+                       left: 437.9140000000001px;
+                       top: 235.899px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="seller_name" 
+                   class="form-field"
+                   placeholder="Seller Name"
+                   title="Seller'sAgent"
+                   style="
+                       left: 137.197px;
+                       top: 248.38px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Is(checkone): theSeller'sAgent.(Salespersonorbrokerassociate);or boththeBuyer'sandSeller'sAgent(DualAgent).X"
+                   style="
+                       left: 585.5770000000005px;
+                       top: 258.899px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Buyer'sBrokerageFirm"
+                   style="
+                       left: 183.601px;
+                       top: 271.13199999999995px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Isthebrokerof(checkone):  theBuyer;or  boththeBuyerandSeller(DualAgent).X"
+                   style="
+                       left: 438.4180000000001px;
+                       top: 281.899px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Buyer'sAgent"
+                   style="
+                       left: 142.60600000000002px;
+                       top: 294.172px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Is(checkone): theBuyer'sAgent(Salespersonorbrokerassociate);or boththeBuyer'sandSeller'sAgent(DualAgent).X"
+                   style="
+                       left: 583.5610000000005px;
+                       top: 304.899px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="MorethanoneBrokeragerepresents Seller, Buyer.See,AdditionalBrokerAcknowledgement(C.A.R.FormABA)."
+                   style="
+                       left: 566.4340000000005px;
+                       top: 315.412px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="D.POTENTIALLYCOMPETINGBUYERSANDSELLERS:ThePartieseachacknowledgereceiptofa"
+                   style="
+                       left: 525.5439987399999px;
+                       top: 325.636px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="RepresentationofMorethanOneBuyerorSeller-DisclosureandConsent”(C.A.R.FormPRBS)."
+                   style="
+                       left: 471.8530000000001px;
+                       top: 336.364px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="PurchasePrice5,5B(cash)"
+                   style="
+                       left: 195.70400000000004px;
+                       top: 399.32px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="$"
+                   style="
+                       left: 286.68px;
+                       top: 399.464px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="date" 
+                   class="form-field"
+                   placeholder="Date"
+                   title="(date)"
+                   style="
+                       left: 393.392px;
+                       top: 425.096px;
+                       width: 120.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="3calendardaysafterallBuyerSignature(s)"
+                   style="
+                       left: 435.98400000000004px;
+                       top: 441.688px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="date" 
+                   class="form-field"
+                   placeholder="Date"
+                   title="(date),"
+                   style="
+                       left: 450.40000000000003px;
+                       top: 450.584px;
+                       width: 120.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="InitialDepositAmount"
+                   style="
+                       left: 222.736px;
+                       top: 473.62399999999997px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="$"
+                   style="
+                       left: 286.68px;
+                       top: 475.688px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="%ofpurchaseprice)"
+                   style="
+                       left: 447.144px;
+                       top: 475.688px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="LoanAmount(s):"
+                   style="
+                       left: 201.88px;
+                       top: 521.216px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="First$"
+                   style="
+                       left: 286.68px;
+                       top: 521.216px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="%ofpurchaseprice)"
+                   style="
+                       left: 447.144px;
+                       top: 521.216px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Points● Buyertopayupto"
+                   style="
+                       left: 356.368px;
+                       top: 547.928px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="seller_name" 
+                   class="form-field"
+                   placeholder="Seller Name"
+                   title="SellerFinancing"
+                   style="
+                       left: 532.072px;
+                       top: 551.312px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="AdditionalFinancedAmount"
+                   style="
+                       left: 271.34400000000005px;
+                       top: 596.96px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="Conventionalor,ifchecked,$"
+                   style="
+                       left: 564.056px;
+                       top: 596.96px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="%ofpurchaseprice)"
+                   style="
+                       left: 447.144px;
+                       top: 598.832px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="seller_name" 
+                   class="form-field"
+                   placeholder="Seller Name"
+                   title="SellerFinancingInterestRateFixedrateor Initialadjustablerate"
+                   style="
+                       left: 532.072px;
+                       top: 605.8879999999999px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="● Buyertopayupto"
+                   style="
+                       left: 474.264px;
+                       top: 625.904px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="$115,700.00"
+                   style="
+                       left: 328.94399999999996px;
+                       top: 663.848px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="purchase_price" 
+                   class="form-field"
+                   placeholder="Purchase Price"
+                   title="PURCHASEPRICETOTAL$930,000.00"
+                   style="
+                       left: 328.94399999999996px;
+                       top: 678.104px;
+                       width: 150.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="buyer_name" 
+                   class="form-field"
+                   placeholder="Buyer Name"
+                   title="Buyer'sInitials"
+                   style="
+                       left: 295.28000000000003px;
+                       top: 722.456px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="seller_name" 
+                   class="form-field"
+                   placeholder="Seller Name"
+                   title="Seller'sInitials"
+                   style="
+                       left: 456.8320000000001px;
+                       top: 722.456px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="phone" 
+                   class="form-field"
+                   placeholder="Phone"
+                   title="Phone:"
+                   style="
+                       left: 398.32599999999996px;
+                       top: 750.88px;
+                       width: 130.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="property_address" 
+                   class="form-field"
+                   placeholder="Property Address"
+                   title="Coldwell Banker Grass Roots Realty, 167 South Auburn Street Grass Valley CA 95945"
+                   style="
+                       left: 586.8280000000001px;
+                       top: 750.88px;
+                       width: 300.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="zip_code" 
+                   class="form-field"
+                   placeholder="Zip Code"
+                   title="ProducedwithLoneWolfTransactions(zipFormEdition)717NHarwoodSt,Suite2200,Dallas,TX 75201   www.lwolf.comNarissa Jennings"
+                   style="
+                       left: 494.83599999999996px;
+                       top: 757.576px;
+                       width: 80.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_47" 
+                   class="form-field"
+                   placeholder="Line Field 47"
+                   title="Form Field"
+                   style="
+                       left: 99.504px;
+                       top: 74.42399999999998px;
+                       width: 100.008px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_48" 
+                   class="form-field"
+                   placeholder="Line Field 48"
+                   title="Form Field"
+                   style="
+                       left: 183.528px;
+                       top: 96.38400000000001px;
+                       width: 349.99199999999996px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_49" 
+                   class="form-field"
+                   placeholder="Line Field 49"
+                   title="Form Field"
+                   style="
+                       left: 214.272px;
+                       top: 107.39999999999998px;
+                       width: 325.008px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_50" 
+                   class="form-field"
+                   placeholder="Line Field 50"
+                   title="Form Field"
+                   style="
+                       left: 81.936px;
+                       top: 118.41600000000005px;
+                       width: 139.968px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_51" 
+                   class="form-field"
+                   placeholder="Line Field 51"
+                   title="Form Field"
+                   style="
+                       left: 251.712px;
+                       top: 118.41600000000005px;
+                       width: 130.03200000000004px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_52" 
+                   class="form-field"
+                   placeholder="Line Field 52"
+                   title="Form Field"
+                   style="
+                       left: 172.728px;
+                       top: 129.43200000000002px;
+                       width: 349.992px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_53" 
+                   class="form-field"
+                   placeholder="Line Field 53"
+                   title="Form Field"
+                   style="
+                       left: 175.176px;
+                       top: 221.37599999999998px;
+                       width: 249.98400000000004px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_54" 
+                   class="form-field"
+                   placeholder="Line Field 54"
+                   title="Form Field"
+                   style="
+                       left: 129.672px;
+                       top: 244.41600000000005px;
+                       width: 295.05600000000004px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_55" 
+                   class="form-field"
+                   placeholder="Line Field 55"
+                   title="Form Field"
+                   style="
+                       left: 176.0px;
+                       top: 267.384px;
+                       width: 250.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_56" 
+                   class="form-field"
+                   placeholder="Line Field 56"
+                   title="Form Field"
+                   style="
+                       left: 135.072px;
+                       top: 290.424px;
+                       width: 290.016px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_57" 
+                   class="form-field"
+                   placeholder="Line Field 57"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 356.376px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_58" 
+                   class="form-field"
+                   placeholder="Line Field 58"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 357.816px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_59" 
+                   class="form-field"
+                   placeholder="Line Field 59"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 357.816px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_60" 
+                   class="form-field"
+                   placeholder="Line Field 60"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 379.92px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_61" 
+                   class="form-field"
+                   placeholder="Line Field 61"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 357.816px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_62" 
+                   class="form-field"
+                   placeholder="Line Field 62"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 379.92px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_63" 
+                   class="form-field"
+                   placeholder="Line Field 63"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 357.816px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_64" 
+                   class="form-field"
+                   placeholder="Line Field 64"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 379.92px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_65" 
+                   class="form-field"
+                   placeholder="Line Field 65"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 379.92px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_66" 
+                   class="form-field"
+                   placeholder="Line Field 66"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 381.432px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_67" 
+                   class="form-field"
+                   placeholder="Line Field 67"
+                   title="Form Field"
+                   style="
+                       left: 278.928px;
+                       top: 394.392px;
+                       width: 155.736px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_68" 
+                   class="form-field"
+                   placeholder="Line Field 68"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 381.432px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_69" 
+                   class="form-field"
+                   placeholder="Line Field 69"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 398.568px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_70" 
+                   class="form-field"
+                   placeholder="Line Field 70"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 381.432px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_71" 
+                   class="form-field"
+                   placeholder="Line Field 71"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 398.568px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_72" 
+                   class="form-field"
+                   placeholder="Line Field 72"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 381.432px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_73" 
+                   class="form-field"
+                   placeholder="Line Field 73"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 398.568px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_74" 
+                   class="form-field"
+                   placeholder="Line Field 74"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 398.568px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_75" 
+                   class="form-field"
+                   placeholder="Line Field 75"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 400.0px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_76" 
+                   class="form-field"
+                   placeholder="Line Field 76"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 400.0px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_77" 
+                   class="form-field"
+                   placeholder="Line Field 77"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 422.544px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_78" 
+                   class="form-field"
+                   placeholder="Line Field 78"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 400.0px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_79" 
+                   class="form-field"
+                   placeholder="Line Field 79"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 422.544px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_80" 
+                   class="form-field"
+                   placeholder="Line Field 80"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 400.0px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_81" 
+                   class="form-field"
+                   placeholder="Line Field 81"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 422.544px;
+                       width: 414.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_82" 
+                   class="form-field"
+                   placeholder="Line Field 82"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 424.0px;
+                       width: 414.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_83" 
+                   class="form-field"
+                   placeholder="Line Field 83"
+                   title="Form Field"
+                   style="
+                       left: 281.52px;
+                       top: 445.584px;
+                       width: 133.56px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_84" 
+                   class="form-field"
+                   placeholder="Line Field 84"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 458.256px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_85" 
+                   class="form-field"
+                   placeholder="Line Field 85"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 458.256px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_86" 
+                   class="form-field"
+                   placeholder="Line Field 86"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 458.256px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_87" 
+                   class="form-field"
+                   placeholder="Line Field 87"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 458.256px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_88" 
+                   class="form-field"
+                   placeholder="Line Field 88"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 459.696px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_89" 
+                   class="form-field"
+                   placeholder="Line Field 89"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 459.696px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_90" 
+                   class="form-field"
+                   placeholder="Line Field 90"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 490.656px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_91" 
+                   class="form-field"
+                   placeholder="Line Field 91"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 459.696px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_92" 
+                   class="form-field"
+                   placeholder="Line Field 92"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 490.656px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_93" 
+                   class="form-field"
+                   placeholder="Line Field 93"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 459.696px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_94" 
+                   class="form-field"
+                   placeholder="Line Field 94"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 490.656px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_95" 
+                   class="form-field"
+                   placeholder="Line Field 95"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 503.616px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_96" 
+                   class="form-field"
+                   placeholder="Line Field 96"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 490.656px;
+                       width: 318.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_97" 
+                   class="form-field"
+                   placeholder="Line Field 97"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 503.616px;
+                       width: 318.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_98" 
+                   class="form-field"
+                   placeholder="Line Field 98"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 503.616px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_99" 
+                   class="form-field"
+                   placeholder="Line Field 99"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 505.05600000000004px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_100" 
+                   class="form-field"
+                   placeholder="Line Field 100"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 505.05600000000004px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_101" 
+                   class="form-field"
+                   placeholder="Line Field 101"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 505.05600000000004px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_102" 
+                   class="form-field"
+                   placeholder="Line Field 102"
+                   title="Form Field"
+                   style="
+                       left: 464.184px;
+                       top: 569.0px;
+                       width: 111.23999999999995px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_103" 
+                   class="form-field"
+                   placeholder="Line Field 103"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 580.8px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_104" 
+                   class="form-field"
+                   placeholder="Line Field 104"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 580.8px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_105" 
+                   class="form-field"
+                   placeholder="Line Field 105"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 580.8px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_106" 
+                   class="form-field"
+                   placeholder="Line Field 106"
+                   title="Form Field"
+                   style="
+                       left: 464.184px;
+                       top: 620.904px;
+                       width: 111.23999999999995px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_107" 
+                   class="form-field"
+                   placeholder="Line Field 107"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 633.504px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_108" 
+                   class="form-field"
+                   placeholder="Line Field 108"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 633.504px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_109" 
+                   class="form-field"
+                   placeholder="Line Field 109"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 633.504px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_110" 
+                   class="form-field"
+                   placeholder="Line Field 110"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 646.4639999999999px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_111" 
+                   class="form-field"
+                   placeholder="Line Field 111"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 633.504px;
+                       width: 318.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_112" 
+                   class="form-field"
+                   placeholder="Line Field 112"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 646.4639999999999px;
+                       width: 318.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_113" 
+                   class="form-field"
+                   placeholder="Line Field 113"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 646.4639999999999px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_114" 
+                   class="form-field"
+                   placeholder="Line Field 114"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 647.904px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_115" 
+                   class="form-field"
+                   placeholder="Line Field 115"
+                   title="Form Field"
+                   style="
+                       left: 278.928px;
+                       top: 658.776px;
+                       width: 146.88px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_116" 
+                   class="form-field"
+                   placeholder="Line Field 116"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 647.904px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_117" 
+                   class="form-field"
+                   placeholder="Line Field 117"
+                   title="Form Field"
+                   style="
+                       left: 122.544px;
+                       top: 660.864px;
+                       width: 144.288px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_118" 
+                   class="form-field"
+                   placeholder="Line Field 118"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 647.904px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_119" 
+                   class="form-field"
+                   placeholder="Line Field 119"
+                   title="Form Field"
+                   style="
+                       left: 266.832px;
+                       top: 660.864px;
+                       width: 183.168px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_120" 
+                   class="form-field"
+                   placeholder="Line Field 120"
+                   title="Form Field"
+                   style="
+                       left: 450.0px;
+                       top: 647.904px;
+                       width: 135.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_121" 
+                   class="form-field"
+                   placeholder="Line Field 121"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 660.864px;
+                       width: 414.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_122" 
+                   class="form-field"
+                   placeholder="Line Field 122"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 662.304px;
+                       width: 414.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_123" 
+                   class="form-field"
+                   placeholder="Line Field 123"
+                   title="Form Field"
+                   style="
+                       left: 278.928px;
+                       top: 673.176px;
+                       width: 146.88px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_124" 
+                   class="form-field"
+                   placeholder="Line Field 124"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 675.264px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_125" 
+                   class="form-field"
+                   placeholder="Line Field 125"
+                   title="Form Field"
+                   style="
+                       left: 36.0px;
+                       top: 676.704px;
+                       width: 549.0px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_126" 
+                   class="form-field"
+                   placeholder="Line Field 126"
+                   title="Form Field"
+                   style="
+                       left: 30.6px;
+                       top: 736.0px;
+                       width: 550.8px;
+                       height: 18.0px;
+                   ">
+            <input type="text" 
+                   name="line_field_127" 
+                   class="form-field"
+                   placeholder="Line Field 127"
+                   title="Form Field"
+                   style="
+                       left: 30.6px;
+                       top: 751.728px;
+                       width: 550.8px;
+                       height: 18.0px;
+                   ">
+        </div>
+    </div>
+    
+    <script>
+        let fieldsHighlighted = true;
+        
+        function fillSampleData() {
+            const sampleData = {
+                'buyer_name': 'Alexander & Victoria Rodriguez',
+                'seller_name': 'Robert & Patricia Johnson',
+                'property_address': '8765 Luxury Boulevard',
+                'city': 'Beverly Hills',
+                'state': 'CA',
+                'zip_code': '90210',
+                'purchase_price': '$3,750,000.00',
+                'date': '2025-06-01'
+            };
+            
+            for (const [fieldName, value] of Object.entries(sampleData)) {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) field.value = value;
+            }
+        }
+        
+        function clearAllFields() {
+            document.querySelectorAll('.form-field').forEach(field => {
+                field.value = '';
+            });
+        }
+        
+        function toggleFieldHighlight() {
+            const fields = document.querySelectorAll('.form-field');
+            fieldsHighlighted = !fieldsHighlighted;
+            
+            fields.forEach(field => {
+                if (fieldsHighlighted) {
+                    field.style.border = '1px solid rgba(0, 102, 204, 0.5)';
+                    field.style.background = 'rgba(173, 216, 230, 0.1)';
+                } else {
+                    field.style.border = 'none';
+                    field.style.borderBottom = '1px solid #000';
+                    field.style.background = 'transparent';
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎨 Bespoke CRPA Form loaded');
+            console.log(`📝 ${document.querySelectorAll('.form-field').length} form fields ready`);
+        });
+    </script>
+</body>
+</html>

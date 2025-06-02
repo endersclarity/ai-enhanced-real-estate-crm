@@ -1,11 +1,11 @@
 # Task ID: 6
-# Title: Document AI-Native Extraction System
+# Title: Build Multi-Form Support Backend
 # Status: pending
-# Dependencies: 5
-# Priority: low
-# Description: Update documentation to reflect the new AI-native entity extraction system, fallback mechanism, validation layer, and enhanced error handling.
+# Dependencies: 4, 5
+# Priority: medium
+# Description: Build the backend logic and API endpoints required for the multi-form support system. This includes functions to list available forms, select a specific form, and initiate the population process with provided CRM record identifiers.
 # Details:
-Update the system architecture documentation and developer guides. Describe the removal of regex dependencies, the implementation of direct function calling, the AI-native extraction process, the fallback logic (Task 2), the Python-side validation (Task 4), and the tiered error handling/clarification workflow (Task 5). Include examples of how the system handles different inputs and errors.
+Create API endpoints (e.g., `/forms/list`, `/forms/populate`). The list endpoint should return the names/identifiers of the 13 available CAR forms. The populate endpoint should accept parameters like `form_id` and CRM record identifiers (e.g., `client_id`, `property_id`). Retrieve the full CRM data for the given IDs. Call the form population engine (Task 4) and validation framework (Task 5) with the retrieved data and selected form template. Return the generated PDF (or a link to it) and any validation errors.
 
 # Test Strategy:
-Review the updated documentation to ensure it accurately reflects the implemented system changes and provides clear guidance for developers and understanding for stakeholders.
+Use API testing tools (e.g., Postman) to call the `/forms/list` endpoint and verify the list of forms. Call the `/forms/populate` endpoint with valid and invalid CRM IDs and form IDs. Verify that a PDF is returned for valid requests and appropriate error messages for invalid ones.

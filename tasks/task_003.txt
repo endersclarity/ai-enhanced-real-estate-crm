@@ -1,11 +1,11 @@
 # Task ID: 3
-# Title: Refine AI Prompts with Few-Shot Examples
+# Title: Design and Implement CRM-to-Form Field Mapping
 # Status: pending
-# Dependencies: 1
-# Priority: medium
-# Description: Refine prompts for Gemini 2.5 Flash using few-shot examples to improve the accuracy and consistency of AI-native entity extraction and function parameter identification, especially for edge cases.
+# Dependencies: 2
+# Priority: high
+# Description: Design and implement the data structure and system for mapping the 177 fields from the CRM database schema to the identified fields in the 13 CAR forms. This system should handle variations and potential missing data gracefully.
 # Details:
-Update the system prompts or user messages sent to the Gemini API via LangChain. Include specific examples of user inputs and the desired structured output (JSON for entities, function call parameters) to guide the AI. Focus on known failure cases and complex inputs. Ensure `temperature=0.1` is used for deterministic responses.
+Create a database table or configuration file structure (e.g., JSON, YAML) to store the mapping. Each entry should link a CRM field identifier (e.g., `client.firstName`, `property.address`) to one or more form field identifiers across different forms. Implement logic to handle cases where a CRM field maps to multiple form fields or where a form field might be populated by a combination of CRM fields. Include rules for handling null or missing CRM data (e.g., leave form field blank, insert 'N/A').
 
 # Test Strategy:
-Create a test suite with various edge cases and complex natural language inputs. Run these inputs through the updated AI extraction process and verify that the AI consistently and accurately extracts the correct entities and identifies the appropriate function calls and parameters based on the few-shot examples.
+Create test mapping configurations for a few forms. Write unit tests to verify that given a CRM field name, the system correctly identifies the corresponding form fields across different forms. Test edge cases like missing CRM fields.

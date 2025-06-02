@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Transaction Form{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Add New Transaction</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="client_id" class="form-label">Client ID</label>
+            <input type="number" class="form-control" id="client_id" name="client_id" required>
+        </div>
+        <div class="mb-3">
+            <label for="property_id" class="form-label">Property ID</label>
+            <input type="number" class="form-control" id="property_id" name="property_id" required>
+        </div>
+        <div class="mb-3">
+            <label for="transaction_type" class="form-label">Transaction Type</label>
+            <select class="form-control" id="transaction_type" name="transaction_type" required>
+                <option value="purchase">Purchase</option>
+                <option value="sale">Sale</option>
+                <option value="lease">Lease</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Transaction</button>
+    </form>
+</div>
+{% endblock %}

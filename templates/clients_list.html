@@ -81,7 +81,7 @@
                                 {% if client.client_type == 'buyer' %}bg-primary
                                 {% elif client.client_type == 'seller' %}bg-success
                                 {% else %}bg-info{% endif %}">
-                                {{ client.client_type.title() }}
+                                {{ client.client_type.title() if client.client_type else 'Unknown' }}
                             </span>
                         </td>
                         <td>

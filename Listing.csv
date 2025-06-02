@@ -1,0 +1,6 @@
+Listing Number,Property_Address,City,State,Zip,Price,Bedrooms,Bathrooms,Square_Feet,Property_Type,Status
+001,123 Main St,Sacramento,CA,95814,450000,3,2,1200,Single Family,Active
+002,456 Oak Ave,Davis,CA,95616,675000,4,3,1800,Single Family,Active
+003,789 Pine Dr,Folsom,CA,95630,525000,3,2.5,1400,Townhouse,Active
+004,321 Elm St,Roseville,CA,95661,725000,4,3.5,2200,Single Family,Pending
+005,654 Maple Ln,Auburn,CA,95603,395000,2,2,980,Condo,Active

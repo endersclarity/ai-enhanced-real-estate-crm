@@ -131,7 +131,7 @@ def create_property_from_mls(mls_number: str) -> Dict[str, Any]:
 
     try:
         # Import our CRM functions
-        from real_estate_crm import create_property
+        from .real_estate_crm import create_property
 
         # Map Nevada County MLS data to our property fields (exact column names)
         property_data = {
