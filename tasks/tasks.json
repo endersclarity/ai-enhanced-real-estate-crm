@@ -8,7 +8,7 @@
       "testStrategy": "Run simple scripts to import installed libraries and confirm database connectivity. Verify branch creation and checkout.",
       "priority": "high",
       "dependencies": [],
-      "status": "in-progress",
+      "status": "completed",
       "subtasks": []
     },
     {
@@ -21,7 +21,7 @@
       "dependencies": [
         1
       ],
-      "status": "pending",
+      "status": "in-progress",
       "subtasks": []
     },
     {
