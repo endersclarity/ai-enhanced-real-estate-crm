@@ -9,7 +9,9 @@ import json
 from datetime import datetime
 from typing import Dict
 
-DATABASE_PATH = '../../real_estate_crm.db'
+from pathlib import Path
+BASE_DIR = Path(__file__).parent.parent.parent
+DATABASE_PATH = BASE_DIR / 'real_estate_crm.db'
 
 def get_db_connection():
     """Get database connection with row factory"""

@@ -55,10 +55,7 @@ class CRPATextCleaner:
             '00873741': '00567890',
             
             # Dates
-            'April 7, 2025': 'June 15, 2025',
-            
-            # Sample company info
-            'Coldwell Banker Grass Roots Realty': 'Century 21 Premier'
+            'April 7, 2025': 'June 15, 2025'
         }
         
         # Apply replacements
