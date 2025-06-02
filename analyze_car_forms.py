@@ -1,182 +1,199 @@
 #!/usr/bin/env python3
 """
-CAR Forms Analysis Script
-Task #2: Analyze CAR Forms and Create Templates
-
-This script analyzes the 13 California Association of Realtors (CAR) forms
-to extract field information, coordinates, and create templates for population.
+CAR Forms Field Analysis Script
+Analyzes all 13 CAR forms to extract field information and create templates
+Part of Task #2: Analyze CAR Forms and Create Templates
 """
 
 import os
 import json
-from pathlib import Path
-import PyPDF2
 import pdfplumber
+from pathlib import Path
+from datetime import datetime
 
-def analyze_form_with_pypdf2(pdf_path):
-    """Analyze PDF form fields using PyPDF2"""
-    fields = []
-    try:
-        with open(pdf_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
-            
-            # Get form fields from the PDF
-            if reader.is_encrypted:
-                print(f"❌ {pdf_path} is encrypted, skipping PyPDF2 analysis")
-                return fields
-                
-            if '/AcroForm' in reader.trailer['/Root']:
-                form = reader.trailer['/Root']['/AcroForm']
-                if '/Fields' in form:
-                    form_fields = form['/Fields']
-                    for field_ref in form_fields:
-                        field = field_ref.get_object()
-                        if '/T' in field:  # Field name
-                            field_info = {
-                                'name': field['/T'],
-                                'type': field.get('/FT', 'Unknown'),
-                                'value': field.get('/V', ''),
-                                'method': 'PyPDF2'
-                            }
-                            fields.append(field_info)
-    except Exception as e:
-        print(f"❌ PyPDF2 error for {pdf_path}: {e}")
-    
-    return fields
-
-def analyze_form_with_pdfplumber(pdf_path):
-    """Analyze PDF form using pdfplumber for text and structure"""
-    analysis = {
-        'pages': 0,
-        'text_blocks': [],
-        'fields_detected': [],
-        'method': 'pdfplumber'
+def analyze_form_fields(pdf_path):
+    """Analyze a single PDF form to extract field information"""
+    form_data = {
+        "filename": os.path.basename(pdf_path),
+        "path": str(pdf_path),
+        "fields": [],
+        "pages": 0,
+        "analysis_date": datetime.now().isoformat()
     }
     
     try:
         with pdfplumber.open(pdf_path) as pdf:
-            analysis['pages'] = len(pdf.pages)
+            form_data["pages"] = len(pdf.pages)
             
-            for page_num, page in enumerate(pdf.pages):
-                # Extract text with positioning
-                words = page.extract_words()
-                for word in words[:20]:  # First 20 words for analysis
-                    analysis['text_blocks'].append({
-                        'text': word['text'],
-                        'x0': word['x0'],
-                        'y0': word['y0'],
-                        'x1': word['x1'],
-                        'y1': word['y1'],
-                        'page': page_num
-                    })
+            for page_num, page in enumerate(pdf.pages, 1):
+                # Extract text elements that might be form fields
+                chars = page.chars
                 
-                # Look for potential form fields (lines, rectangles)
-                lines = page.lines
-                rects = page.rects
-                analysis['fields_detected'].append({
-                    'page': page_num,
-                    'lines_count': len(lines),
-                    'rectangles_count': len(rects)
-                })
+                # Look for text patterns that suggest form fields
+                page_fields = []
+                
+                # Extract all text with coordinates
+                for char in chars:
+                    if char.get('text', '').strip():
+                        field_info = {
+                            "page": page_num,
+                            "text": char['text'],
+                            "x": char['x0'],
+                            "y": char['y0'],
+                            "width": char['x1'] - char['x0'],
+                            "height": char['y1'] - char['y0'],
+                            "font": char.get('fontname', 'unknown'),
+                            "size": char.get('size', 0)
+                        }
+                        page_fields.append(field_info)
+                
+                # Try to detect form fields from PDF structure
+                if hasattr(page, 'annots'):
+                    for annot in page.annots or []:
+                        if annot.get('subtype') == 'Widget':  # Form field
+                            field_info = {
+                                "page": page_num,
+                                "type": "form_field",
+                                "name": annot.get('T', 'unnamed_field'),
+                                "value": annot.get('V', ''),
+                                "rect": annot.get('Rect', []),
+                                "field_type": annot.get('FT', 'unknown')
+                            }
+                            page_fields.append(field_info)
+                
+                form_data["fields"].extend(page_fields)
                 
     except Exception as e:
-        print(f"❌ pdfplumber error for {pdf_path}: {e}")
+        form_data["error"] = str(e)
+        print(f"Error analyzing {pdf_path}: {e}")
     
-    return analysis
+    return form_data
 
 def analyze_all_forms():
-    """Analyze all 13 CAR forms and generate comprehensive report"""
-    forms_dir = Path('car_forms')
-    results = {}
+    """Analyze all CAR forms and generate comprehensive report"""
+    car_forms_dir = Path("car_forms")
+    output_file = "car_forms_analysis.json"
     
-    print("🔍 Analyzing 13 CAR Forms...")
-    print("=" * 60)
+    if not car_forms_dir.exists():
+        print(f"Error: {car_forms_dir} directory not found")
+        return
     
-    for pdf_file in forms_dir.glob('*.pdf'):
-        form_name = pdf_file.stem
-        print(f"\n📄 Analyzing: {form_name}")
+    analysis_results = {
+        "analysis_metadata": {
+            "timestamp": datetime.now().isoformat(),
+            "total_forms": 0,
+            "script_version": "1.0",
+            "purpose": "Extract field information from 13 CAR forms for automated population"
+        },
+        "forms": []
+    }
+    
+    # Get all PDF files
+    pdf_files = list(car_forms_dir.glob("*.pdf"))
+    analysis_results["analysis_metadata"]["total_forms"] = len(pdf_files)
+    
+    print(f"Found {len(pdf_files)} CAR forms to analyze...")
+    
+    for pdf_file in sorted(pdf_files):
+        print(f"Analyzing: {pdf_file.name}")
+        form_analysis = analyze_form_fields(pdf_file)
+        analysis_results["forms"].append(form_analysis)
+    
+    # Save analysis results
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(analysis_results, f, indent=2, ensure_ascii=False)
+    
+    print(f"\n✅ Analysis complete! Results saved to {output_file}")
+    
+    # Generate summary report
+    print("\n📊 ANALYSIS SUMMARY:")
+    print(f"Total forms analyzed: {len(analysis_results['forms'])}")
+    
+    for form in analysis_results["forms"]:
+        field_count = len(form.get("fields", []))
+        pages = form.get("pages", 0)
+        error = form.get("error")
+        status = "❌ ERROR" if error else "✅ SUCCESS"
         
-        # Analyze with both methods
-        pypdf2_fields = analyze_form_with_pypdf2(pdf_file)
-        pdfplumber_analysis = analyze_form_with_pdfplumber(pdf_file)
-        
-        results[form_name] = {
-            'file_path': str(pdf_file),
-            'pypdf2_fields': pypdf2_fields,
-            'pdfplumber_analysis': pdfplumber_analysis,
-            'field_count_pypdf2': len(pypdf2_fields),
-            'pages': pdfplumber_analysis.get('pages', 0),
-            'analysis_timestamp': '2025-06-01T06:30:00Z'
+        print(f"  {form['filename']}: {field_count} elements, {pages} pages {status}")
+        if error:
+            print(f"    Error: {error}")
+    
+    return analysis_results
+
+def create_form_templates():
+    """Create blank template structure for form population"""
+    templates_dir = Path("form_templates")
+    templates_dir.mkdir(exist_ok=True)
+    
+    # Load analysis results
+    if not Path("car_forms_analysis.json").exists():
+        print("❌ No analysis file found. Run analysis first.")
+        return
+    
+    with open("car_forms_analysis.json", 'r') as f:
+        analysis = json.load(f)
+    
+    templates = {}
+    
+    for form in analysis["forms"]:
+        form_name = form["filename"].replace(".pdf", "")
+        template = {
+            "form_name": form_name,
+            "source_file": form["filename"],
+            "pages": form.get("pages", 0),
+            "field_mappings": {},
+            "template_created": datetime.now().isoformat()
         }
         
-        print(f"   PyPDF2 fields found: {len(pypdf2_fields)}")
-        print(f"   Pages: {pdfplumber_analysis.get('pages', 0)}")
+        # Create field mapping structure
+        fields = form.get("fields", [])
+        for i, field in enumerate(fields):
+            field_id = f"field_{i:03d}"
+            template["field_mappings"][field_id] = {
+                "page": field.get("page", 1),
+                "coordinates": {
+                    "x": field.get("x", 0),
+                    "y": field.get("y", 0),
+                    "width": field.get("width", 0),
+                    "height": field.get("height", 0)
+                },
+                "text_content": field.get("text", ""),
+                "field_type": field.get("type", "text"),
+                "crm_mapping": None  # To be filled in Task #3
+            }
         
-        # Show sample fields
-        if pypdf2_fields:
-            print("   Sample fields:")
-            for field in pypdf2_fields[:3]:
-                print(f"     - {field['name']} ({field['type']})")
+        templates[form_name] = template
+        
+        # Save individual template file
+        template_file = templates_dir / f"{form_name}_template.json"
+        with open(template_file, 'w') as f:
+            json.dump(template, f, indent=2)
     
-    return results
-
-def save_analysis_results(results):
-    """Save analysis results to JSON file"""
-    output_file = 'car_forms_analysis.json'
+    # Save consolidated templates file
+    with open("car_form_templates.json", 'w') as f:
+        json.dump(templates, f, indent=2)
     
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+    print(f"\n✅ Templates created!")
+    print(f"Individual templates: {templates_dir}/")
+    print(f"Consolidated file: car_form_templates.json")
     
-    print(f"\n💾 Analysis results saved to: {output_file}")
-    return output_file
-
-def generate_summary_report(results):
-    """Generate human-readable summary report"""
-    print("\n" + "=" * 60)
-    print("📊 CAR FORMS ANALYSIS SUMMARY")
-    print("=" * 60)
-    
-    total_forms = len(results)
-    total_fields = sum(r['field_count_pypdf2'] for r in results.values())
-    total_pages = sum(r['pages'] for r in results.values())
-    
-    print(f"Total Forms Analyzed: {total_forms}")
-    print(f"Total Form Fields Found: {total_fields}")
-    print(f"Total Pages: {total_pages}")
-    print(f"Average Fields per Form: {total_fields/total_forms:.1f}")
-    
-    print("\n📋 Forms by Field Count:")
-    sorted_forms = sorted(results.items(), key=lambda x: x[1]['field_count_pypdf2'], reverse=True)
-    
-    for form_name, data in sorted_forms:
-        field_count = data['field_count_pypdf2']
-        pages = data['pages']
-        print(f"   {field_count:3d} fields | {pages:2d} pages | {form_name}")
-    
-    # Identify key forms for priority analysis
-    print("\n🎯 Priority Forms (Most Complex):")
-    priority_forms = [form for form, data in sorted_forms[:5]]
-    for i, form in enumerate(priority_forms, 1):
-        print(f"   {i}. {form}")
+    return templates
 
 if __name__ == "__main__":
-    print("🚀 Starting CAR Forms Analysis - Task #2")
-    print("Phase A1: PDF Analysis & Template Engine Workstream")
+    print("🔍 CAR Forms Analysis Script")
+    print("=" * 50)
     
-    # Ensure forms directory exists
-    if not Path('car_forms').exists():
-        print("❌ car_forms/ directory not found. Please extract attachments.zip first.")
-        exit(1)
+    # Step 1: Analyze all forms
+    print("\n📋 Step 1: Analyzing all CAR forms...")
+    analysis_results = analyze_all_forms()
     
-    # Run comprehensive analysis
-    results = analyze_all_forms()
-    
-    # Save results
-    output_file = save_analysis_results(results)
-    
-    # Generate summary
-    generate_summary_report(results)
-    
-    print("\n✅ Task #2 Analysis Complete!")
-    print(f"📊 Results saved to: {output_file}")
-    print("🔄 Ready to proceed with Task #3: CRM-to-Form Field Mapping")
+    if analysis_results:
+        # Step 2: Create templates
+        print("\n📋 Step 2: Creating form templates...")
+        templates = create_form_templates()
+        
+        print(f"\n🎉 Task #2 Progress:")
+        print(f"✅ Analyzed {len(analysis_results['forms'])} CAR forms")
+        print(f"✅ Created templates for form population")
+        print(f"✅ Ready for Task #3: CRM field mapping")
