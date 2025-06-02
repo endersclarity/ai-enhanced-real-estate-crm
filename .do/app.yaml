@@ -1,0 +1,30 @@
+name: real-estate-crm-prod
+region: nyc
+services:
+- environment_slug: python
+  github:
+    branch: feature/cloud-deployment
+    deploy_on_push: true
+    repo: endersclarity/ai-enhanced-real-estate-crm
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  name: web
+  run_command: python app.py
+  source_dir: /
+  envs:
+  - key: USE_SUPABASE
+    scope: RUN_TIME
+    value: "true"
+  - key: SUPABASE_URL
+    scope: RUN_TIME
+    value: "https://pfcdqrxnjyarhueofrsn.supabase.co"
+  - key: SUPABASE_ANON_KEY
+    scope: RUN_TIME
+    value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmY2Rxcnhuanlhcmh1ZW9mcnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MTUyMzEsImV4cCI6MjA2NDM5MTIzMX0.04ZvxzZn43utA1SNnqTvhjquhI801gNDcH-rJTMbIzA"
+  - key: GEMINI_API_KEY
+    scope: RUN_TIME
+    value: "AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU"
+  - key: FLASK_ENV
+    scope: RUN_TIME
+    value: "production"
