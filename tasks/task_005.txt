@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Implement Form Validation Framework
+# Title: Update Flask App Database Connection
 # Status: pending
-# Dependencies: 4
-# Priority: medium
-# Description: Implement a validation framework to ensure that the populated forms meet legal and business requirements. This includes checking for critical missing data and data format issues based on form field types.
+# Dependencies: 1, 4
+# Priority: high
+# Description: Modify the Flask application code to connect to the Supabase PostgreSQL database instead of the local SQLite file.
 # Details:
-Extend the population engine or create a separate validation module. Define validation rules based on form field requirements (e.g., required fields, data format like dates or numbers). After populating a form, run validation checks. If validation fails, generate clear error messages indicating which fields have issues. This framework should integrate with the error handling mentioned in the success criteria.
+Update database configuration in the Flask app (e.g., SQLAlchemy connection string). Replace SQLite connection logic with PostgreSQL connection logic using the credentials obtained in Task 1. Ensure database interactions (queries, inserts, updates) are compatible with PostgreSQL syntax and features.
 
 # Test Strategy:
-Create mock CRM data with missing required fields or invalid data formats. Run the population and validation process. Verify that the validation framework correctly identifies and reports the errors.
+Run the Flask application locally and test database operations (e.g., fetching data, adding new records) to confirm successful connection and interaction with the Supabase database.

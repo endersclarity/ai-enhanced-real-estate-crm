@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Integrate with AI Chatbot for Natural Language Requests
+# Title: Deploy Flask Application to DigitalOcean
 # Status: pending
-# Dependencies: 6
-# Priority: medium
-# Description: Extend the existing AI chatbot (Gemini 2.5 Flash via LangChain) to understand natural language requests for form generation, such as 'Generate a purchase agreement for John Smith and 123 Main Street'.
+# Dependencies: 7
+# Priority: high
+# Description: Deploy the prepared Flask application to the DigitalOcean App Platform.
 # Details:
-Modify the LangChain agent or add a new tool/function specifically for form generation. Train or configure the AI to identify intent (form generation) and extract key entities (client name, property address, form type) from user prompts. Map extracted entities to CRM records and form identifiers. Call the backend form population endpoint (Task 6) with the identified parameters. The chatbot should respond with confirmation and potentially a link to the generated form.
+Connect the application's code repository (e.g., GitHub, GitLab) to DigitalOcean App Platform. Configure the App Platform service, pointing it to the correct branch and build/run commands defined in Task 7. Configure environment variables securely within the DigitalOcean dashboard using the values from Task 6. Initiate the deployment.
 
 # Test Strategy:
-Interact with the chatbot using various natural language requests for form generation. Verify that the AI correctly identifies the intent, extracts entities, and triggers the form population process via the backend API. Check responses for clarity and accuracy.
+Monitor the deployment logs on DigitalOcean. Verify that the build and deployment complete successfully without errors. Access the application using the temporary DigitalOcean URL to confirm it is running.

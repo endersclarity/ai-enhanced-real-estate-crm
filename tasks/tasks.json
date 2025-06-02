@@ -2,21 +2,21 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Environment Setup and Library Installation",
-      "description": "Set up the development environment for the feature/formPopulation branch, including installing necessary PDF processing libraries (PyPDF2, pdfplumber, reportlab) and ensuring compatibility with the existing CRM database and AI layers.",
-      "details": "Create the new branch `feature/formPopulation` from main. Install Python libraries: `pip install PyPDF2 pdfplumber reportlab`. Verify basic import functionality. Ensure access to the CRM database schema and the existing LangChain/Gemini 2.5 Flash setup.",
-      "testStrategy": "Run simple scripts to import installed libraries and confirm database connectivity. Verify branch creation and checkout.",
+      "title": "Setup Supabase Project and Database",
+      "description": "Set up a new project in Supabase and provision a PostgreSQL database instance.",
+      "details": "Create a new project in the Supabase dashboard. Select the appropriate region. Note down the database connection details (host, port, database name, user, password, connection string). Ensure the database is accessible from potential DigitalOcean regions.",
+      "testStrategy": "Verify successful project creation and obtain valid database connection credentials. Attempt a simple connection using a PostgreSQL client.",
       "priority": "high",
       "dependencies": [],
-      "status": "in-progress",
+      "status": "pending",
       "subtasks": []
     },
     {
       "id": 2,
-      "title": "Analyze CAR Forms and Create Templates",
-      "description": "Analyze the 13 CAR forms from attachments.zip to identify all fillable fields. Extract field names, types, and coordinates/positions within each PDF. Create blank, fillable template files for each form type.",
-      "details": "Use `pdfplumber` or `PyPDF2` to open each of the 13 PDF forms. Iterate through form fields to extract names and bounding boxes/coordinates. Document the identified fields for each form. Create a process or script to generate a 'blank' template version of each form, potentially by clearing existing field values or storing field locations for later population. Store templates and field data in a structured format (e.g., JSON, database table).",
-      "testStrategy": "Generate a report listing all identified fields for each of the 13 forms, including their extracted properties. Manually verify a sample of fields against the original PDFs. Ensure blank templates are created successfully.",
+      "title": "Design/Generate Supabase PostgreSQL Schema",
+      "description": "Translate the existing 177-field SQLite schema into a PostgreSQL schema compatible with Supabase.",
+      "details": "Analyze the existing SQLite database schema. Convert data types to their PostgreSQL equivalents (e.g., INTEGER to INT or SERIAL, TEXT to VARCHAR or TEXT, BLOB to BYTEA). Define primary keys, foreign keys, and indexes. Generate SQL scripts for creating the 177 fields across necessary tables. Consider using Supabase's schema editor or migrations feature.",
+      "testStrategy": "Execute schema creation scripts in the Supabase database. Verify that all tables and columns are created correctly with appropriate data types and constraints using a database tool or Supabase dashboard.",
       "priority": "high",
       "dependencies": [
         1
@@ -26,23 +26,21 @@
     },
     {
       "id": 3,
-      "title": "Design and Implement CRM-to-Form Field Mapping",
-      "description": "Design and implement the data structure and system for mapping the 177 fields from the CRM database schema to the identified fields in the 13 CAR forms. This system should handle variations and potential missing data gracefully.",
-      "details": "Create a database table or configuration file structure (e.g., JSON, YAML) to store the mapping. Each entry should link a CRM field identifier (e.g., `client.firstName`, `property.address`) to one or more form field identifiers across different forms. Implement logic to handle cases where a CRM field maps to multiple form fields or where a form field might be populated by a combination of CRM fields. Include rules for handling null or missing CRM data (e.g., leave form field blank, insert 'N/A').",
-      "testStrategy": "Create test mapping configurations for a few forms. Write unit tests to verify that given a CRM field name, the system correctly identifies the corresponding form fields across different forms. Test edge cases like missing CRM fields.",
+      "title": "Export Data from SQLite",
+      "description": "Export all existing data from the local SQLite database.",
+      "details": "Use SQLite command-line tools or a database client to export data from all relevant tables into a format suitable for import into PostgreSQL, such as CSV or SQL INSERT statements. Ensure data integrity during the export process.",
+      "testStrategy": "Verify that the exported file(s) contain all expected data rows and columns from the SQLite database. Check for encoding issues or data corruption.",
       "priority": "high",
-      "dependencies": [
-        2
-      ],
+      "dependencies": [],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 4,
-      "title": "Develop Automated Form Population Engine",
-      "description": "Develop the core engine responsible for taking CRM data records (client, property, transaction) and a selected blank form template, applying the field mapping, and populating the form fields using PDF libraries.",
-      "details": "Create a function or class that accepts CRM data (as a dictionary or object) and a form template identifier. Load the corresponding blank template and the field mapping. Iterate through the form fields identified in Task 2. For each form field, look up the corresponding CRM field(s) using the mapping from Task 3. Retrieve the data from the provided CRM record. Use `PyPDF2` or `reportlab` to write the data into the appropriate field coordinates/locations on the blank PDF template. Handle different field types (text, checkboxes).",
-      "testStrategy": "Create mock CRM data records. Select a few form templates. Run the population engine with mock data and templates. Verify that the output PDF contains the mock data correctly placed in the expected fields. Check different data types and lengths.",
+      "title": "Import Data into Supabase PostgreSQL",
+      "description": "Import the exported data from SQLite into the new Supabase PostgreSQL database.",
+      "details": "Use PostgreSQL's `psql` command-line tool, Supabase's data import features, or a custom script to load the data from the exported files into the corresponding tables in the Supabase database. Handle potential data type mismatches or constraints during import.",
+      "testStrategy": "After import, query key tables in the Supabase database to verify that the data has been imported correctly and completely. Compare row counts and sample data with the original SQLite database.",
       "priority": "high",
       "dependencies": [
         2,
@@ -53,12 +51,13 @@
     },
     {
       "id": 5,
-      "title": "Implement Form Validation Framework",
-      "description": "Implement a validation framework to ensure that the populated forms meet legal and business requirements. This includes checking for critical missing data and data format issues based on form field types.",
-      "details": "Extend the population engine or create a separate validation module. Define validation rules based on form field requirements (e.g., required fields, data format like dates or numbers). After populating a form, run validation checks. If validation fails, generate clear error messages indicating which fields have issues. This framework should integrate with the error handling mentioned in the success criteria.",
-      "testStrategy": "Create mock CRM data with missing required fields or invalid data formats. Run the population and validation process. Verify that the validation framework correctly identifies and reports the errors.",
-      "priority": "medium",
+      "title": "Update Flask App Database Connection",
+      "description": "Modify the Flask application code to connect to the Supabase PostgreSQL database instead of the local SQLite file.",
+      "details": "Update database configuration in the Flask app (e.g., SQLAlchemy connection string). Replace SQLite connection logic with PostgreSQL connection logic using the credentials obtained in Task 1. Ensure database interactions (queries, inserts, updates) are compatible with PostgreSQL syntax and features.",
+      "testStrategy": "Run the Flask application locally and test database operations (e.g., fetching data, adding new records) to confirm successful connection and interaction with the Supabase database.",
+      "priority": "high",
       "dependencies": [
+        1,
         4
       ],
       "status": "pending",
@@ -66,13 +65,12 @@
     },
     {
       "id": 6,
-      "title": "Build Multi-Form Support Backend",
-      "description": "Build the backend logic and API endpoints required for the multi-form support system. This includes functions to list available forms, select a specific form, and initiate the population process with provided CRM record identifiers.",
-      "details": "Create API endpoints (e.g., `/forms/list`, `/forms/populate`). The list endpoint should return the names/identifiers of the 13 available CAR forms. The populate endpoint should accept parameters like `form_id` and CRM record identifiers (e.g., `client_id`, `property_id`). Retrieve the full CRM data for the given IDs. Call the form population engine (Task 4) and validation framework (Task 5) with the retrieved data and selected form template. Return the generated PDF (or a link to it) and any validation errors.",
-      "testStrategy": "Use API testing tools (e.g., Postman) to call the `/forms/list` endpoint and verify the list of forms. Call the `/forms/populate` endpoint with valid and invalid CRM IDs and form IDs. Verify that a PDF is returned for valid requests and appropriate error messages for invalid ones.",
-      "priority": "medium",
+      "title": "Implement Secure Environment Variable Loading",
+      "description": "Implement a secure method for loading database credentials and other sensitive configuration from environment variables.",
+      "details": "Use a library like `python-dotenv` for local development environment variable loading from a `.env` file (excluded from version control). For production on DigitalOcean, configure the App Platform to provide these variables securely. Update the Flask app configuration to read these variables upon startup.",
+      "testStrategy": "Configure environment variables (or a `.env` file) with Supabase credentials. Run the Flask app and verify that it successfully reads the credentials from the environment and connects to the database without hardcoding secrets.",
+      "priority": "high",
       "dependencies": [
-        4,
         5
       ],
       "status": "pending",
@@ -80,11 +78,11 @@
     },
     {
       "id": 7,
-      "title": "Develop User Interface Components for Form Selection and Preview",
-      "description": "Develop the user interface components within the existing dashboard that allow users (Narissa) to select a client and property from the CRM, choose one of the 13 CAR forms, preview the populated form, and confirm generation.",
-      "details": "Create UI elements: dropdowns or lists to select client and property (leveraging existing CRM UI components), a list or gallery of the 13 CAR forms for selection. Add a button to trigger population (calling the backend endpoint from Task 6). Implement a PDF viewer component to display the generated form for preview. Include a confirmation step before finalization/saving.",
-      "testStrategy": "Manually test the UI flow: select client, select property, select form, click populate. Verify that the preview displays the generated PDF correctly. Test selecting different forms and data combinations.",
-      "priority": "medium",
+      "title": "Prepare Application for DigitalOcean Deployment",
+      "description": "Prepare the Flask application for deployment on DigitalOcean App Platform.",
+      "details": "Create necessary files for DigitalOcean App Platform, such as a `Dockerfile` or `Procfile`, specifying how the application should be built and run. Ensure all dependencies are listed in `requirements.txt`. Configure the application to listen on the port specified by the hosting environment (typically via an environment variable like `PORT`).",
+      "testStrategy": "Build the Docker image locally using the Dockerfile or test the Procfile command. Ensure the application starts correctly and listens on the configured port.",
+      "priority": "high",
       "dependencies": [
         6
       ],
@@ -93,54 +91,95 @@
     },
     {
       "id": 8,
-      "title": "Integrate with AI Chatbot for Natural Language Requests",
-      "description": "Extend the existing AI chatbot (Gemini 2.5 Flash via LangChain) to understand natural language requests for form generation, such as 'Generate a purchase agreement for John Smith and 123 Main Street'.",
-      "details": "Modify the LangChain agent or add a new tool/function specifically for form generation. Train or configure the AI to identify intent (form generation) and extract key entities (client name, property address, form type) from user prompts. Map extracted entities to CRM records and form identifiers. Call the backend form population endpoint (Task 6) with the identified parameters. The chatbot should respond with confirmation and potentially a link to the generated form.",
-      "testStrategy": "Interact with the chatbot using various natural language requests for form generation. Verify that the AI correctly identifies the intent, extracts entities, and triggers the form population process via the backend API. Check responses for clarity and accuracy.",
-      "priority": "medium",
-      "dependencies": [
-        6
-      ],
-      "status": "pending",
-      "subtasks": []
-    },
-    {
-      "id": 9,
-      "title": "Integrate Form Population into CRM Dashboard",
-      "description": "Integrate the developed multi-form support backend (Task 6) and UI components (Task 7) seamlessly into the existing CRM dashboard architecture.",
-      "details": "Incorporate the UI components into the relevant sections of the CRM dashboard (e.g., client or property detail pages). Ensure smooth navigation and data flow between existing CRM features and the new form population functionality. Configure routing and state management within the dashboard application to support the new feature.",
-      "testStrategy": "Navigate through the CRM dashboard. Access the new form population feature from different entry points (e.g., client profile, property listing). Verify that the UI loads correctly and interacts properly with the backend within the integrated environment.",
+      "title": "Deploy Flask Application to DigitalOcean",
+      "description": "Deploy the prepared Flask application to the DigitalOcean App Platform.",
+      "details": "Connect the application's code repository (e.g., GitHub, GitLab) to DigitalOcean App Platform. Configure the App Platform service, pointing it to the correct branch and build/run commands defined in Task 7. Configure environment variables securely within the DigitalOcean dashboard using the values from Task 6. Initiate the deployment.",
+      "testStrategy": "Monitor the deployment logs on DigitalOcean. Verify that the build and deployment complete successfully without errors. Access the application using the temporary DigitalOcean URL to confirm it is running.",
       "priority": "high",
       "dependencies": [
-        6,
         7
       ],
       "status": "pending",
       "subtasks": []
     },
     {
-      "id": 10,
-      "title": "End-to-End Testing and Refinement",
-      "description": "Perform comprehensive end-to-end testing of the entire form population workflow, from user request (UI or AI) to generated PDF output. This includes testing with various CRM data sets, different forms, and handling edge cases like missing data.",
-      "details": "Execute test cases covering all 13 forms, using diverse CRM data (complete, partial, edge cases). Test both UI-driven and AI-driven form generation requests. Verify form accuracy (100% field population for available data), processing speed (<5 seconds), and error handling (graceful handling of missing data, clear feedback). Address any bugs or performance issues found.",
-      "testStrategy": "Develop a suite of end-to-end test cases. Execute tests systematically, comparing generated PDFs against expected outputs. Measure processing time. Log and track errors. Verify user feedback for errors is clear and actionable.",
+      "id": 9,
+      "title": "Configure Domain and SSL on DigitalOcean",
+      "description": "Configure the custom domain and set up SSL certificates for the deployed application on DigitalOcean.",
+      "details": "In the DigitalOcean App Platform settings, add the custom domain. Update DNS records (A or CNAME) with the domain provider to point to the DigitalOcean App Platform service. DigitalOcean automatically provisions and manages Let's Encrypt SSL certificates. Ensure HTTPS redirection is enabled.",
+      "testStrategy": "Access the application using the custom domain name. Verify that the site loads correctly and that the connection is secure (HTTPS) with a valid SSL certificate.",
       "priority": "high",
       "dependencies": [
-        8,
-        9
+        8
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Setup Application Performance Monitoring and Logging",
+      "description": "Integrate application performance monitoring (APM) and logging solutions.",
+      "details": "Choose and integrate an APM tool (e.g., Sentry, Datadog, or DigitalOcean's built-in metrics) to monitor application performance, errors, and request latency. Configure application logging to output to a centralized logging service or standard output that DigitalOcean can capture.",
+      "testStrategy": "Generate some traffic to the deployed application. Check the APM dashboard for performance data and error reports. Verify that application logs are being captured and are accessible.",
+      "priority": "medium",
+      "dependencies": [
+        8
       ],
       "status": "pending",
       "subtasks": []
     },
     {
       "id": 11,
-      "title": "Production Readiness and Final Validation",
-      "description": "Prepare the feature for production deployment. This includes code review, documentation, performance optimization, and final validation against production-like data and environment.",
-      "details": "Conduct thorough code review. Write or update documentation for the form population system, API endpoints, and AI integration. Perform performance profiling and optimize code where necessary to meet the <5 seconds processing speed goal. Deploy to a staging environment mirroring production. Perform final validation tests using anonymized production data or realistic mock data.",
-      "testStrategy": "Complete code review checklist. Verify documentation is accurate and complete. Run performance tests under load. Execute final validation test suite on staging environment. Obtain sign-off for production deployment.",
+      "title": "Configure Automated Supabase Database Backups",
+      "description": "Configure automated backup strategy for the Supabase PostgreSQL database.",
+      "details": "Utilize Supabase's built-in backup features to schedule automated daily backups of the database. Configure retention policies. Consider setting up point-in-time recovery if available and necessary.",
+      "testStrategy": "Verify in the Supabase dashboard that automated backups are scheduled and configured correctly. Manually trigger a backup to ensure the process works.",
       "priority": "high",
       "dependencies": [
-        10
+        1
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Conduct Performance Testing and Optimization",
+      "description": "Conduct performance testing and optimize the application and database.",
+      "details": "Perform load testing on the deployed application to simulate multiple concurrent users and transactions as per scalability goals. Identify performance bottlenecks in the application code or database queries. Optimize queries, add indexes, or refactor code as needed to meet or exceed local performance benchmarks.",
+      "testStrategy": "Run load tests using tools like ApacheBench, JMeter, or Locust. Analyze results for response times, error rates, and resource utilization. Compare cloud performance metrics against local benchmarks.",
+      "priority": "medium",
+      "dependencies": [
+        8
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Perform Security Hardening and Audit",
+      "description": "Perform security hardening and conduct a basic security audit.",
+      "details": "Review application code for common vulnerabilities (e.g., SQL injection, XSS). Ensure secure authentication and authorization mechanisms are in place. Configure firewall rules on DigitalOcean and Supabase. Review Supabase Row Level Security (RLS) policies if applicable. Conduct basic penetration testing or vulnerability scanning.",
+      "testStrategy": "Attempt common web security attacks (e.g., injecting malicious SQL). Verify that authentication and authorization controls function correctly. Use online tools to scan for basic vulnerabilities. Ensure RLS policies prevent unauthorized data access.",
+      "priority": "high",
+      "dependencies": [
+        8
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "Final Production Validation",
+      "description": "Conduct final validation and smoke testing of the production environment.",
+      "details": "Perform end-to-end testing of core CRM functionalities in the production environment. Verify multi-user access and real-time collaboration features. Check monitoring dashboards, confirm backups are running, and review security logs. Ensure all success criteria from the PRD are met.",
+      "testStrategy": "Execute a comprehensive suite of user acceptance tests covering all critical features. Simulate concurrent user activity. Verify system stability, performance, and data consistency. Confirm all production readiness checks (monitoring, backups, security) are satisfactory.",
+      "priority": "high",
+      "dependencies": [
+        9,
+        10,
+        11,
+        12,
+        13
       ],
       "status": "pending",
       "subtasks": []

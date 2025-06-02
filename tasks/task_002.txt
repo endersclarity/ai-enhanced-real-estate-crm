@@ -1,11 +1,11 @@
 # Task ID: 2
-# Title: Analyze CAR Forms and Create Templates
+# Title: Design/Generate Supabase PostgreSQL Schema
 # Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Analyze the 13 CAR forms from attachments.zip to identify all fillable fields. Extract field names, types, and coordinates/positions within each PDF. Create blank, fillable template files for each form type.
+# Description: Translate the existing 177-field SQLite schema into a PostgreSQL schema compatible with Supabase.
 # Details:
-Use `pdfplumber` or `PyPDF2` to open each of the 13 PDF forms. Iterate through form fields to extract names and bounding boxes/coordinates. Document the identified fields for each form. Create a process or script to generate a 'blank' template version of each form, potentially by clearing existing field values or storing field locations for later population. Store templates and field data in a structured format (e.g., JSON, database table).
+Analyze the existing SQLite database schema. Convert data types to their PostgreSQL equivalents (e.g., INTEGER to INT or SERIAL, TEXT to VARCHAR or TEXT, BLOB to BYTEA). Define primary keys, foreign keys, and indexes. Generate SQL scripts for creating the 177 fields across necessary tables. Consider using Supabase's schema editor or migrations feature.
 
 # Test Strategy:
-Generate a report listing all identified fields for each of the 13 forms, including their extracted properties. Manually verify a sample of fields against the original PDFs. Ensure blank templates are created successfully.
+Execute schema creation scripts in the Supabase database. Verify that all tables and columns are created correctly with appropriate data types and constraints using a database tool or Supabase dashboard.

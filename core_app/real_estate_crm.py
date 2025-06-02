@@ -2754,61 +2754,22 @@ def api_transactions():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 def init_basic_database():
-    """Initialize basic database tables if they don't exist"""
+    """Initialize database schema using the enhanced database configuration"""
     try:
-        conn = sqlite3.connect('real_estate_crm.db')
-        
-        # Create clients table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS clients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                first_name VARCHAR(100),
-                last_name VARCHAR(100),
-                email VARCHAR(255),
-                client_type VARCHAR(50) DEFAULT 'buyer',
-                status VARCHAR(50) DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create properties table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS properties (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                street_address VARCHAR(255),
-                city VARCHAR(100),
-                state VARCHAR(50),
-                zip_code VARCHAR(20),
-                listed_price DECIMAL(15,2),
-                status VARCHAR(50) DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create transactions table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                property_id INTEGER,
-                purchase_price DECIMAL(15,2),
-                status VARCHAR(50) DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Insert sample data if empty
-        if conn.execute('SELECT COUNT(*) FROM clients').fetchone()[0] == 0:
-            conn.execute('''
-                INSERT INTO clients (first_name, last_name, email, client_type)
-                VALUES ('John', 'Smith', 'john.smith@email.com', 'buyer')
-            ''')
-        
-        conn.commit()
-        conn.close()
-        print("✅ Basic database initialized")
+        # Use the global database configuration
+        success = db.init_database_schema()
+        if success:
+            if db.use_supabase:
+                print("✅ Supabase PostgreSQL database ready (177-field schema)")
+            else:
+                print("✅ SQLite database initialized for local development")
+        else:
+            print("⚠️ Database initialization failed, check configuration")
+        return success
         
     except Exception as e:
         print(f"⚠️ Database initialization error: {e}")
+        return False
 
 if __name__ == '__main__':
     # Initialize database

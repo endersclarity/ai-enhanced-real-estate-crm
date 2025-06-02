@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Perform Security Hardening and Audit
+# Status: pending
+# Dependencies: 8
+# Priority: high
+# Description: Perform security hardening and conduct a basic security audit.
+# Details:
+Review application code for common vulnerabilities (e.g., SQL injection, XSS). Ensure secure authentication and authorization mechanisms are in place. Configure firewall rules on DigitalOcean and Supabase. Review Supabase Row Level Security (RLS) policies if applicable. Conduct basic penetration testing or vulnerability scanning.
+
+# Test Strategy:
+Attempt common web security attacks (e.g., injecting malicious SQL). Verify that authentication and authorization controls function correctly. Use online tools to scan for basic vulnerabilities. Ensure RLS policies prevent unauthorized data access.

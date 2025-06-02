@@ -1,11 +1,11 @@
 # Task ID: 3
-# Title: Design and Implement CRM-to-Form Field Mapping
+# Title: Export Data from SQLite
 # Status: pending
-# Dependencies: 2
+# Dependencies: None
 # Priority: high
-# Description: Design and implement the data structure and system for mapping the 177 fields from the CRM database schema to the identified fields in the 13 CAR forms. This system should handle variations and potential missing data gracefully.
+# Description: Export all existing data from the local SQLite database.
 # Details:
-Create a database table or configuration file structure (e.g., JSON, YAML) to store the mapping. Each entry should link a CRM field identifier (e.g., `client.firstName`, `property.address`) to one or more form field identifiers across different forms. Implement logic to handle cases where a CRM field maps to multiple form fields or where a form field might be populated by a combination of CRM fields. Include rules for handling null or missing CRM data (e.g., leave form field blank, insert 'N/A').
+Use SQLite command-line tools or a database client to export data from all relevant tables into a format suitable for import into PostgreSQL, such as CSV or SQL INSERT statements. Ensure data integrity during the export process.
 
 # Test Strategy:
-Create test mapping configurations for a few forms. Write unit tests to verify that given a CRM field name, the system correctly identifies the corresponding form fields across different forms. Test edge cases like missing CRM fields.
+Verify that the exported file(s) contain all expected data rows and columns from the SQLite database. Check for encoding issues or data corruption.

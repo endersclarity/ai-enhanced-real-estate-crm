@@ -1,11 +1,11 @@
 # Task ID: 7
-# Title: Develop User Interface Components for Form Selection and Preview
+# Title: Prepare Application for DigitalOcean Deployment
 # Status: pending
 # Dependencies: 6
-# Priority: medium
-# Description: Develop the user interface components within the existing dashboard that allow users (Narissa) to select a client and property from the CRM, choose one of the 13 CAR forms, preview the populated form, and confirm generation.
+# Priority: high
+# Description: Prepare the Flask application for deployment on DigitalOcean App Platform.
 # Details:
-Create UI elements: dropdowns or lists to select client and property (leveraging existing CRM UI components), a list or gallery of the 13 CAR forms for selection. Add a button to trigger population (calling the backend endpoint from Task 6). Implement a PDF viewer component to display the generated form for preview. Include a confirmation step before finalization/saving.
+Create necessary files for DigitalOcean App Platform, such as a `Dockerfile` or `Procfile`, specifying how the application should be built and run. Ensure all dependencies are listed in `requirements.txt`. Configure the application to listen on the port specified by the hosting environment (typically via an environment variable like `PORT`).
 
 # Test Strategy:
-Manually test the UI flow: select client, select property, select form, click populate. Verify that the preview displays the generated PDF correctly. Test selecting different forms and data combinations.
+Build the Docker image locally using the Dockerfile or test the Procfile command. Ensure the application starts correctly and listens on the configured port.
