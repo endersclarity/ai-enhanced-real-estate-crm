@@ -17,10 +17,9 @@ from functools import wraps
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 try:
-    from monitoring_config import PerformanceMonitor, configure_security_headers, metrics_collector
-    from ssl_domain_config import configure_security_headers as configure_ssl_headers
+    from quick_fix_monitoring import add_basic_monitoring, add_security_headers
     MONITORING_AVAILABLE = True
-    print("✅ Performance monitoring and SSL configuration loaded")
+    print("✅ Basic monitoring and security headers loaded")
 except ImportError as e:
     print(f"⚠️ Monitoring modules not available: {e}")
     MONITORING_AVAILABLE = False
@@ -135,15 +134,15 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 # Initialize monitoring and security (Tasks #9 and #10)
 if MONITORING_AVAILABLE:
     try:
-        # Initialize performance monitoring
-        monitor = PerformanceMonitor(app)
+        # Initialize basic monitoring
+        add_basic_monitoring(app)
         
         # Configure security headers (SSL/HTTPS)
-        configure_security_headers(app)
+        add_security_headers(app)
         
-        print("✅ Performance monitoring initialized")
+        print("✅ Basic monitoring initialized")
         print("✅ Security headers configured")
-        print("✅ SSL/HTTPS security enabled")
+        print("✅ Health check endpoints added")
         
     except Exception as e:
         print(f"⚠️ Monitoring initialization error: {e}")
