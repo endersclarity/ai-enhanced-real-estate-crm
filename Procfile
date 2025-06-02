@@ -1,1 +1,1 @@
-web: python app.py
+web: cd core_app && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 real_estate_crm:app

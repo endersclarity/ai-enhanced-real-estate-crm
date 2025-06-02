@@ -13,16 +13,62 @@ import os
 import google.generativeai as genai
 from functools import wraps
 
-# Import database configuration with fallback
+# Import monitoring and SSL configuration (Tasks #9 and #10)
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from quick_fix_monitoring import add_basic_monitoring, add_security_headers
+    MONITORING_AVAILABLE = True
+    print("✅ Basic monitoring and security headers loaded")
+except ImportError as e:
+    print(f"⚠️ Monitoring modules not available: {e}")
+    MONITORING_AVAILABLE = False
+
+# Import production configuration and database
 try:
     import sys
-    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    # Try local first (for when running from core_app/), then parent directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    
+    # Add both directories to path
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
+    
+    print(f"🔍 Import paths: {[current_dir, parent_dir]}")
+    
+    from config import current_config
     from database_config import db
-    print("✅ Supabase database configuration loaded")
+    print("✅ Production configuration and Supabase database loaded")
+    print(f"✅ Environment: {current_config.FLASK_ENV}")
+    print(f"✅ Database: {'Supabase PostgreSQL' if current_config.USE_SUPABASE else 'SQLite'}")
+    print(f"✅ AI Integration: {'Enabled' if current_config.ENABLE_AI_CHATBOT else 'Disabled'}")
+    CONFIG_LOADED = True
 except ImportError as e:
-    print(f"⚠️ Supabase not available, using SQLite fallback: {e}")
-    # Fallback to direct SQLite
-    import sqlite3
+    print(f"⚠️ Production config not available, using fallback: {e}")
+    CONFIG_LOADED = False
+    
+    # Fallback configuration class
+    class FallbackConfig:
+        FLASK_ENV = 'development'
+        DEBUG = True
+        HOST = '0.0.0.0'
+        PORT = 5001
+        SECRET_KEY = 'real-estate-crm-secret-key-2025'
+        USE_SUPABASE = True
+        ENABLE_AI_CHATBOT = True
+        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+    
+    current_config = FallbackConfig()
+    
+    # Import database with fallback
+    try:
+        from database_config import db
+        print("✅ Database configuration loaded with fallback")
+    except ImportError:
+        import sqlite3
     class FallbackDB:
         def get_clients_summary(self):
             try:
@@ -95,12 +141,50 @@ except ImportError as e:
     OFFER_CREATION_AVAILABLE = False
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
-app.secret_key = 'your-secret-key-change-this'  # Change in production
+
+# Initialize monitoring and security (Tasks #9 and #10)
+if MONITORING_AVAILABLE:
+    try:
+        # Initialize basic monitoring
+        add_basic_monitoring(app)
+        
+        # Configure security headers (SSL/HTTPS)
+        add_security_headers(app)
+        
+        print("✅ Basic monitoring initialized")
+        print("✅ Security headers configured")
+        print("✅ Health check endpoints added")
+        
+    except Exception as e:
+        print(f"⚠️ Monitoring initialization error: {e}")
+
+# Load configuration from environment
+try:
+    if CONFIG_LOADED:
+        app.config.from_object(current_config)
+        current_config.validate_required_config()
+        print("✅ Environment variables validated")
+        db_config = current_config.get_database_config()
+        ai_config = current_config.get_ai_config()
+    else:
+        # Use fallback configuration
+        db_config = {'type': 'supabase'}
+        ai_config = {'enabled': True}
+    
+    app.secret_key = current_config.SECRET_KEY
+    print(f"✅ Flask configured for {current_config.FLASK_ENV} environment")
+    
+except Exception as e:
+    print(f"⚠️ Configuration error: {e}")
+    # Final fallback configuration
+    app.secret_key = 'real-estate-crm-secret-key-2025'
+    db_config = {'type': 'sqlite', 'path': 'real_estate_crm.db'}
+    ai_config = {'enabled': False}
 
 DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'real_estate_crm.db')
 
-# Gemini API Configuration
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+# Gemini API Configuration from environment
+GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
 
 # Configure Gemini API
 def configure_gemini():
@@ -1601,17 +1685,121 @@ def debug_chat():
     """Debug chat interface for testing chatbot functionality"""
     return render_template('debug_chat.html')
 
+@app.route('/debug/environment')
+def debug_environment():
+    """Hypothesis #2: Test environment variables loading"""
+    env_status = {
+        'USE_SUPABASE': os.environ.get('USE_SUPABASE'),
+        'SUPABASE_URL': os.environ.get('SUPABASE_URL'),
+        'SUPABASE_ANON_KEY': os.environ.get('SUPABASE_ANON_KEY'),
+        'SUPABASE_SERVICE_ROLE_KEY': os.environ.get('SUPABASE_SERVICE_ROLE_KEY'),
+        'FLASK_ENV': os.environ.get('FLASK_ENV'),
+        'DATABASE_URL': os.environ.get('DATABASE_URL'),
+        'current_config_USE_SUPABASE': getattr(current_config, 'USE_SUPABASE', 'NOT_SET'),
+        'CONFIG_LOADED': CONFIG_LOADED,
+        'config_module_path': getattr(current_config, '__module__', 'unknown')
+    }
+    return jsonify(env_status)
+
+@app.route('/debug/database')
+def debug_database():
+    """Hypothesis #1 & #5: Test database connectivity and dependencies"""
+    debug_info = {
+        'config_loaded': CONFIG_LOADED,
+        'use_supabase': getattr(current_config, 'USE_SUPABASE', False),
+        'database_test': 'pending'
+    }
+    
+    try:
+        # Test Supabase connection
+        if CONFIG_LOADED and current_config.USE_SUPABASE:
+            debug_info['database_type'] = 'supabase'
+            try:
+                import psycopg2
+                debug_info['psycopg2_available'] = True
+            except ImportError as e:
+                debug_info['psycopg2_available'] = False
+                debug_info['psycopg2_error'] = str(e)
+            
+            # Test actual database connection
+            try:
+                clients = db.get_all_clients()
+                debug_info['database_test'] = 'SUCCESS'
+                debug_info['client_count'] = len(clients) if clients else 0
+            except Exception as e:
+                debug_info['database_test'] = 'FAILED'
+                debug_info['database_error'] = str(e)
+        else:
+            # Test SQLite fallback
+            debug_info['database_type'] = 'sqlite'
+            try:
+                conn = get_db_connection()
+                result = conn.execute('SELECT COUNT(*) FROM clients').fetchone()
+                conn.close()
+                debug_info['database_test'] = 'SUCCESS'
+                debug_info['client_count'] = result[0] if result else 0
+            except Exception as e:
+                debug_info['database_test'] = 'FAILED'
+                debug_info['database_error'] = str(e)
+    except Exception as e:
+        debug_info['overall_error'] = str(e)
+    
+    return jsonify(debug_info)
+
+@app.route('/debug/service-key-test')
+def debug_service_key_test():
+    """Hypothesis #5: Test with service role key specifically"""
+    test_results = {
+        'service_key_present': bool(os.environ.get('SUPABASE_SERVICE_ROLE_KEY')),
+        'anon_key_present': bool(os.environ.get('SUPABASE_ANON_KEY')),
+        'service_key_length': len(os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')),
+        'anon_key_length': len(os.environ.get('SUPABASE_ANON_KEY', ''))
+    }
+    
+    # Test direct PostgreSQL connection with service key
+    try:
+        if os.environ.get('SUPABASE_SERVICE_ROLE_KEY'):
+            import psycopg2
+            supabase_url = os.environ.get('SUPABASE_URL', '')
+            host = supabase_url.replace('https://', '').replace('.supabase.co', '.supabase.co')
+            
+            # Try connecting with service role key
+            conn_string = f"postgresql://postgres.{host.split('.')[0]}:{os.environ.get('SUPABASE_SERVICE_ROLE_KEY')}@{host}/postgres"
+            test_results['connection_string_format'] = 'service_role_attempted'
+            
+            conn = psycopg2.connect(conn_string)
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM clients")
+            result = cursor.fetchone()
+            conn.close()
+            
+            test_results['service_key_test'] = 'SUCCESS'
+            test_results['client_count'] = result[0] if result else 0
+        else:
+            test_results['service_key_test'] = 'NO_KEY'
+    except Exception as e:
+        test_results['service_key_test'] = 'FAILED'
+        test_results['service_key_error'] = str(e)
+    
+    return jsonify(test_results)
+
 @app.route('/clients')
 def clients_list():
     """View all clients"""
-    conn = get_db_connection()
-    clients = conn.execute('''
-        SELECT id, client_type, first_name, last_name, email, home_phone, 
-               city, created_at
-        FROM clients 
-        ORDER BY last_name, first_name
-    ''').fetchall()
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        clients = db.get_all_clients()
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        clients = conn.execute('''
+            SELECT id, client_type, first_name, last_name, email, home_phone, 
+                   city, created_at
+            FROM clients 
+            ORDER BY last_name, first_name
+        ''').fetchall()
+        conn.close()
+        clients = [dict(row) for row in clients]
     return render_template('clients_list.html', clients=clients)
 
 @app.route('/clients/new', methods=['GET', 'POST'])
@@ -1669,56 +1857,65 @@ def client_detail(client_id):
 @app.route('/properties')
 def properties_list():
     """View all properties with search functionality"""
-    conn = get_db_connection()
-    
-    # Get search parameters
-    search = request.args.get('search', '').strip()
-    property_type = request.args.get('property_type', '')
-    status = request.args.get('status', '')
-    city = request.args.get('city', '')
-    
-    # Build query with search filters
-    query = '''
-        SELECT id, street_address, city, state, zip_code,
-               bedrooms, bathrooms, square_feet, listed_price, created_at,
-               mls_number, property_type
-        FROM properties 
-        WHERE 1=1
-    '''
-    params = []
-    
-    if search:
-        query += ''' AND (
-            street_address LIKE ? OR 
-            city LIKE ? OR 
-            mls_number LIKE ?
-        )'''
-        search_pattern = f'%{search}%'
-        params.extend([search_pattern, search_pattern, search_pattern])
-    
-    if property_type:
-        query += ' AND property_type LIKE ?'
-        params.append(f'%{property_type}%')
-    
-    if city:
-        query += ' AND city LIKE ?'
-        params.append(f'%{city}%')
-    
-    query += ' ORDER BY created_at DESC LIMIT 100'
-    
-    properties = conn.execute(query, params).fetchall()
-    
-    # Get unique cities for dropdown
-    cities = conn.execute('SELECT DISTINCT city FROM properties WHERE city IS NOT NULL ORDER BY city').fetchall()
-    
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        properties = db.get_all_properties()
+        # For now, return all properties without filtering (can add filtering later)
+        cities = []  # Can implement city filtering in database_config.py later
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        
+        # Get search parameters
+        search = request.args.get('search', '').strip()
+        property_type = request.args.get('property_type', '')
+        status = request.args.get('status', '')
+        city = request.args.get('city', '')
+        
+        # Build query with search filters
+        query = '''
+            SELECT id, street_address, city, state, zip_code,
+                   bedrooms, bathrooms, square_feet, listed_price, created_at,
+                   mls_number, property_type
+            FROM properties 
+            WHERE 1=1
+        '''
+        params = []
+        
+        if search:
+            query += ''' AND (
+                street_address LIKE ? OR 
+                city LIKE ? OR 
+                mls_number LIKE ?
+            )'''
+            search_pattern = f'%{search}%'
+            params.extend([search_pattern, search_pattern, search_pattern])
+        
+        if property_type:
+            query += ' AND property_type LIKE ?'
+            params.append(f'%{property_type}%')
+        
+        if city:
+            query += ' AND city LIKE ?'
+            params.append(f'%{city}%')
+        
+        query += ' ORDER BY created_at DESC LIMIT 100'
+        
+        properties = conn.execute(query, params).fetchall()
+        properties = [dict(row) for row in properties]
+        
+        # Get unique cities for dropdown
+        cities = conn.execute('SELECT DISTINCT city FROM properties WHERE city IS NOT NULL ORDER BY city').fetchall()
+        cities = [dict(row) for row in cities]
+        
+        conn.close()
     
     return render_template('properties_list.html', 
                          properties=properties, 
                          cities=cities,
-                         search=search,
-                         property_type=property_type,
-                         city=city)
+                         search=request.args.get('search', ''),
+                         property_type=request.args.get('property_type', ''),
+                         city=request.args.get('city', ''))
 
 @app.route('/properties/new', methods=['GET', 'POST'])
 def new_property():
@@ -1751,19 +1948,25 @@ def new_property():
 @app.route('/transactions')
 def transactions_list():
     """View all transactions"""
-    conn = get_db_connection()
-    transactions = conn.execute('''
-        SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
-               p.street_address, p.city, p.state,
-               bc.first_name as buyer_first, bc.last_name as buyer_last,
-               sc.first_name as seller_first, sc.last_name as seller_last
-        FROM transactions t
-        JOIN properties p ON t.property_id = p.id
-        LEFT JOIN clients bc ON t.buyer_client_id = bc.id
-        LEFT JOIN clients sc ON t.seller_client_id = sc.id
-        ORDER BY t.created_at DESC
-    ''').fetchall()
-    conn.close()
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        transactions = db.get_all_transactions()
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        transactions = conn.execute('''
+            SELECT t.id, t.status, t.purchase_price, t.offer_date, t.closing_date,
+                   p.street_address, p.city, p.state,
+                   bc.first_name as buyer_first, bc.last_name as buyer_last,
+                   sc.first_name as seller_first, sc.last_name as seller_last
+            FROM transactions t
+            JOIN properties p ON t.property_id = p.id
+            LEFT JOIN clients bc ON t.buyer_client_id = bc.id
+            LEFT JOIN clients sc ON t.seller_client_id = sc.id
+            ORDER BY t.created_at DESC
+        ''').fetchall()
+        conn.close()
+        transactions = [dict(row) for row in transactions]
     return render_template('transactions_list.html', transactions=transactions)
 
 @app.route('/transactions/new', methods=['GET', 'POST'])
@@ -2754,63 +2957,57 @@ def api_transactions():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 def init_basic_database():
-    """Initialize basic database tables if they don't exist"""
+    """Initialize database schema using the enhanced database configuration"""
     try:
-        conn = sqlite3.connect('real_estate_crm.db')
-        
-        # Create clients table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS clients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                first_name VARCHAR(100),
-                last_name VARCHAR(100),
-                email VARCHAR(255),
-                client_type VARCHAR(50) DEFAULT 'buyer',
-                status VARCHAR(50) DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create properties table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS properties (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                street_address VARCHAR(255),
-                city VARCHAR(100),
-                state VARCHAR(50),
-                zip_code VARCHAR(20),
-                listed_price DECIMAL(15,2),
-                status VARCHAR(50) DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Create transactions table
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                property_id INTEGER,
-                purchase_price DECIMAL(15,2),
-                status VARCHAR(50) DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Insert sample data if empty
-        if conn.execute('SELECT COUNT(*) FROM clients').fetchone()[0] == 0:
-            conn.execute('''
-                INSERT INTO clients (first_name, last_name, email, client_type)
-                VALUES ('John', 'Smith', 'john.smith@email.com', 'buyer')
-            ''')
-        
-        conn.commit()
-        conn.close()
-        print("✅ Basic database initialized")
+        # Use the global database configuration
+        success = db.init_database_schema()
+        if success:
+            if db.use_supabase:
+                print("✅ Supabase PostgreSQL database ready (177-field schema)")
+            else:
+                print("✅ SQLite database initialized for local development")
+        else:
+            print("⚠️ Database initialization failed, check configuration")
+        return success
         
     except Exception as e:
         print(f"⚠️ Database initialization error: {e}")
+        return False
 
 if __name__ == '__main__':
+    print("🏠 Starting Real Estate CRM Application...")
+    
+    # Load configuration and validate
+    try:
+        from config import current_config
+        app.config.from_object(current_config)
+        current_config.validate_required_config()
+        print("✅ Environment variables validated")
+    except Exception as e:
+        print(f"⚠️ Configuration error: {e}")
+    
+    # Get server configuration from environment with DigitalOcean compatibility
+    host = os.environ.get('HOST', current_config.HOST if 'current_config' in locals() else '0.0.0.0')
+    port = int(os.environ.get('PORT', current_config.PORT if 'current_config' in locals() else 5000))
+    debug = current_config.DEBUG if 'current_config' in locals() else False
+    env = current_config.FLASK_ENV if 'current_config' in locals() else 'development'
+    
+    # DigitalOcean App Platform uses PORT environment variable
+    if os.environ.get('PORT'):
+        print(f"🌐 DigitalOcean deployment detected (PORT={port})")
+    
+    print(f"🌍 Environment: {env}")
+    print(f"🔧 Debug mode: {debug}")
+    print(f"📡 Host: {host}:{port}")
+    print(f"📝 Navigate to: http://localhost:{port}")
+    print(f"💻 Dashboard: http://localhost:{port}")
+    print(f"👥 Client Management: http://localhost:{port}/clients")
+    print(f"🏘️ Property Management: http://localhost:{port}/properties")
+    print(f"💼 Transaction Management: http://localhost:{port}/transactions")
+    print(f"🤖 AI Chatbot: http://localhost:{port}/debug_chat")
+    
     # Initialize database
     init_basic_database()
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    
+    # Start Flask application
+    app.run(debug=debug, host=host, port=port)
