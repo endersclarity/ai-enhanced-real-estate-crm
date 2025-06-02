@@ -13,16 +13,52 @@ import os
 import google.generativeai as genai
 from functools import wraps
 
-# Import database configuration with fallback
+# Import monitoring and SSL configuration (Tasks #9 and #10)
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from monitoring_config import PerformanceMonitor, configure_security_headers, metrics_collector
+    from ssl_domain_config import configure_security_headers as configure_ssl_headers
+    MONITORING_AVAILABLE = True
+    print("✅ Performance monitoring and SSL configuration loaded")
+except ImportError as e:
+    print(f"⚠️ Monitoring modules not available: {e}")
+    MONITORING_AVAILABLE = False
+
+# Import production configuration and database
 try:
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from config import current_config
     from database_config import db
-    print("✅ Supabase database configuration loaded")
+    print("✅ Production configuration and Supabase database loaded")
+    print(f"✅ Environment: {current_config.FLASK_ENV}")
+    print(f"✅ Database: {'Supabase PostgreSQL' if current_config.USE_SUPABASE else 'SQLite'}")
+    print(f"✅ AI Integration: {'Enabled' if current_config.ENABLE_AI_CHATBOT else 'Disabled'}")
+    CONFIG_LOADED = True
 except ImportError as e:
-    print(f"⚠️ Supabase not available, using SQLite fallback: {e}")
-    # Fallback to direct SQLite
-    import sqlite3
+    print(f"⚠️ Production config not available, using fallback: {e}")
+    CONFIG_LOADED = False
+    
+    # Fallback configuration class
+    class FallbackConfig:
+        FLASK_ENV = 'development'
+        DEBUG = True
+        HOST = '0.0.0.0'
+        PORT = 5001
+        SECRET_KEY = 'real-estate-crm-secret-key-2025'
+        USE_SUPABASE = True
+        ENABLE_AI_CHATBOT = True
+        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+    
+    current_config = FallbackConfig()
+    
+    # Import database with fallback
+    try:
+        from database_config import db
+        print("✅ Database configuration loaded with fallback")
+    except ImportError:
+        import sqlite3
     class FallbackDB:
         def get_clients_summary(self):
             try:
@@ -95,12 +131,50 @@ except ImportError as e:
     OFFER_CREATION_AVAILABLE = False
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
-app.secret_key = 'your-secret-key-change-this'  # Change in production
+
+# Initialize monitoring and security (Tasks #9 and #10)
+if MONITORING_AVAILABLE:
+    try:
+        # Initialize performance monitoring
+        monitor = PerformanceMonitor(app)
+        
+        # Configure security headers (SSL/HTTPS)
+        configure_security_headers(app)
+        
+        print("✅ Performance monitoring initialized")
+        print("✅ Security headers configured")
+        print("✅ SSL/HTTPS security enabled")
+        
+    except Exception as e:
+        print(f"⚠️ Monitoring initialization error: {e}")
+
+# Load configuration from environment
+try:
+    if CONFIG_LOADED:
+        app.config.from_object(current_config)
+        current_config.validate_required_config()
+        print("✅ Environment variables validated")
+        db_config = current_config.get_database_config()
+        ai_config = current_config.get_ai_config()
+    else:
+        # Use fallback configuration
+        db_config = {'type': 'supabase'}
+        ai_config = {'enabled': True}
+    
+    app.secret_key = current_config.SECRET_KEY
+    print(f"✅ Flask configured for {current_config.FLASK_ENV} environment")
+    
+except Exception as e:
+    print(f"⚠️ Configuration error: {e}")
+    # Final fallback configuration
+    app.secret_key = 'real-estate-crm-secret-key-2025'
+    db_config = {'type': 'sqlite', 'path': 'real_estate_crm.db'}
+    ai_config = {'enabled': False}
 
 DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'real_estate_crm.db')
 
-# Gemini API Configuration
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+# Gemini API Configuration from environment
+GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
 
 # Configure Gemini API
 def configure_gemini():
@@ -2772,6 +2846,39 @@ def init_basic_database():
         return False
 
 if __name__ == '__main__':
+    print("🏠 Starting Real Estate CRM Application...")
+    
+    # Load configuration and validate
+    try:
+        from config import current_config
+        app.config.from_object(current_config)
+        current_config.validate_required_config()
+        print("✅ Environment variables validated")
+    except Exception as e:
+        print(f"⚠️ Configuration error: {e}")
+    
+    # Get server configuration from environment with DigitalOcean compatibility
+    host = os.environ.get('HOST', current_config.HOST if 'current_config' in locals() else '0.0.0.0')
+    port = int(os.environ.get('PORT', current_config.PORT if 'current_config' in locals() else 5000))
+    debug = current_config.DEBUG if 'current_config' in locals() else False
+    env = current_config.FLASK_ENV if 'current_config' in locals() else 'development'
+    
+    # DigitalOcean App Platform uses PORT environment variable
+    if os.environ.get('PORT'):
+        print(f"🌐 DigitalOcean deployment detected (PORT={port})")
+    
+    print(f"🌍 Environment: {env}")
+    print(f"🔧 Debug mode: {debug}")
+    print(f"📡 Host: {host}:{port}")
+    print(f"📝 Navigate to: http://localhost:{port}")
+    print(f"💻 Dashboard: http://localhost:{port}")
+    print(f"👥 Client Management: http://localhost:{port}/clients")
+    print(f"🏘️ Property Management: http://localhost:{port}/properties")
+    print(f"💼 Transaction Management: http://localhost:{port}/transactions")
+    print(f"🤖 AI Chatbot: http://localhost:{port}/debug_chat")
+    
     # Initialize database
     init_basic_database()
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    
+    # Start Flask application
+    app.run(debug=debug, host=host, port=port)

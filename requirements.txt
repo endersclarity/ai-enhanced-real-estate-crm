@@ -10,3 +10,9 @@ langchain-core>=0.3.0
 psycopg2-binary>=2.9.0
 supabase>=2.0.0
 requests>=2.28.0
+python-dotenv>=1.0.0
+sqlalchemy[postgresql]>=2.0.0
+# Performance monitoring dependencies (Task #10)
+psutil>=5.9.0
+# DNS resolution for SSL verification (Task #9)
+dnspython>=2.3.0
