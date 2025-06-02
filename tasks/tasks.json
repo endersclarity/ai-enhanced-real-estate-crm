@@ -2,187 +2,330 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Setup Supabase Project and Database",
-      "description": "Set up a new project in Supabase and provision a PostgreSQL database instance.",
-      "details": "Create a new project in the Supabase dashboard. Select the appropriate region. Note down the database connection details (host, port, database name, user, password, connection string). Ensure the database is accessible from potential DigitalOcean regions.",
-      "testStrategy": "Verify successful project creation and obtain valid database connection credentials. Attempt a simple connection using a PostgreSQL client.",
+      "title": "Setup Supabase Project and Database Connection",
+      "description": "Configure and validate Supabase PostgreSQL database connection for the Real Estate CRM migration.",
+      "details": "Verify the existing Supabase project (pfcdqrxnjyarhueofrsn) is accessible and properly configured. Test database connection using the credentials from supabase_config.env. Ensure the us-west-1 region is compatible with DigitalOcean NYC deployment. Validate connection strings and API keys are working correctly. Configure connection pooling settings for production workload.",
+      "testStrategy": "Execute test connection using psql with the Supabase credentials. Verify API keys work with Supabase REST API. Test latency between DigitalOcean NYC and Supabase us-west-1 regions. Run import_mls_to_supabase.py to validate connection framework.",
       "priority": "high",
       "dependencies": [],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 1 Morning",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Validate Supabase project accessibility",
+        "Test database connection with provided credentials", 
+        "Verify API key authentication",
+        "Measure cross-region latency",
+        "Configure connection pool settings"
+      ]
     },
     {
       "id": 2,
-      "title": "Design/Generate Supabase PostgreSQL Schema",
-      "description": "Translate the existing 177-field SQLite schema into a PostgreSQL schema compatible with Supabase.",
-      "details": "Analyze the existing SQLite database schema. Convert data types to their PostgreSQL equivalents (e.g., INTEGER to INT or SERIAL, TEXT to VARCHAR or TEXT, BLOB to BYTEA). Define primary keys, foreign keys, and indexes. Generate SQL scripts for creating the 177 fields across necessary tables. Consider using Supabase's schema editor or migrations feature.",
-      "testStrategy": "Execute schema creation scripts in the Supabase database. Verify that all tables and columns are created correctly with appropriate data types and constraints using a database tool or Supabase dashboard.",
+      "title": "Deploy 177-Field PostgreSQL Schema to Supabase",
+      "description": "Execute complete database schema migration from SQLite to Supabase PostgreSQL using the existing real_estate_crm_schema.sql.",
+      "details": "Use the existing core_app/database/real_estate_crm_schema.sql file to create the full 177-field schema in Supabase. Adapt SQLite syntax to PostgreSQL (UUID extension, proper data types, constraints). Create all tables: clients, properties, transactions, agents, documents, communications, financial_details, and system tables. Verify all relationships, indexes, and constraints are properly established.",
+      "testStrategy": "Execute schema creation script in Supabase SQL editor. Verify all 177 fields are created across the 8+ tables. Test foreign key relationships and constraints. Validate UUID generation and timestamp functions work correctly. Check table permissions and RLS policies.",
       "priority": "high",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 1 Morning",
+      "estimatedHours": 3,
+      "subtasks": [
+        "Adapt SQLite schema to PostgreSQL syntax",
+        "Create UUID extension and functions",
+        "Execute table creation for all 8+ tables",
+        "Establish foreign key relationships",
+        "Create indexes for performance optimization",
+        "Set up Row Level Security policies"
+      ]
     },
     {
       "id": 3,
-      "title": "Export Data from SQLite",
-      "description": "Export all existing data from the local SQLite database.",
-      "details": "Use SQLite command-line tools or a database client to export data from all relevant tables into a format suitable for import into PostgreSQL, such as CSV or SQL INSERT statements. Ensure data integrity during the export process.",
-      "testStrategy": "Verify that the exported file(s) contain all expected data rows and columns from the SQLite database. Check for encoding issues or data corruption.",
+      "title": "Export and Backup Local SQLite Data",
+      "description": "Create comprehensive backup of all existing data from local SQLite databases before migration.",
+      "details": "Export data from real_estate.db and real_estate_crm.db files using SQLite dump commands. Create both SQL INSERT format and CSV exports for safety. Document data structure and relationships. Verify export completeness by checking row counts and sample data integrity. Store backups in secure location with versioning.",
+      "testStrategy": "Compare row counts between original SQLite and exported files. Validate sample records for data integrity. Test import capability using exported SQL. Verify no data corruption during export process.",
       "priority": "high",
       "dependencies": [],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 1 Afternoon",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Export real_estate.db to SQL format",
+        "Export real_estate_crm.db to SQL format", 
+        "Create CSV backups for all tables",
+        "Verify export data integrity",
+        "Document data relationships and constraints",
+        "Store backups with version control"
+      ]
     },
     {
       "id": 4,
       "title": "Import Data into Supabase PostgreSQL",
-      "description": "Import the exported data from SQLite into the new Supabase PostgreSQL database.",
-      "details": "Use PostgreSQL's `psql` command-line tool, Supabase's data import features, or a custom script to load the data from the exported files into the corresponding tables in the Supabase database. Handle potential data type mismatches or constraints during import.",
-      "testStrategy": "After import, query key tables in the Supabase database to verify that the data has been imported correctly and completely. Compare row counts and sample data with the original SQLite database.",
+      "description": "Migrate all existing CRM data from SQLite exports into the new Supabase PostgreSQL database.",
+      "details": "Transform SQLite exports to PostgreSQL-compatible format. Handle data type conversions (INTEGER to UUID, BLOB to BYTEA, etc.). Import data using psql or Supabase data import tools. Resolve any constraint violations or foreign key issues. Validate data integrity post-import with comprehensive checking.",
+      "testStrategy": "Compare row counts between SQLite and PostgreSQL after import. Run sample queries to verify data relationships. Test CRM functionality with migrated data. Validate UUID generation and foreign key constraints work correctly.",
       "priority": "high",
-      "dependencies": [
-        2,
-        3
-      ],
+      "dependencies": [2, 3],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 1 Afternoon", 
+      "estimatedHours": 4,
+      "subtasks": [
+        "Transform SQLite exports to PostgreSQL format",
+        "Handle data type conversions (INTEGER to UUID)",
+        "Import client data with relationship validation",
+        "Import property and transaction data",
+        "Import agent and document data",
+        "Verify referential integrity post-import"
+      ]
     },
     {
       "id": 5,
-      "title": "Update Flask App Database Connection",
-      "description": "Modify the Flask application code to connect to the Supabase PostgreSQL database instead of the local SQLite file.",
-      "details": "Update database configuration in the Flask app (e.g., SQLAlchemy connection string). Replace SQLite connection logic with PostgreSQL connection logic using the credentials obtained in Task 1. Ensure database interactions (queries, inserts, updates) are compatible with PostgreSQL syntax and features.",
-      "testStrategy": "Run the Flask application locally and test database operations (e.g., fetching data, adding new records) to confirm successful connection and interaction with the Supabase database.",
+      "title": "Update Flask App for PostgreSQL Connection",
+      "description": "Modify the Flask application code to connect to Supabase PostgreSQL instead of local SQLite.",
+      "details": "Update database configuration in real_estate_crm.py and core_app modules. Replace SQLite connection strings with PostgreSQL/Supabase configuration from supabase_config.env. Update SQLAlchemy models for PostgreSQL compatibility (UUID primary keys, PostgreSQL-specific types). Test all CRUD operations work correctly with new database connection.",
+      "testStrategy": "Run Flask application locally connected to Supabase. Test client creation, property management, and transaction workflows. Verify all database operations (CREATE, READ, UPDATE, DELETE) work correctly. Test AI integration functions with PostgreSQL backend.",
       "priority": "high",
-      "dependencies": [
-        1,
-        4
-      ],
+      "dependencies": [1, 4],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 1 Evening",
+      "estimatedHours": 3,
+      "subtasks": [
+        "Update database configuration for PostgreSQL",
+        "Modify SQLAlchemy models for Supabase",
+        "Replace SQLite connection with PostgreSQL",
+        "Test CRUD operations with new database",
+        "Verify AI integration with PostgreSQL backend",
+        "Update error handling for PostgreSQL exceptions"
+      ]
     },
     {
       "id": 6,
-      "title": "Implement Secure Environment Variable Loading",
-      "description": "Implement a secure method for loading database credentials and other sensitive configuration from environment variables.",
-      "details": "Use a library like `python-dotenv` for local development environment variable loading from a `.env` file (excluded from version control). For production on DigitalOcean, configure the App Platform to provide these variables securely. Update the Flask app configuration to read these variables upon startup.",
-      "testStrategy": "Configure environment variables (or a `.env` file) with Supabase credentials. Run the Flask app and verify that it successfully reads the credentials from the environment and connects to the database without hardcoding secrets.",
+      "title": "Implement Production Environment Variable Management",
+      "description": "Configure secure environment variable loading for production deployment with all required secrets.",
+      "details": "Create production-ready environment variable management using python-dotenv for local development and DigitalOcean App Platform environment variables for production. Include all required variables: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY, FLASK_ENV, and other configuration. Ensure no secrets are committed to version control.",
+      "testStrategy": "Test application startup with environment variables loaded correctly. Verify database connection using environment credentials. Test AI integration with Gemini API key from environment. Confirm no hardcoded secrets remain in codebase.",
       "priority": "high",
-      "dependencies": [
-        5
-      ],
+      "dependencies": [5],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 2 Morning",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Install and configure python-dotenv",
+        "Create .env template for local development",
+        "Update Flask app to load environment variables",
+        "Verify all secrets loaded from environment",
+        "Test database connection with env variables",
+        "Validate AI integration with env-loaded API keys"
+      ]
     },
     {
       "id": 7,
       "title": "Prepare Application for DigitalOcean Deployment",
-      "description": "Prepare the Flask application for deployment on DigitalOcean App Platform.",
-      "details": "Create necessary files for DigitalOcean App Platform, such as a `Dockerfile` or `Procfile`, specifying how the application should be built and run. Ensure all dependencies are listed in `requirements.txt`. Configure the application to listen on the port specified by the hosting environment (typically via an environment variable like `PORT`).",
-      "testStrategy": "Build the Docker image locally using the Dockerfile or test the Procfile command. Ensure the application starts correctly and listens on the configured port.",
+      "description": "Configure Flask application for DigitalOcean App Platform deployment using existing deployment infrastructure.",
+      "details": "Update existing Procfile and deploy_to_digitalocean.py script. Configure application to use PORT environment variable from DigitalOcean. Update requirements.txt with all PostgreSQL dependencies (psycopg2, sqlalchemy[postgresql]). Ensure proper startup command and build process. Configure health check endpoints for App Platform monitoring.",
+      "testStrategy": "Test Procfile command locally. Verify requirements.txt includes all dependencies. Test application startup with dynamic PORT assignment. Validate health check endpoint responds correctly.",
       "priority": "high",
-      "dependencies": [
-        6
-      ],
+      "dependencies": [6],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 2 Morning",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Update Procfile for production startup",
+        "Add PostgreSQL dependencies to requirements.txt",
+        "Configure dynamic PORT assignment",
+        "Add health check endpoints",
+        "Test local deployment simulation",
+        "Validate deploy_to_digitalocean.py script"
+      ]
     },
     {
       "id": 8,
       "title": "Deploy Flask Application to DigitalOcean",
-      "description": "Deploy the prepared Flask application to the DigitalOcean App Platform.",
-      "details": "Connect the application's code repository (e.g., GitHub, GitLab) to DigitalOcean App Platform. Configure the App Platform service, pointing it to the correct branch and build/run commands defined in Task 7. Configure environment variables securely within the DigitalOcean dashboard using the values from Task 6. Initiate the deployment.",
-      "testStrategy": "Monitor the deployment logs on DigitalOcean. Verify that the build and deployment complete successfully without errors. Access the application using the temporary DigitalOcean URL to confirm it is running.",
+      "description": "Execute production deployment using the configured deploy_to_digitalocean.py script and App Platform.",
+      "details": "Use existing deployment script to create DigitalOcean App Platform service connected to feature/cloud-deployment branch. Configure all environment variables in DigitalOcean dashboard: SUPABASE_URL, SUPABASE_ANON_KEY, GEMINI_API_KEY, FLASK_ENV=production. Set up automatic deployment on git push. Monitor deployment logs and resolve any build or runtime issues.",
+      "testStrategy": "Monitor DigitalOcean deployment logs for successful build and startup. Access temporary DigitalOcean URL to verify application is running. Test basic CRM functionality through deployed application. Verify database connectivity from deployed app to Supabase.",
       "priority": "high",
-      "dependencies": [
-        7
-      ],
+      "dependencies": [7],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 2 Afternoon",
+      "estimatedHours": 3,
+      "subtasks": [
+        "Execute deploy_to_digitalocean.py script",
+        "Configure environment variables in DO dashboard", 
+        "Monitor deployment build process",
+        "Verify application startup in production",
+        "Test database connectivity from deployed app",
+        "Validate basic CRM functionality"
+      ]
     },
     {
       "id": 9,
-      "title": "Configure Domain and SSL on DigitalOcean",
-      "description": "Configure the custom domain and set up SSL certificates for the deployed application on DigitalOcean.",
-      "details": "In the DigitalOcean App Platform settings, add the custom domain. Update DNS records (A or CNAME) with the domain provider to point to the DigitalOcean App Platform service. DigitalOcean automatically provisions and manages Let's Encrypt SSL certificates. Ensure HTTPS redirection is enabled.",
-      "testStrategy": "Access the application using the custom domain name. Verify that the site loads correctly and that the connection is secure (HTTPS) with a valid SSL certificate.",
+      "title": "Configure Custom Domain and SSL",
+      "description": "Set up custom domain name and SSL certificates for the production Real Estate CRM application.",
+      "details": "Configure custom domain in DigitalOcean App Platform settings. Update DNS records to point to DigitalOcean App Platform. Enable automatic SSL certificate provisioning through Let's Encrypt. Configure HTTPS redirects and security headers. Verify SSL certificate is valid and properly configured.",
+      "testStrategy": "Access application via custom domain name. Verify HTTPS connection with valid SSL certificate. Test automatic HTTP to HTTPS redirect. Validate security headers are properly set. Confirm SSL certificate auto-renewal is configured.",
       "priority": "high",
-      "dependencies": [
-        8
-      ],
+      "dependencies": [8],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 2 Afternoon",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Configure custom domain in DigitalOcean",
+        "Update DNS records for domain",
+        "Enable Let's Encrypt SSL certificates",
+        "Configure HTTPS redirects",
+        "Set security headers",
+        "Verify SSL certificate validity"
+      ]
     },
     {
       "id": 10,
-      "title": "Setup Application Performance Monitoring and Logging",
-      "description": "Integrate application performance monitoring (APM) and logging solutions.",
-      "details": "Choose and integrate an APM tool (e.g., Sentry, Datadog, or DigitalOcean's built-in metrics) to monitor application performance, errors, and request latency. Configure application logging to output to a centralized logging service or standard output that DigitalOcean can capture.",
-      "testStrategy": "Generate some traffic to the deployed application. Check the APM dashboard for performance data and error reports. Verify that application logs are being captured and are accessible.",
+      "title": "Setup Application Performance Monitoring",
+      "description": "Implement comprehensive monitoring and logging for the production Real Estate CRM application.",
+      "details": "Integrate DigitalOcean's built-in App Platform monitoring. Configure application logging to capture errors, performance metrics, and user activity. Set up alerting for critical errors and performance degradation. Implement health check endpoints for uptime monitoring. Configure log retention and analysis.",
+      "testStrategy": "Generate test traffic to verify monitoring data collection. Trigger test errors to validate alerting. Verify application logs are captured and accessible. Test performance metric collection and dashboard functionality.",
       "priority": "medium",
-      "dependencies": [
-        8
-      ],
+      "dependencies": [8],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 2 Evening",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Enable DigitalOcean App Platform monitoring",
+        "Configure application logging framework",
+        "Set up error alerting",
+        "Implement health check endpoints",
+        "Configure log retention policies",
+        "Test monitoring dashboard functionality"
+      ]
     },
     {
       "id": 11,
-      "title": "Configure Automated Supabase Database Backups",
-      "description": "Configure automated backup strategy for the Supabase PostgreSQL database.",
-      "details": "Utilize Supabase's built-in backup features to schedule automated daily backups of the database. Configure retention policies. Consider setting up point-in-time recovery if available and necessary.",
-      "testStrategy": "Verify in the Supabase dashboard that automated backups are scheduled and configured correctly. Manually trigger a backup to ensure the process works.",
+      "title": "Configure Supabase Database Backups",
+      "description": "Implement automated backup strategy for the Supabase PostgreSQL database with disaster recovery planning.",
+      "details": "Configure Supabase's automated daily backups with appropriate retention policies. Set up point-in-time recovery capabilities. Test backup restoration process. Document disaster recovery procedures. Configure backup monitoring and alerting. Consider additional backup strategies for critical data protection.",
+      "testStrategy": "Verify automated backups are scheduled and running. Test backup restoration to a test database. Validate point-in-time recovery functionality. Confirm backup retention policies are applied correctly.",
       "priority": "high",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1, 4],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 3 Morning",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Enable Supabase automated daily backups",
+        "Configure backup retention policies",
+        "Set up point-in-time recovery",
+        "Test backup restoration process",
+        "Document disaster recovery procedures",
+        "Configure backup monitoring"
+      ]
     },
     {
       "id": 12,
       "title": "Conduct Performance Testing and Optimization",
-      "description": "Conduct performance testing and optimize the application and database.",
-      "details": "Perform load testing on the deployed application to simulate multiple concurrent users and transactions as per scalability goals. Identify performance bottlenecks in the application code or database queries. Optimize queries, add indexes, or refactor code as needed to meet or exceed local performance benchmarks.",
-      "testStrategy": "Run load tests using tools like ApacheBench, JMeter, or Locust. Analyze results for response times, error rates, and resource utilization. Compare cloud performance metrics against local benchmarks.",
+      "description": "Execute comprehensive performance testing and optimize the cloud deployment to meet or exceed local performance benchmarks.",
+      "details": "Perform load testing using Apache Bench or similar tools to simulate multiple concurrent users. Test key CRM workflows: client management, property searches, transaction processing, AI chatbot interactions. Measure response times, throughput, and resource utilization. Compare cloud performance against local benchmarks. Optimize database queries, add indexes, and tune application performance as needed.",
+      "testStrategy": "Run load tests with 10, 50, and 100 concurrent users. Measure response times for critical endpoints. Compare performance metrics against local development environment. Verify application remains stable under load.",
       "priority": "medium",
-      "dependencies": [
-        8
-      ],
+      "dependencies": [8, 9],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 3 Morning",
+      "estimatedHours": 3,
+      "subtasks": [
+        "Set up load testing framework",
+        "Test client management workflows under load",
+        "Test property search and listing performance",
+        "Test AI chatbot response times",
+        "Optimize database queries and indexes",
+        "Compare cloud vs local performance metrics"
+      ]
     },
     {
       "id": 13,
-      "title": "Perform Security Hardening and Audit",
-      "description": "Perform security hardening and conduct a basic security audit.",
-      "details": "Review application code for common vulnerabilities (e.g., SQL injection, XSS). Ensure secure authentication and authorization mechanisms are in place. Configure firewall rules on DigitalOcean and Supabase. Review Supabase Row Level Security (RLS) policies if applicable. Conduct basic penetration testing or vulnerability scanning.",
-      "testStrategy": "Attempt common web security attacks (e.g., injecting malicious SQL). Verify that authentication and authorization controls function correctly. Use online tools to scan for basic vulnerabilities. Ensure RLS policies prevent unauthorized data access.",
+      "title": "Implement Security Hardening and Audit",
+      "description": "Perform comprehensive security hardening and conduct security audit for production deployment.",
+      "details": "Review application code for security vulnerabilities (SQL injection, XSS, CSRF). Configure Supabase Row Level Security (RLS) policies for data protection. Implement proper authentication and authorization controls. Configure firewall rules and network security. Review environment variable security and secrets management. Conduct basic penetration testing.",
+      "testStrategy": "Test common web vulnerabilities using security scanning tools. Verify RLS policies prevent unauthorized data access. Test authentication and authorization workflows. Validate secrets are not exposed in logs or client-side code.",
       "priority": "high",
-      "dependencies": [
-        8
-      ],
+      "dependencies": [8, 11],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 3 Afternoon",
+      "estimatedHours": 3,
+      "subtasks": [
+        "Scan for common web vulnerabilities",
+        "Configure Supabase RLS policies",
+        "Implement authentication security controls",
+        "Configure network security and firewalls",
+        "Review secrets management security",
+        "Conduct basic penetration testing"
+      ]
     },
     {
       "id": 14,
-      "title": "Final Production Validation",
-      "description": "Conduct final validation and smoke testing of the production environment.",
-      "details": "Perform end-to-end testing of core CRM functionalities in the production environment. Verify multi-user access and real-time collaboration features. Check monitoring dashboards, confirm backups are running, and review security logs. Ensure all success criteria from the PRD are met.",
-      "testStrategy": "Execute a comprehensive suite of user acceptance tests covering all critical features. Simulate concurrent user activity. Verify system stability, performance, and data consistency. Confirm all production readiness checks (monitoring, backups, security) are satisfactory.",
+      "title": "Final Production Validation and Go-Live",
+      "description": "Execute final comprehensive validation of the production Real Estate CRM and prepare for go-live.",
+      "details": "Perform end-to-end testing of all CRM functionalities in production environment. Test multi-user access and concurrent operations. Validate AI chatbot integration and email processing. Verify monitoring, backups, and security controls are operational. Conduct user acceptance testing with key stakeholders. Prepare go-live checklist and rollback procedures.",
+      "testStrategy": "Execute comprehensive user acceptance test suite covering all critical features. Test concurrent user scenarios. Verify system stability and performance under realistic load. Confirm all production readiness criteria are met.",
       "priority": "high",
-      "dependencies": [
-        9,
-        10,
-        11,
-        12,
-        13
-      ],
+      "dependencies": [9, 10, 11, 12, 13],
       "status": "pending",
-      "subtasks": []
+      "timeline": "Day 3 Evening",
+      "estimatedHours": 4,
+      "subtasks": [
+        "Execute end-to-end CRM workflow testing",
+        "Test multi-user concurrent access",
+        "Validate AI integration in production",
+        "Verify monitoring and alerting systems",
+        "Conduct user acceptance testing",
+        "Prepare go-live and rollback procedures"
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Documentation and Knowledge Transfer",
+      "description": "Create comprehensive documentation for the cloud deployment and conduct knowledge transfer.",
+      "details": "Document the complete cloud architecture and deployment process. Create operational runbooks for monitoring, maintenance, and troubleshooting. Document backup and disaster recovery procedures. Create user guides for the production CRM system. Prepare training materials for Narissa and her team.",
+      "testStrategy": "Review documentation for completeness and accuracy. Validate operational procedures by following documented steps. Ensure troubleshooting guides are practical and effective.",
+      "priority": "medium",
+      "dependencies": [14],
+      "status": "pending",
+      "timeline": "Day 3 Evening",
+      "estimatedHours": 2,
+      "subtasks": [
+        "Document cloud architecture and deployment",
+        "Create operational runbooks",
+        "Document backup and recovery procedures",
+        "Create end-user guides",
+        "Prepare training materials",
+        "Conduct knowledge transfer session"
+      ]
     }
-  ]
+  ],
+  "metadata": {
+    "branchName": "feature/cloud-deployment",
+    "totalTasks": 15,
+    "estimatedTotalHours": 37,
+    "timeline": "3-day development cycle",
+    "priority": {
+      "high": 10,
+      "medium": 5,
+      "low": 0
+    },
+    "successCriteria": [
+      "DigitalOcean Deployment: CRM successfully deployed and accessible via production URL",
+      "Supabase Database Migration: Complete 177-field schema migrated from SQLite to PostgreSQL",
+      "Environment Configuration: Secure secrets management and environment variable setup", 
+      "Performance Validation: Cloud deployment meets or exceeds local performance benchmarks",
+      "Production Readiness: SSL certificates, monitoring, backups, and security hardening"
+    ],
+    "technicalGoals": [
+      "Database Migration: SQLite → Supabase PostgreSQL with zero data loss",
+      "Infrastructure as Code: Automated deployment scripts and configuration",
+      "Scalability: Support for multiple concurrent users and transactions",
+      "Security: Production-grade authentication, HTTPS, and data protection",
+      "Monitoring: Application performance monitoring and error tracking",
+      "Backup Strategy: Automated database backups and disaster recovery"
+    ],
+    "lastUpdated": "2025-06-01T00:00:00Z",
+    "phase": "Cloud Deployment Migration"
+  }
 }
