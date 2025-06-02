@@ -16,3 +16,5 @@ sqlalchemy[postgresql]>=2.0.0
 psutil>=5.9.0
 # DNS resolution for SSL verification (Task #9)
 dnspython>=2.3.0
+gunicorn==22.0.0
+pandas>=2.0.0
