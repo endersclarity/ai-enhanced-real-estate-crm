@@ -13,6 +13,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import black
 from crm_field_mapper import CRMFieldMapper
+from validation_framework import FormValidationFramework
 
 class FormPopulationEngine:
     """
@@ -23,6 +24,7 @@ class FormPopulationEngine:
     def __init__(self, database_path: str = "core_app/database/real_estate_crm.db"):
         self.database_path = database_path
         self.field_mapper = CRMFieldMapper(database_path)
+        self.validator = FormValidationFramework()
         self.form_templates_dir = Path("form_templates")
         self.output_dir = Path("output")
         self.output_dir.mkdir(exist_ok=True)
@@ -63,9 +65,18 @@ class FormPopulationEngine:
             print("🎨 Generating populated PDF...")
             output_path = self._generate_populated_pdf(form_data, template_data, output_filename)
             
-            # Step 4: Validate population quality
-            print("✅ Validating population quality...")
-            validation_summary = self._validate_population_quality(form_data)
+            # Step 4: Comprehensive validation
+            print("✅ Running comprehensive validation...")
+            validation_result = self.validator.validate_populated_form(form_data, form_type)
+            
+            if not validation_result["validation_passed"]:
+                return {
+                    "success": False,
+                    "error": "Form validation failed",
+                    "validation_result": validation_result,
+                    "transaction_id": transaction_id,
+                    "form_type": form_type
+                }
             
             result = {
                 "success": True,
@@ -73,7 +84,7 @@ class FormPopulationEngine:
                 "form_type": form_type,
                 "output_file": str(output_path),
                 "populated_fields": len(form_data["fields"]),
-                "validation_summary": validation_summary,
+                "validation_result": validation_result,
                 "generated_at": datetime.now().isoformat()
             }
             
