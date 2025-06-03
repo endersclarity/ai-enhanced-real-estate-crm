@@ -14,6 +14,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import black
 from crm_field_mapper import CRMFieldMapper
 from validation_framework import FormValidationFramework
+from error_handling_framework import ErrorHandlingFramework
 
 class FormPopulationEngine:
     """
@@ -25,6 +26,7 @@ class FormPopulationEngine:
         self.database_path = database_path
         self.field_mapper = CRMFieldMapper(database_path)
         self.validator = FormValidationFramework()
+        self.error_handler = ErrorHandlingFramework()
         self.form_templates_dir = Path("form_templates")
         self.output_dir = Path("output")
         self.output_dir.mkdir(exist_ok=True)

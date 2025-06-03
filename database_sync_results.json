@@ -1,0 +1,137 @@
+{
+  "timestamp": "2025-06-02T20:17:07.045769",
+  "local_db_path": "core_app/database/real_estate_crm.db",
+  "checks_performed": [
+    {
+      "check_name": "Local Database Connectivity",
+      "status": "passed",
+      "details": {
+        "database_file": "core_app/database/real_estate_crm.db",
+        "file_size_mb": 0.0,
+        "table_count": 0,
+        "tables": [],
+        "database_info": [
+          [
+            0,
+            "main",
+            "/home/ender/.claude/projects/offer-creator/core_app/database/real_estate_crm.db"
+          ]
+        ]
+      },
+      "issues": []
+    },
+    {
+      "check_name": "Schema Structure Validation",
+      "status": "failed",
+      "details": {
+        "expected_tables": 5,
+        "existing_tables": 0,
+        "completeness_percentage": 0.0,
+        "schema_analysis": {
+          "clients": {
+            "exists": false
+          },
+          "properties": {
+            "exists": false
+          },
+          "transactions": {
+            "exists": false
+          },
+          "agents": {
+            "exists": false
+          },
+          "contacts": {
+            "exists": false
+          }
+        }
+      },
+      "issues": [
+        "Missing expected table: clients",
+        "Missing expected table: properties",
+        "Missing expected table: transactions",
+        "Missing expected table: agents",
+        "Missing expected table: contacts"
+      ]
+    },
+    {
+      "check_name": "Data Integrity Check",
+      "status": "passed",
+      "details": {
+        "tables_checked": 0,
+        "integrity_tests": [],
+        "total_records": 0
+      },
+      "issues": []
+    },
+    {
+      "check_name": "Production Environment Compatibility",
+      "status": "passed",
+      "details": {
+        "sqlite_version": "3.45.1",
+        "pragma_settings": {
+          "foreign_keys": 0,
+          "journal_mode": "delete",
+          "synchronous": 2,
+          "temp_store": 0,
+          "mmap_size": 0
+        },
+        "file_permissions": {
+          "readable": true,
+          "writable": true,
+          "file_mode": "0o100644",
+          "file_size": 0
+        },
+        "backup_compatibility": {
+          "backup_supported": true,
+          "vacuum_supported": true,
+          "vacuum_successful": true
+        }
+      },
+      "issues": []
+    },
+    {
+      "check_name": "Test Data Verification",
+      "status": "failed",
+      "details": {
+        "sample_data_analysis": {
+          "clients": {
+            "error": "no such table: clients",
+            "has_sample_data": false
+          },
+          "properties": {
+            "error": "no such table: properties",
+            "has_sample_data": false
+          },
+          "transactions": {
+            "error": "no such table: transactions",
+            "has_sample_data": false
+          }
+        },
+        "total_sample_records": 0
+      },
+      "issues": [
+        "Error checking sample data in clients: no such table: clients",
+        "Error checking sample data in properties: no such table: properties",
+        "Error checking sample data in transactions: no such table: transactions"
+      ]
+    }
+  ],
+  "issues_found": [
+    "Missing expected table: clients",
+    "Missing expected table: properties",
+    "Missing expected table: transactions",
+    "Missing expected table: agents",
+    "Missing expected table: contacts",
+    "Error checking sample data in clients: no such table: clients",
+    "Error checking sample data in properties: no such table: properties",
+    "Error checking sample data in transactions: no such table: transactions"
+  ],
+  "sync_status": "critical",
+  "summary": {
+    "total_checks": 5,
+    "passed": 3,
+    "warnings": 0,
+    "failed": 2,
+    "total_issues": 8
+  }
+}
