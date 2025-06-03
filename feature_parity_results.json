@@ -1,0 +1,187 @@
+{
+  "timestamp": "2025-06-02T20:45:43.881091",
+  "environments": {
+    "local": {
+      "url": "http://172.22.206.209:3001",
+      "status": "online"
+    },
+    "production": {
+      "url": "https://real-estate-crm-6p9kt.ondigitalocean.app",
+      "status": "offline"
+    }
+  },
+  "feature_tests": [
+    {
+      "test_name": "Environment Connectivity",
+      "local_status": "online",
+      "production_status": "offline",
+      "parity_achieved": false,
+      "details": {
+        "local_response_time": 0.344043
+      },
+      "issues": [
+        "Production environment unreachable: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789b8dfd0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+      ]
+    },
+    {
+      "test_name": "Core API Endpoints",
+      "endpoints_tested": 6,
+      "local_successes": 2,
+      "production_successes": 0,
+      "parity_achieved": false,
+      "endpoint_results": {
+        "GET /": {
+          "description": "Dashboard home",
+          "local_status": 200,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145970>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "GET /clients": {
+          "description": "Client list",
+          "local_status": 500,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /clients (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145220>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "GET /properties": {
+          "description": "Property list",
+          "local_status": 500,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /properties (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145010>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "GET /transactions": {
+          "description": "Transaction list",
+          "local_status": 500,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /transactions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145700>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "GET /api/dashboard_stats": {
+          "description": "Dashboard statistics",
+          "local_status": 200,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /api/dashboard_stats (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f87891461b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "POST /chat": {
+          "description": "AI chatbot",
+          "local_status": "error: HTTPConnectionPool(host='172.22.206.209', port=3001): Read timed out. (read timeout=5)",
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /chat (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789baf0b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        }
+      },
+      "issues": [
+        "Production GET / failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145970>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production GET /clients failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /clients (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145220>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production GET /properties failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /properties (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145010>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production GET /transactions failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /transactions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145700>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production GET /api/dashboard_stats failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /api/dashboard_stats (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f87891461b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Local POST /chat failed: HTTPConnectionPool(host='172.22.206.209', port=3001): Read timed out. (read timeout=5)",
+        "Production POST /chat failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /chat (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789baf0b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+      ],
+      "parity_percentage": 0.0
+    },
+    {
+      "test_name": "Database Operations",
+      "local_db_status": "operational",
+      "production_data_status": "unreachable",
+      "parity_achieved": false,
+      "details": {
+        "local_tables": {}
+      },
+      "issues": [
+        "Production data access failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /api/dashboard_stats (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f87891472c0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+      ]
+    },
+    {
+      "test_name": "AI Integration Features",
+      "local_ai_status": "operational",
+      "production_ai_status": "failed",
+      "parity_achieved": false,
+      "details": {
+        "local_ai_response_length": 320,
+        "local_ai_response_time": 3.372198
+      },
+      "issues": [
+        "Production AI test failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /chat (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145700>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+      ]
+    },
+    {
+      "test_name": "Static Asset Delivery",
+      "assets_tested": 3,
+      "local_successes": 3,
+      "production_successes": 0,
+      "parity_achieved": false,
+      "asset_results": {
+        "/static/style.css": {
+          "local_status": 200,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/style.css (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f878916c1d0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "/static/script.js": {
+          "local_status": 200,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/script.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789144fe0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        },
+        "/static/debug_enter.js": {
+          "local_status": 200,
+          "production_status": "error: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/debug_enter.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145bb0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+          "parity": false
+        }
+      },
+      "issues": [
+        "Production asset /static/style.css failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/style.css (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f878916c1d0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production asset /static/script.js failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/script.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789144fe0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+        "Production asset /static/debug_enter.js failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/debug_enter.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145bb0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+      ],
+      "parity_percentage": 0.0
+    },
+    {
+      "test_name": "Form Template Availability",
+      "local_templates": 13,
+      "expected_templates": 13,
+      "template_accessibility": "operational",
+      "parity_achieved": true,
+      "details": {
+        "template_files": [
+          "Septic_Insp_Well_Insp_Prop_Monument_and_Propane_Allocation_of_Cost_Addendum_-_624_ts96183_template.json",
+          "Agent_Visual_Inspection_Disclosure_1_-_624_ts99307_template.json",
+          "Permit_Transmittal_0516_ts82120_template.json",
+          "Statewide_Buyer_and_Seller_Advisory_-_624_ts89932_template.json",
+          "Buyer_Representation_and_Broker_Compensation_Agreement_-_1224_ts74307_template.json",
+          "Verification_of_Property_Condition_-_624_ts05559_template.json",
+          "Modification_of_Terms_-_Buyer_Representation_Agreement_1_-_1224_ts08683_template.json",
+          "Electronic_Signature_Verification_for_Third_Parties_-_1221_ts02433_template.json",
+          "Confidentiality_and_Non-Disclosure_Agreement_-_1221_ts85245_template.json",
+          "Addendum_to_Statewide_Buyer_and_Seller_Adv_-_722_ts94619_template.json",
+          "Transaction_Record_-_724_ts71184_template.json",
+          "Market_Conditions_Advisory_-_624_ts88371_template.json",
+          "California_Residential_Purchase_Agreement_-_1224_ts77432_template.json"
+        ],
+        "blank_template_count": 13,
+        "template_completeness": 100.0
+      },
+      "issues": []
+    }
+  ],
+  "parity_score": 16.666666666666664,
+  "issues_found": [
+    "Production environment unreachable: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789b8dfd0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production GET / failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145970>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production GET /clients failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /clients (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145220>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production GET /properties failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /properties (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145010>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production GET /transactions failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /transactions (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145700>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production GET /api/dashboard_stats failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /api/dashboard_stats (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f87891461b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Local POST /chat failed: HTTPConnectionPool(host='172.22.206.209', port=3001): Read timed out. (read timeout=5)",
+    "Production POST /chat failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /chat (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789baf0b0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production data access failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /api/dashboard_stats (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f87891472c0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production AI test failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /chat (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145700>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production asset /static/style.css failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/style.css (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f878916c1d0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production asset /static/script.js failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/script.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789144fe0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))",
+    "Production asset /static/debug_enter.js failed: HTTPSConnectionPool(host='real-estate-crm-6p9kt.ondigitalocean.app', port=443): Max retries exceeded with url: /static/debug_enter.js (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7f8789145bb0>: Failed to resolve 'real-estate-crm-6p9kt.ondigitalocean.app' ([Errno -2] Name or service not known)\"))"
+  ],
+  "summary": {
+    "total_tests": 6,
+    "tests_passed": 1,
+    "parity_score": 16.666666666666664,
+    "total_issues": 13,
+    "ready_for_form_population": false
+  }
+}
