@@ -6,9 +6,15 @@ Comprehensive Real Estate CRM system with AI integration for Narissa Realty - pr
 ## Quick Commands
 ```bash
 # CRM Development with AI (BREAKTHROUGH WORKING PATTERN)
-export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU" && source venv/bin/activate && python real_estate_crm.py        # Start main Flask CRM with AI
+export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU" && source venv/bin/activate && python core_app/real_estate_crm.py        # Start main Flask CRM with AI
 source venv/bin/activate         # Activate Python environment
 python app.py                    # Start legacy Flask application
+
+# PERMANENT CRM SERVER (PRODUCTION READY)
+# Windows: Double-click start-crm-demo.bat on Desktop
+# URL: http://172.22.206.209:3001 (always accessible)
+# Port: 3001 (dedicated for Real Estate CRM)
+# Features: Full AI integration, form population engine, Supabase database
 
 # AI Integration Testing (PROVEN WORKING)
 curl -X POST http://localhost:5000/chat -H "Content-Type: application/json" -d '{"message": "Test AI integration"}'
