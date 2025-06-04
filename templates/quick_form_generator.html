@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Form Generator - Narissa Realty CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>🚀 Quick Form Generator</h1>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            
+            <!-- Form Selection -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Step 1: Select Form Type</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card form-option" data-form="statewide_buyer_seller_advisory">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-2">📋</div>
+                                            <h6>Statewide Advisory</h6>
+                                            <small class="text-muted">7 fields • 20 seconds</small>
+                                            <div class="mt-2">
+                                                <span class="badge bg-success">90% usage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card form-option" data-form="buyer_representation_agreement">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-2">🤝</div>
+                                            <h6>Buyer Rep Agreement</h6>
+                                            <small class="text-muted">9 fields • 30 seconds</small>
+                                            <div class="mt-2">
+                                                <span class="badge bg-success">95% usage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card form-option" data-form="agent_visual_inspection_disclosure">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-2">👁️</div>
+                                            <h6>Visual Inspection</h6>
+                                            <small class="text-muted">8 fields • 25 seconds</small>
+                                            <div class="mt-2">
+                                                <span class="badge bg-warning">75% usage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card form-option" data-form="market_conditions_advisory">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-2">📈</div>
+                                            <h6>Market Advisory</h6>
+                                            <small class="text-muted">9 fields • 30 seconds</small>
+                                            <div class="mt-2">
+                                                <span class="badge bg-warning">70% usage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card form-option" data-form="transaction_record">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-2">📊</div>
+                                            <h6>Transaction Record</h6>
+                                            <small class="text-muted">10 fields • 45 seconds</small>
+                                            <div class="mt-2">
+                                                <span class="badge bg-info">85% usage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Form Interface -->
+            <div class="row" id="quickFormSection" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Step 2: Fill Required Information</h5>
+                            <small class="text-muted">⏱️ <span id="estimatedTime">30 seconds</span> to complete</small>
+                        </div>
+                        <div class="card-body">
+                            <form id="quickFormData">
+                                <div class="row">
+                                    <!-- Client Information -->
+                                    <div class="col-md-6 mb-4">
+                                        <h6 class="text-primary">👤 Client Information</h6>
+                                        <div class="client-fields">
+                                            <!-- Dynamic fields populated based on form selection -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Property Information -->
+                                    <div class="col-md-6 mb-4">
+                                        <h6 class="text-success">🏠 Property Information</h6>
+                                        <div class="property-fields">
+                                            <!-- Dynamic fields populated based on form selection -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Agent Information -->
+                                    <div class="col-md-6 mb-4">
+                                        <h6 class="text-warning">🏢 Agent Information</h6>
+                                        <div class="agent-fields">
+                                            <!-- Dynamic fields populated based on form selection -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Transaction/Other Information -->
+                                    <div class="col-md-6 mb-4">
+                                        <h6 class="text-info">💼 Transaction Details</h6>
+                                        <div class="transaction-fields">
+                                            <!-- Dynamic fields populated based on form selection -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button type="button" class="btn btn-primary btn-lg" onclick="generateQuickForm()">
+                                        <i class="bi bi-file-earmark-pdf"></i> Generate Form
+                                    </button>
+                                    <button type="button" class="btn btn-secondary ms-2" onclick="resetForm()">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Section -->
+            <div class="row mt-4" id="resultSection" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">✅ Form Generated Successfully</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="resultContent">
+                                <!-- Result details will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-option {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+}
+
+.form-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-option.selected {
+    border-color: #0d6efd;
+    background-color: #f8f9ff;
+}
+
+.form-icon {
+    font-size: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.required-field::after {
+    content: " *";
+    color: red;
+}
+
+.field-help {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+</style>
+
+<script>
+let selectedForm = '';
+let formRequirements = {};
+
+// Form requirements configuration
+const formConfigs = {
+    'statewide_buyer_seller_advisory': {
+        name: 'Statewide Buyer/Seller Advisory',
+        time: '20 seconds',
+        fields: {
+            client: [
+                {name: 'client_name', label: 'Full Name', type: 'text', required: true, help: 'Client\'s legal name'},
+                {name: 'client_phone', label: 'Phone', type: 'tel', required: true, help: 'Primary contact number'},
+                {name: 'client_email', label: 'Email', type: 'email', required: true, help: 'Email address'}
+            ],
+            property: [
+                {name: 'property_address', label: 'Property Address', type: 'text', required: true, help: 'Full street address'},
+                {name: 'property_city', label: 'City', type: 'text', required: true, help: 'Property city'},
+                {name: 'property_type', label: 'Property Type', type: 'select', required: true, help: 'Type of property', options: ['Single Family Home', 'Condominium', 'Townhouse', 'Multi-Family', 'Land', 'Commercial']}
+            ],
+            transaction: [
+                {name: 'transaction_type', label: 'Transaction Type', type: 'select', required: true, help: 'Type of transaction', options: ['Purchase', 'Sale', 'Lease']}
+            ]
+        }
+    },
+    'buyer_representation_agreement': {
+        name: 'Buyer Representation Agreement',
+        time: '30 seconds',
+        fields: {
+            client: [
+                {name: 'client_name', label: 'Full Name', type: 'text', required: true, help: 'Client\'s legal name'},
+                {name: 'client_phone', label: 'Phone', type: 'tel', required: true, help: 'Primary phone number'},
+                {name: 'client_email', label: 'Email', type: 'email', required: true, help: 'Email address'},
+                {name: 'client_address', label: 'Mailing Address', type: 'textarea', required: true, help: 'Complete mailing address'}
+            ],
+            agent: [
+                {name: 'agent_name', label: 'Agent Name', type: 'text', required: true, help: 'Agent\'s full name'},
+                {name: 'agent_license', label: 'License Number', type: 'text', required: true, help: 'Real estate license'},
+                {name: 'brokerage_name', label: 'Brokerage', type: 'text', required: true, help: 'Brokerage firm name'},
+                {name: 'commission_rate', label: 'Commission Rate (%)', type: 'number', required: true, help: 'Commission percentage', step: '0.1'}
+            ]
+        }
+    },
+    'agent_visual_inspection_disclosure': {
+        name: 'Agent Visual Inspection Disclosure',
+        time: '25 seconds',
+        fields: {
+            client: [
+                {name: 'client_name', label: 'Client Name', type: 'text', required: true, help: 'Client authorizing inspection'}
+            ],
+            property: [
+                {name: 'property_address', label: 'Property Address', type: 'text', required: true, help: 'Address of inspected property'},
+                {name: 'property_city', label: 'City', type: 'text', required: true, help: 'Property city'},
+                {name: 'property_type', label: 'Property Type', type: 'select', required: true, help: 'Type of property', options: ['Single Family Home', 'Condominium', 'Townhouse', 'Multi-Family', 'Commercial']}
+            ],
+            transaction: [
+                {name: 'inspection_date', label: 'Inspection Date', type: 'date', required: true, help: 'Date of inspection'}
+            ],
+            agent: [
+                {name: 'agent_name', label: 'Agent Name', type: 'text', required: true, help: 'Inspecting agent'},
+                {name: 'agent_license', label: 'License Number', type: 'text', required: true, help: 'Agent license number'},
+                {name: 'brokerage_name', label: 'Brokerage', type: 'text', required: true, help: 'Agent\'s brokerage'}
+            ]
+        }
+    },
+    'market_conditions_advisory': {
+        name: 'Market Conditions Advisory',
+        time: '30 seconds',
+        fields: {
+            client: [
+                {name: 'client_name', label: 'Client Name', type: 'text', required: true, help: 'Client receiving advisory'},
+                {name: 'client_phone', label: 'Phone', type: 'tel', required: true, help: 'Contact phone'},
+                {name: 'client_email', label: 'Email', type: 'email', required: true, help: 'Email address'}
+            ],
+            property: [
+                {name: 'target_city', label: 'Target City', type: 'text', required: true, help: 'Market area of interest'},
+                {name: 'property_type', label: 'Property Type', type: 'select', required: true, help: 'Property type of interest', options: ['Single Family Home', 'Condominium', 'Townhouse', 'Multi-Family', 'Land', 'Commercial']}
+            ],
+            transaction: [
+                {name: 'transaction_type', label: 'Transaction Type', type: 'select', required: true, help: 'Planned transaction', options: ['Purchase', 'Sale', 'Investment']}
+            ],
+            agent: [
+                {name: 'agent_name', label: 'Agent Name', type: 'text', required: true, help: 'Advising agent'},
+                {name: 'agent_license', label: 'License Number', type: 'text', required: true, help: 'License number'},
+                {name: 'brokerage_name', label: 'Brokerage', type: 'text', required: true, help: 'Agent\'s brokerage'}
+            ]
+        }
+    },
+    'transaction_record': {
+        name: 'Transaction Record',
+        time: '45 seconds',
+        fields: {
+            client: [
+                {name: 'buyer_name', label: 'Buyer Name', type: 'text', required: true, help: 'Buyer\'s full name'},
+                {name: 'buyer_phone', label: 'Phone', type: 'tel', required: true, help: 'Contact phone'},
+                {name: 'buyer_email', label: 'Email', type: 'email', required: true, help: 'Email address'}
+            ],
+            property: [
+                {name: 'property_address', label: 'Property Address', type: 'text', required: true, help: 'Property address'}
+            ],
+            transaction: [
+                {name: 'purchase_price', label: 'Purchase Price ($)', type: 'number', required: true, help: 'Agreed purchase price'},
+                {name: 'earnest_money', label: 'Earnest Money ($)', type: 'number', required: true, help: 'Deposit amount'},
+                {name: 'contract_date', label: 'Contract Date', type: 'date', required: true, help: 'Contract execution date'},
+                {name: 'closing_date', label: 'Closing Date', type: 'date', required: true, help: 'Scheduled closing'},
+                {name: 'listing_agent', label: 'Listing Agent', type: 'text', required: true, help: 'Listing agent name'},
+                {name: 'buyer_agent', label: 'Buyer Agent', type: 'text', required: true, help: 'Buyer\'s agent name'}
+            ]
+        }
+    }
+};
+
+// Form selection handling
+document.addEventListener('DOMContentLoaded', function() {
+    const formOptions = document.querySelectorAll('.form-option');
+    
+    formOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected class from all options
+            formOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Get selected form type
+            selectedForm = this.dataset.form;
+            
+            // Show form section and populate fields
+            showFormSection();
+        });
+    });
+});
+
+function showFormSection() {
+    if (!selectedForm || !formConfigs[selectedForm]) return;
+    
+    const config = formConfigs[selectedForm];
+    document.getElementById('estimatedTime').textContent = config.time;
+    
+    // Populate form fields
+    populateFormFields(config.fields);
+    
+    // Show the form section
+    document.getElementById('quickFormSection').style.display = 'block';
+    
+    // Scroll to form section
+    document.getElementById('quickFormSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function populateFormFields(fields) {
+    const categories = {
+        client: document.querySelector('.client-fields'),
+        property: document.querySelector('.property-fields'),
+        agent: document.querySelector('.agent-fields'),
+        transaction: document.querySelector('.transaction-fields')
+    };
+    
+    // Clear existing fields
+    Object.values(categories).forEach(container => {
+        if (container) container.innerHTML = '';
+    });
+    
+    // Populate fields by category
+    Object.entries(fields).forEach(([category, fieldList]) => {
+        const container = categories[category];
+        if (!container) return;
+        
+        fieldList.forEach(field => {
+            const fieldHtml = createFieldHtml(field);
+            container.insertAdjacentHTML('beforeend', fieldHtml);
+        });
+        
+        // Hide empty categories
+        const categorySection = container.closest('.col-md-6');
+        if (fieldList.length === 0) {
+            categorySection.style.display = 'none';
+        } else {
+            categorySection.style.display = 'block';
+        }
+    });
+}
+
+function createFieldHtml(field) {
+    const requiredClass = field.required ? 'required-field' : '';
+    const requiredAttr = field.required ? 'required' : '';
+    
+    let inputHtml = '';
+    
+    if (field.type === 'select') {
+        inputHtml = `<select class="form-select" name="${field.name}" ${requiredAttr}>
+            <option value="">Choose...</option>
+            ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+        </select>`;
+    } else if (field.type === 'textarea') {
+        inputHtml = `<textarea class="form-control" name="${field.name}" rows="2" ${requiredAttr}></textarea>`;
+    } else {
+        const stepAttr = field.step ? `step="${field.step}"` : '';
+        inputHtml = `<input type="${field.type}" class="form-control" name="${field.name}" ${requiredAttr} ${stepAttr}>`;
+    }
+    
+    return `
+        <div class="form-group mb-3">
+            <label class="form-label ${requiredClass}">${field.label}</label>
+            ${inputHtml}
+            <div class="field-help">${field.help}</div>
+        </div>
+    `;
+}
+
+function generateQuickForm() {
+    if (!selectedForm) {
+        alert('Please select a form type first');
+        return;
+    }
+    
+    // Collect form data
+    const formData = new FormData(document.getElementById('quickFormData'));
+    const data = {};
+    
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    // Validate required fields
+    const config = formConfigs[selectedForm];
+    const missingFields = [];
+    
+    Object.values(config.fields).forEach(fieldList => {
+        fieldList.forEach(field => {
+            if (field.required && (!data[field.name] || data[field.name].trim() === '')) {
+                missingFields.push(field.label);
+            }
+        });
+    });
+    
+    if (missingFields.length > 0) {
+        alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+        return;
+    }
+    
+    // Show loading state
+    const generateBtn = document.querySelector('button[onclick="generateQuickForm()"]');
+    const originalText = generateBtn.innerHTML;
+    generateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+    generateBtn.disabled = true;
+    
+    // Prepare API payload
+    const payload = {
+        form_type: selectedForm,
+        quick_data: data,
+        generation_method: 'quick_form'
+    };
+    
+    // Call the API
+    fetch('/api/forms/quick-generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+        // Reset button
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+        
+        if (result.success) {
+            showResult(result);
+        } else {
+            alert(`Form generation failed: ${result.error}`);
+        }
+    })
+    .catch(error => {
+        // Reset button
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+        
+        console.error('Error:', error);
+        alert(`Request failed: ${error.message}`);
+    });
+}
+
+function showResult(result) {
+    const resultContent = document.getElementById('resultContent');
+    
+    const resultHtml = `
+        <div class="alert alert-success">
+            <h6>✅ ${formConfigs[selectedForm].name} Generated!</h6>
+            <p class="mb-2"><strong>File:</strong> ${result.output_file || 'form_generated.pdf'}</p>
+            <p class="mb-2"><strong>Fields Populated:</strong> ${result.populated_fields || 'All required fields'}</p>
+            <p class="mb-0"><strong>Generation Time:</strong> ${result.generation_time || '< 5 seconds'}</p>
+        </div>
+        
+        <div class="mt-3">
+            <button class="btn btn-primary me-2" onclick="window.open('/download/${result.output_file}', '_blank')">
+                <i class="bi bi-download"></i> Download PDF
+            </button>
+            <button class="btn btn-outline-success me-2" onclick="generateAnother()">
+                <i class="bi bi-plus-circle"></i> Generate Another
+            </button>
+            <button class="btn btn-outline-info" onclick="viewFormPreview()">
+                <i class="bi bi-eye"></i> Preview
+            </button>
+        </div>
+    `;
+    
+    resultContent.innerHTML = resultHtml;
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetForm() {
+    // Clear form selection
+    document.querySelectorAll('.form-option').forEach(opt => opt.classList.remove('selected'));
+    selectedForm = '';
+    
+    // Hide sections
+    document.getElementById('quickFormSection').style.display = 'none';
+    document.getElementById('resultSection').style.display = 'none';
+    
+    // Reset form data
+    document.getElementById('quickFormData').reset();
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function generateAnother() {
+    resetForm();
+}
+
+function viewFormPreview() {
+    alert('Form preview feature coming soon!');
+}
+</script>
+{% endblock %}

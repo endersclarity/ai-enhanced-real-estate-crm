@@ -10,8 +10,20 @@ import json
 from datetime import datetime, date
 from decimal import Decimal
 import os
+import sys
 import google.generativeai as genai
 from functools import wraps
+
+# Import form population modules
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    from form_population_engine import FormPopulationEngine
+    from error_handling_framework import ErrorHandlingFramework
+    FORMS_AVAILABLE = True
+    print("✅ Form population modules loaded")
+except ImportError as e:
+    print(f"⚠️ Form modules not available: {e}")
+    FORMS_AVAILABLE = False
 
 # Import monitoring and SSL configuration (Tasks #9 and #10)
 import sys
@@ -1636,6 +1648,330 @@ if OFFER_CREATION_AVAILABLE:
     print("✅ Offer Creation AI functions integrated with chatbot")
 else:
     print("⚠️  Running without offer creation capabilities")
+
+# Initialize form population engine if available
+if FORMS_AVAILABLE:
+    try:
+        form_engine = FormPopulationEngine(DATABASE_PATH)
+        error_handler = ErrorHandlingFramework()
+        print("✅ Form population engine initialized")
+    except Exception as e:
+        print(f"⚠️ Form engine initialization failed: {e}")
+        FORMS_AVAILABLE = False
+
+# =============================================================================
+# FORM POPULATION ROUTES
+# =============================================================================
+
+@app.route('/forms')
+def forms_dashboard():
+    """Legacy forms dashboard"""
+    return redirect(url_for('quick_forms'))
+
+@app.route('/quick-forms')
+def quick_forms():
+    """Quick form generator interface"""
+    print("[DEBUG] Quick forms route called")
+    if not FORMS_AVAILABLE:
+        print("[DEBUG] Forms not available, redirecting")
+        flash('Form generation is currently unavailable', 'error')
+        return redirect(url_for('dashboard'))
+    
+    print("[DEBUG] Forms available, rendering quick form generator")
+    
+    try:
+        return render_template('quick_form_generator.html')
+    except Exception as e:
+        print(f"[ERROR] Failed to render quick forms: {e}")
+        flash('Error loading form generator', 'error')
+        return redirect(url_for('dashboard'))
+
+@app.route('/forms-legacy')
+def forms_dashboard_legacy():
+    """Legacy forms dashboard (original interface)"""
+    print("[DEBUG] Legacy forms dashboard route called")
+    if not FORMS_AVAILABLE:
+        print("[DEBUG] Forms not available, redirecting")
+        flash('Form generation is currently unavailable', 'error')
+        return redirect(url_for('dashboard'))
+    
+    print("[DEBUG] Forms available, proceeding with legacy dashboard")
+    
+    # Get available forms
+    available_forms = {
+        "california_residential_purchase_agreement": {
+            "display_name": "California Residential Purchase Agreement",
+            "description": "Primary purchase contract for residential real estate transactions",
+            "category": "purchase",
+            "icon": "📄",
+            "estimated_time": "5-10 minutes"
+        },
+        "buyer_representation_agreement": {
+            "display_name": "Buyer Representation and Broker Compensation Agreement", 
+            "description": "Establishes agency relationship between buyer and real estate broker",
+            "category": "representation",
+            "icon": "🤝",
+            "estimated_time": "3-5 minutes"
+        },
+        "transaction_record": {
+            "display_name": "Transaction Record",
+            "description": "Comprehensive record of transaction details and timeline",
+            "category": "documentation",
+            "icon": "📋",
+            "estimated_time": "2-3 minutes"
+        }
+    }
+    
+    # Get recent clients for form generation
+    try:
+        all_clients = db.get_all_clients()
+        print(f"[DEBUG] Found {len(all_clients)} clients from database")
+        # Take first 20 clients and format for dropdown
+        clients = []
+        for client in all_clients[:20]:
+            clients.append((client.id, client.first_name, client.last_name, client.email))
+            print(f"[DEBUG] Added client: {client.first_name} {client.last_name} (ID: {client.id})")
+        print(f"[DEBUG] Final client list for template: {len(clients)} clients")
+    except Exception as e:
+        print(f"Error getting clients for forms: {e}")
+        clients = []
+    
+    return render_template('forms_dashboard.html', 
+                         available_forms=available_forms,
+                         clients=clients)
+
+@app.route('/api/forms/available')
+def get_available_forms():
+    """API endpoint for available forms"""
+    if not FORMS_AVAILABLE:
+        return jsonify({"success": False, "error": "Forms not available"}), 503
+    
+    forms = {
+        "california_residential_purchase_agreement": {
+            "display_name": "California Residential Purchase Agreement",
+            "description": "Primary purchase contract for residential real estate transactions",
+            "icon": "📄"
+        },
+        "buyer_representation_agreement": {
+            "display_name": "Buyer Representation Agreement",
+            "description": "Agency relationship agreement",
+            "icon": "🤝"
+        },
+        "transaction_record": {
+            "display_name": "Transaction Record", 
+            "description": "Transaction documentation",
+            "icon": "📋"
+        }
+    }
+    
+    return jsonify({
+        "success": True,
+        "forms": forms,
+        "total_forms": len(forms)
+    })
+
+@app.route('/api/forms/generate', methods=['POST'])
+def generate_form():
+    """Generate a populated form"""
+    if not FORMS_AVAILABLE:
+        return jsonify({"success": False, "error": "Forms not available"}), 503
+    
+    try:
+        data = request.get_json()
+        form_type = data.get('form_type')
+        client_id = data.get('client_id')
+        
+        if not form_type:
+            return jsonify({"success": False, "error": "Form type is required"}), 400
+        
+        if not client_id:
+            return jsonify({"success": False, "error": "Client ID is required"}), 400
+        
+        # For now, create a simple test transaction ID
+        transaction_id = f"test_txn_{client_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Generate the form
+        result = form_engine.populate_form(
+            transaction_id=transaction_id,
+            form_type=form_type
+        )
+        
+        if result.get("success"):
+            return jsonify({
+                "success": True,
+                "result": result,
+                "message": f"Form generated successfully: {result.get('output_file', 'Unknown file')}",
+                "generated_at": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.get("error", "Unknown error occurred"),
+                "details": result
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Form generation failed: {str(e)}"
+        }), 500
+
+@app.route('/api/forms/quick-generate', methods=['POST'])
+def quick_generate_form():
+    """Generate a form using minimal quick data input"""
+    if not FORMS_AVAILABLE:
+        return jsonify({"success": False, "error": "Forms not available"}), 503
+    
+    try:
+        data = request.get_json()
+        form_type = data.get('form_type')
+        quick_data = data.get('quick_data', {})
+        
+        if not form_type:
+            return jsonify({"success": False, "error": "Form type is required"}), 400
+        
+        if not quick_data:
+            return jsonify({"success": False, "error": "Quick data is required"}), 400
+        
+        # Create a temporary transaction ID for quick generation
+        transaction_id = f"quick_{form_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Convert quick data to CRM format for form population
+        crm_data = convert_quick_data_to_crm_format(quick_data, form_type)
+        
+        # Generate the form using the quick data
+        result = form_engine.populate_form_with_data(
+            transaction_id=transaction_id,
+            form_type=form_type,
+            form_data=crm_data
+        )
+        
+        if result.get("success"):
+            return jsonify({
+                "success": True,
+                "output_file": result.get('output_file'),
+                "populated_fields": result.get('populated_fields', 'All required fields'),
+                "generation_time": result.get('generation_time', '< 5 seconds'),
+                "message": f"Quick form generated successfully!",
+                "form_type": form_type,
+                "generated_at": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.get("error", "Form generation failed"),
+                "details": result
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Quick form generation failed: {str(e)}"
+        }), 500
+
+def convert_quick_data_to_crm_format(quick_data, form_type):
+    """Convert quick form data to CRM database format"""
+    
+    # Base CRM structure
+    crm_data = {
+        "clients": {},
+        "properties": {},
+        "transactions": {},
+        "agents": {}
+    }
+    
+    # Map quick data fields to CRM fields based on common patterns
+    field_mapping = {
+        # Client fields
+        "client_name": ("clients", "first_name", "last_name"),
+        "buyer_name": ("clients", "first_name", "last_name"),
+        "client_phone": ("clients", "phone"),
+        "buyer_phone": ("clients", "phone"),
+        "client_email": ("clients", "email"),
+        "buyer_email": ("clients", "email"),
+        "client_address": ("clients", "mailing_address_line1"),
+        
+        # Property fields
+        "property_address": ("properties", "property_address"),
+        "property_city": ("properties", "property_city"),
+        "property_type": ("properties", "property_type"),
+        "target_city": ("properties", "property_city"),
+        
+        # Transaction fields
+        "transaction_type": ("transactions", "transaction_type"),
+        "purchase_price": ("transactions", "purchase_price"),
+        "earnest_money": ("transactions", "earnest_money"),
+        "contract_date": ("transactions", "contract_date"),
+        "closing_date": ("transactions", "closing_date"),
+        "inspection_date": ("transactions", "inspection_date"),
+        "listing_agent": ("transactions", "selling_agent"),
+        "buyer_agent": ("transactions", "buyer_agent"),
+        
+        # Agent fields
+        "agent_name": ("agents", "first_name", "last_name"),
+        "agent_license": ("agents", "license_number"),
+        "brokerage_name": ("agents", "brokerage"),
+        "commission_rate": ("agents", "commission_split")
+    }
+    
+    # Process each quick data field
+    for quick_field, value in quick_data.items():
+        if quick_field in field_mapping:
+            mapping = field_mapping[quick_field]
+            table = mapping[0]
+            
+            if len(mapping) == 2:
+                # Simple field mapping
+                crm_data[table][mapping[1]] = value
+            elif len(mapping) == 3:
+                # Name field mapping (split full name)
+                if "name" in quick_field.lower() and " " in str(value):
+                    parts = str(value).split(" ", 1)
+                    crm_data[table][mapping[1]] = parts[0]  # first_name
+                    crm_data[table][mapping[2]] = parts[1] if len(parts) > 1 else ""  # last_name
+                else:
+                    crm_data[table][mapping[1]] = value
+    
+    # Add automatic fields
+    crm_data["transactions"]["created_at"] = datetime.now().isoformat()
+    crm_data["clients"]["created_at"] = datetime.now().isoformat()
+    
+    # Set default state for California properties
+    if not crm_data["properties"].get("property_state"):
+        crm_data["properties"]["property_state"] = "CA"
+    
+    return crm_data
+
+@app.route('/api/forms/test')
+def test_forms():
+    """Test endpoint to verify form functionality"""
+    if not FORMS_AVAILABLE:
+        return jsonify({
+            "forms_available": False,
+            "error": "Form modules not loaded"
+        })
+    
+    try:
+        # Test form engine initialization
+        test_result = {
+            "forms_available": True,
+            "form_engine_ready": hasattr(form_engine, 'populate_form'),
+            "error_handler_ready": hasattr(error_handler, 'handle_error'),
+            "database_path": DATABASE_PATH,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return jsonify(test_result)
+        
+    except Exception as e:
+        return jsonify({
+            "forms_available": False,
+            "error": str(e)
+        }), 500
+
+# =============================================================================
+# MAIN CRM ROUTES
+# =============================================================================
 
 @app.route('/')
 def dashboard():

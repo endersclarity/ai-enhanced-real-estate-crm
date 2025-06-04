@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}CAR Forms - Narissa Realty CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>CAR Form Generation</h1>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            
+            <!-- Form Selection -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Available CAR Forms</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for form_id, form_info in available_forms.items() %}
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card h-100 form-card" data-form-id="{{ form_id }}">
+                                        <div class="card-body text-center">
+                                            <div class="form-icon mb-3">{{ form_info.icon }}</div>
+                                            <h6 class="card-title">{{ form_info.display_name }}</h6>
+                                            <p class="card-text small">{{ form_info.description }}</p>
+                                            <div class="mt-auto">
+                                                <small class="text-muted">
+                                                    ⏱️ {{ form_info.estimated_time }}
+                                                </small>
+                                                <div class="mt-2">
+                                                    <button class="btn btn-primary btn-sm" onclick="selectForm('{{ form_id }}', '{{ form_info.display_name }}')">
+                                                        Generate Form
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test API Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">API Testing</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-outline-info me-2" onclick="testFormsAPI()">
+                                        Test Forms API
+                                    </button>
+                                    <button class="btn btn-outline-success me-2" onclick="listAvailableForms()">
+                                        List Available Forms
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div id="apiTestResults" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Generation Modal -->
+<div class="modal fade" id="formGenerationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate CAR Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="formGenerationContent">
+                    <div class="mb-3">
+                        <label for="selectedFormType" class="form-label">Form Type</label>
+                        <input type="text" class="form-control" id="selectedFormType" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="clientSelect" class="form-label">Select Client</label>
+                        <select class="form-select" id="clientSelect">
+                            <option value="">Choose a client...</option>
+                            {% for client in clients %}
+                            <option value="{{ client[0] }}">{{ client[1] }} {{ client[2] }} ({{ client[3] }})</option>
+                            {% endfor %}
+                            <!-- Add hardcoded test clients for immediate testing -->
+                            <option value="1">John Smith (john.smith@email.com)</option>
+                            <option value="2">Test Client (test.client@example.com)</option>
+                            <option value="4">John Doe (john@example.com)</option>
+                            {% if not clients %}
+                            <option disabled>No clients available - add clients first</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> This will generate a test form using sample data. 
+                            Production forms will use actual CRM transaction data.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="generateSelectedForm()">
+                    <i class="bi bi-file-earmark-pdf"></i> Generate Form
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-card {
+    transition: transform 0.2s;
+    cursor: pointer;
+    border: 1px solid #ddd;
+}
+
+.form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-icon {
+    font-size: 2.5rem;
+}
+
+.api-result {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+</style>
+
+<script>
+let selectedFormId = '';
+let selectedFormName = '';
+
+function selectForm(formId, formName) {
+    selectedFormId = formId;
+    selectedFormName = formName;
+    
+    document.getElementById('selectedFormType').value = formName;
+    
+    const modal = new bootstrap.Modal(document.getElementById('formGenerationModal'));
+    modal.show();
+}
+
+function generateSelectedForm() {
+    const clientId = document.getElementById('clientSelect').value;
+    
+    if (!clientId) {
+        alert('Please select a client first');
+        return;
+    }
+    
+    if (!selectedFormId) {
+        alert('Please select a form type');
+        return;
+    }
+    
+    // Show loading state
+    const generateBtn = document.querySelector('.modal-footer .btn-primary');
+    const originalText = generateBtn.innerHTML;
+    generateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+    generateBtn.disabled = true;
+    
+    // Call form generation API
+    fetch('/api/forms/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            form_type: selectedFormId,
+            client_id: clientId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+        
+        if (data.success) {
+            alert(`Form generated successfully!\\n\\nFile: ${data.result.output_file}\\nFields populated: ${data.result.populated_fields}`);
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('formGenerationModal'));
+            modal.hide();
+            
+            // Show result
+            displayApiResult('Form Generation Success', data);
+        } else {
+            alert(`Form generation failed:\\n${data.error}`);
+            displayApiResult('Form Generation Error', data);
+        }
+    })
+    .catch(error => {
+        // Reset button
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+        
+        console.error('Error:', error);
+        alert(`Request failed: ${error.message}`);
+        displayApiResult('Request Error', { error: error.message });
+    });
+}
+
+function testFormsAPI() {
+    fetch('/api/forms/test')
+    .then(response => response.json())
+    .then(data => {
+        displayApiResult('Forms API Test', data);
+    })
+    .catch(error => {
+        displayApiResult('API Test Error', { error: error.message });
+    });
+}
+
+function listAvailableForms() {
+    fetch('/api/forms/available')
+    .then(response => response.json())
+    .then(data => {
+        displayApiResult('Available Forms', data);
+    })
+    .catch(error => {
+        displayApiResult('Available Forms Error', { error: error.message });
+    });
+}
+
+function displayApiResult(title, data) {
+    const resultsDiv = document.getElementById('apiTestResults');
+    const resultHtml = `
+        <div class="api-result">
+            <strong>${title}</strong><br>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+        </div>
+    `;
+    resultsDiv.innerHTML = resultHtml;
+}
+
+// Load initial API test on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(testFormsAPI, 1000);
+});
+</script>
+{% endblock %}

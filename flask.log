@@ -1,22 +1,43 @@
- * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+python-dotenv could not parse statement starting at line 35
+python-dotenv could not parse statement starting at line 35
+✅ Form population modules loaded
+⚠️ Monitoring modules not available: No module named 'quick_fix_monitoring'
+🔍 Import paths: ['/home/ender/.claude/projects/offer-creator/core_app', '/home/ender/.claude/projects/offer-creator']
+✅ Production configuration and Supabase database loaded
+✅ Environment: production
+✅ Database: Supabase PostgreSQL
+✅ AI Integration: Enabled
 ✅ ZipForm AI functions loaded successfully
 ✅ Offer Creation AI functions loaded successfully
+✅ Environment variables validated
+✅ Flask configured for production environment
 ✅ MLS data loaded: 5 listings from Listing.csv
 ✅ ZipForm AI functions integrated with chatbot
 ✅ Offer Creation AI functions integrated with chatbot
+[DEBUG] Current working directory: /home/ender/.claude/projects/offer-creator
+[DEBUG] Form templates directory: /home/ender/.claude/projects/offer-creator/form_templates
+[DEBUG] Output directory: /home/ender/.claude/projects/offer-creator/output
+✅ Form population engine initialized
+🏠 Starting Real Estate CRM Application...
+✅ Environment variables validated
+🌐 DigitalOcean deployment detected (PORT=3001)
+🌍 Environment: production
+🔧 Debug mode: False
+📡 Host: 0.0.0.0:3001
+📝 Navigate to: http://localhost:3001
+💻 Dashboard: http://localhost:3001
+👥 Client Management: http://localhost:3001/clients
+🏘️ Property Management: http://localhost:3001/properties
+💼 Transaction Management: http://localhost:3001/transactions
+🤖 AI Chatbot: http://localhost:3001/debug_chat
+⚠️ Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'
  * Serving Flask app 'real_estate_crm'
- * Debug mode: on
+ * Debug mode: off
 [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5001
- * Running on http://172.22.206.209:5001
+ * Running on http://127.0.0.1:3001
+ * Running on http://172.22.206.209:3001
 [33mPress CTRL+C to quit[0m
- * Restarting with stat
- * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
- * Debugger is active!
- * Debugger PIN: 899-757-416
-✅ ZipForm AI functions loaded successfully
-✅ Offer Creation AI functions loaded successfully
-✅ MLS data loaded: 5 listings from Listing.csv
-✅ ZipForm AI functions integrated with chatbot
-✅ Offer Creation AI functions integrated with chatbot
+172.22.206.209 - - [02/Jun/2025 22:53:46] "GET / HTTP/1.1" 200 -
+172.22.206.209 - - [02/Jun/2025 22:53:53] "[31m[1mPOST /api/forms/quick-generate HTTP/1.1[0m" 400 -
+172.22.206.209 - - [02/Jun/2025 22:54:20] "[31m[1mPOST /api/forms/quick-generate HTTP/1.1[0m" 400 -

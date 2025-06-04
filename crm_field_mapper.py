@@ -274,6 +274,85 @@ class CRMFieldMapper:
             "data_transformations": list(self.mapping_config["data_transformations"].keys()),
             "coverage_percentage": (len(form_config["field_mappings"]) / 50) * 100
         }
+    
+    def map_data_to_form(self, data: Dict[str, Any], form_type: str) -> Dict[str, Any]:
+        """
+        Map provided data directly to form fields (for quick form generation)
+        
+        Args:
+            data: Dictionary of data organized by CRM tables (clients, properties, transactions, agents)
+            form_type: Type of form to map to
+            
+        Returns:
+            Mapped field data ready for form population
+        """
+        try:
+            print(f"[DEBUG] Mapping data for form type: {form_type}")
+            print(f"[DEBUG] Input data keys: {list(data.keys())}")
+            
+            # For now, create a simple mapping that returns the data as-is
+            # This is a basic implementation for quick form generation
+            field_mappings = {}
+            
+            # Extract data from each table
+            clients_data = data.get("clients", {})
+            properties_data = data.get("properties", {})
+            transactions_data = data.get("transactions", {})
+            agents_data = data.get("agents", {})
+            
+            print(f"[DEBUG] Clients data: {clients_data}")
+            print(f"[DEBUG] Properties data: {properties_data}")
+            print(f"[DEBUG] Transactions data: {transactions_data}")
+            print(f"[DEBUG] Agents data: {agents_data}")
+            
+            # Create basic field mappings (simplified for quick generation)
+            if clients_data:
+                if "first_name" in clients_data and "last_name" in clients_data:
+                    field_mappings["buyer_name"] = f"{clients_data['first_name']} {clients_data['last_name']}"
+                if "phone" in clients_data:
+                    field_mappings["buyer_phone"] = clients_data["phone"]
+                if "email" in clients_data:
+                    field_mappings["buyer_email"] = clients_data["email"]
+            
+            if properties_data:
+                if "property_address" in properties_data:
+                    field_mappings["property_address"] = properties_data["property_address"]
+                if "property_city" in properties_data:
+                    field_mappings["property_city"] = properties_data["property_city"]
+                if "property_type" in properties_data:
+                    field_mappings["property_type"] = properties_data["property_type"]
+            
+            if transactions_data:
+                if "transaction_type" in transactions_data:
+                    field_mappings["transaction_type"] = transactions_data["transaction_type"]
+                if "purchase_price" in transactions_data:
+                    field_mappings["purchase_price"] = transactions_data["purchase_price"]
+            
+            if agents_data:
+                if "first_name" in agents_data and "last_name" in agents_data:
+                    field_mappings["agent_name"] = f"{agents_data['first_name']} {agents_data['last_name']}"
+                if "license_number" in agents_data:
+                    field_mappings["agent_license"] = agents_data["license_number"]
+                if "brokerage" in agents_data:
+                    field_mappings["brokerage_name"] = agents_data["brokerage"]
+            
+            print(f"[DEBUG] Generated field mappings: {field_mappings}")
+            
+            return {
+                "success": True,
+                "form_type": form_type,
+                "field_mappings": field_mappings,
+                "mapped_fields_count": len(field_mappings),
+                "generation_method": "quick_data_mapping"
+            }
+            
+        except Exception as e:
+            print(f"[ERROR] Data mapping failed: {str(e)}")
+            return {
+                "success": False,
+                "error": f"Data mapping error: {str(e)}",
+                "form_type": form_type
+            }
 
 if __name__ == "__main__":
     # Test the mapping system

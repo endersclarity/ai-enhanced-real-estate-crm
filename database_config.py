@@ -106,6 +106,63 @@ class DatabaseConfig:
                 }
         
         return {'total_clients': 0, 'buyers': 0, 'sellers': 0, 'active_clients': 0}
+    
+    def get_all_clients(self):
+        """Get all clients from the database"""
+        if self.use_supabase:
+            try:
+                response = requests.get(
+                    f"{self.supabase_url}/rest/v1/clients?select=*&order=created_at.desc",
+                    headers=self.headers
+                )
+                if response.status_code == 200:
+                    clients_data = response.json()
+                    # Convert to format expected by the template (objects, not tuples)
+                    clients = []
+                    for client in clients_data:
+                        # Create a simple object-like structure
+                        client_obj = type('Client', (), {})()
+                        client_obj.id = client.get('id')
+                        client_obj.client_type = client.get('client_type', 'buyer')
+                        client_obj.first_name = client.get('first_name', '')
+                        client_obj.last_name = client.get('last_name', '')
+                        client_obj.email = client.get('email', '')
+                        client_obj.home_phone = client.get('home_phone', '')
+                        client_obj.city = client.get('city', '')
+                        client_obj.created_at = client.get('created_at', '')
+                        clients.append(client_obj)
+                    return clients
+                else:
+                    print(f"Supabase error: {response.status_code} - {response.text}")
+                    return []
+            except Exception as e:
+                print(f"Error fetching all clients from Supabase: {e}")
+                return []
+        else:
+            # SQLite fallback
+            query = '''
+                SELECT id, client_type, first_name, last_name, email, home_phone, 
+                       city, created_at
+                FROM clients 
+                ORDER BY created_at DESC
+            '''
+            result = self.execute_query(query, fetch_all=True)
+            if result:
+                # Convert tuples to objects for template compatibility
+                clients = []
+                for row in result:
+                    client_obj = type('Client', (), {})()
+                    client_obj.id = row[0]
+                    client_obj.client_type = row[1]
+                    client_obj.first_name = row[2]
+                    client_obj.last_name = row[3]
+                    client_obj.email = row[4]
+                    client_obj.home_phone = row[5]
+                    client_obj.city = row[6]
+                    client_obj.created_at = row[7]
+                    clients.append(client_obj)
+                return clients
+            return []
 
 # Global database instance
 db = DatabaseConfig()
