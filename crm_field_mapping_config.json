@@ -329,15 +329,15 @@
         }
       },
       "validation_rules": {
-        "non_empty": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc945e0>",
-        "email_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94680>",
-        "phone_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94720>",
-        "currency_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc947c0>",
-        "date_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94860>",
-        "zip_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94900>",
-        "state_code": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc949a0>",
-        "license_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94a40>",
-        "apn_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94ae0>"
+        "non_empty": "required",
+        "email_format": "email",
+        "phone_format": "phone",
+        "currency_format": "currency",
+        "date_format": "date",
+        "zip_format": "zip_code",
+        "state_code": "state_abbreviation",
+        "license_format": "license_number",
+        "apn_format": "assessor_parcel_number"
       },
       "default_values": {
         "property_state": "CA",

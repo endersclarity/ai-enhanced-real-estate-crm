@@ -59,7 +59,9 @@ except ImportError as e:
         SECRET_KEY = 'real-estate-crm-secret-key-2025'
         USE_SUPABASE = True
         ENABLE_AI_CHATBOT = True
-        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+        if not GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY environment variable is required")
     
     current_config = FallbackConfig()
     
@@ -184,7 +186,9 @@ except Exception as e:
 DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'real_estate_crm.db')
 
 # Gemini API Configuration from environment
-GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY')
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable is required for AI functionality")
 
 # Configure Gemini API
 def configure_gemini():

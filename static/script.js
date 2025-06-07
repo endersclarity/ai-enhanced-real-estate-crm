@@ -1,3 +1,37 @@
+// Input sanitization utility functions
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return input;
+    
+    // Remove potentially dangerous HTML tags and scripts
+    const div = document.createElement('div');
+    div.textContent = input;
+    let sanitized = div.innerHTML;
+    
+    // Remove common XSS patterns
+    sanitized = sanitized
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .replace(/data:\s*text\/html/gi, '')
+        .replace(/vbscript:/gi, '')
+        .replace(/expression\s*\(/gi, '');
+    
+    // Limit length to prevent DoS
+    return sanitized.substring(0, 10000);
+}
+
+function sanitizeFormData(data) {
+    const sanitized = {};
+    for (const [key, value] of Object.entries(data)) {
+        if (typeof value === 'string') {
+            sanitized[key] = sanitizeInput(value);
+        } else {
+            sanitized[key] = value;
+        }
+    }
+    return sanitized;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('offerForm');
     const generateBtn = document.getElementById('generateBtn');
@@ -56,13 +90,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data[field]) data[field] = false;
         });
         
+        // Sanitize form data before sending
+        const sanitizedData = sanitizeFormData(data);
+        
         try {
             const response = await fetch('/api/generate-offer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(sanitizedData)
             });
             
             const result = await response.json();            
@@ -100,16 +137,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (submitConversationBtn && conversationTextInput && conversationResultDisplay) {
         console.log("Process Conversation UI elements found. Adding event listener.");
         submitConversationBtn.addEventListener('click', async function() {
-            const conversationText = conversationTextInput.value.trim();
+            const rawConversationText = conversationTextInput.value.trim();
             conversationResultDisplay.innerHTML = ''; // Clear previous results
             conversationResultDisplay.style.display = 'none';
 
-
-            if (!conversationText) {
+            if (!rawConversationText) {
                 conversationResultDisplay.innerHTML = '<div class="alert alert-warning">Please paste some text to process.</div>';
                 conversationResultDisplay.style.display = 'block';
                 return;
             }
+
+            // Sanitize the conversation text before sending
+            const conversationText = sanitizeInput(rawConversationText);
 
             conversationResultDisplay.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Processing...';
             conversationResultDisplay.style.display = 'block';

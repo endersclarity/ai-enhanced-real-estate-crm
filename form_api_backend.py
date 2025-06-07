@@ -191,12 +191,10 @@ class FormBackendService:
             logger.warning(f"Transaction ID not provided for form {form_id} which may require it.")
 
 
-        engine = FormPopulationEngine() # Already instantiated in __init__ as self.population_engine, but task asks for new one.
-                                        # Using self.population_engine is better practice. For now, following instructions.
+        # Use existing population engine instance for consistency and performance
+        crm_data = self.population_engine.fetch_crm_data(client_id, property_id, transaction_id)
 
-        crm_data = engine.fetch_crm_data(client_id, property_id, transaction_id)
-
-        form_config = engine.mapping_config['form_mappings'].get(form_id)
+        form_config = self.population_engine.mapping_config['form_mappings'].get(form_id)
         if not form_config:
             raise NotFound(f"Mapping configuration not found for form: {form_id}")
 
@@ -205,7 +203,7 @@ class FormBackendService:
         default_values = form_config.get('default_values', {})
 
         for pdf_field_name, field_config_details in form_mappings.items():
-            raw_value = engine.resolve_field_value(field_config_details['crm_source'], crm_data)
+            raw_value = self.population_engine.resolve_field_value(field_config_details['crm_source'], crm_data)
 
             if not raw_value and pdf_field_name in default_values:
                 raw_value = default_values[pdf_field_name]
@@ -380,16 +378,20 @@ def download_form(form_id: str, file_name: str):
         output_dir = Path('output')
         file_path = output_dir / file_name
         
-        # Security: ensure file exists and is in output directory
-        if not file_path.exists() or not str(file_path).startswith(str(output_dir.absolute())):
-            raise NotFound("File not found")
+        # Security: ensure file is in output directory (path traversal protection)
+        if not str(file_path.resolve()).startswith(str(output_dir.absolute())):
+            raise NotFound("Invalid file path")
         
-        return send_file(
-            file_path,
-            as_attachment=True,
-            download_name=file_name,
-            mimetype='application/pdf'
-        )
+        # Atomic check and serve - avoid race condition by using try/except
+        try:
+            return send_file(
+                file_path,
+                as_attachment=True,
+                download_name=file_name,
+                mimetype='application/pdf'
+            )
+        except FileNotFoundError:
+            raise NotFound("File not found")
         
     except NotFound as e:
         return jsonify({'success': False, 'error': str(e)}), 404
