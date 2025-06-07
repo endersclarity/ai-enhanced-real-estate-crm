@@ -329,15 +329,15 @@
         }
       },
       "validation_rules": {
-        "non_empty": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc945e0>",
-        "email_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94680>",
-        "phone_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94720>",
-        "currency_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc947c0>",
-        "date_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94860>",
-        "zip_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94900>",
-        "state_code": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc949a0>",
-        "license_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94a40>",
-        "apn_format": "<function CRMFieldMapper.create_purchase_agreement_mapping.<locals>.<lambda> at 0x7f759fc94ae0>"
+        "non_empty": "required",
+        "email_format": "email",
+        "phone_format": "phone",
+        "currency_format": "currency",
+        "date_format": "date",
+        "zip_format": "zip_code",
+        "state_code": "state_abbreviation",
+        "license_format": "license_number",
+        "apn_format": "assessor_parcel_number"
       },
       "default_values": {
         "property_state": "CA",
@@ -367,6 +367,71 @@
           "down_payment",
           "loan_amount"
         ]
+      }
+    },
+    "buyer_representation_agreement": {
+      "form_name": "Buyer_Representation_Agreement_BLANK_TEMPLATE.pdf",
+      "form_pages": 4,
+      "mappings": {
+        "client_full_name": {
+          "crm_source": "clients.first_name + ' ' + clients.last_name",
+          "field_type": "text",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 650},
+          "required": true,
+          "validation": "non_empty"
+        },
+        "client_address_full": {
+          "crm_source": "clients.address_line1 + ', ' + clients.city + ', ' + clients.state + ' ' + clients.zip_code",
+          "field_type": "text",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 630},
+          "required": true,
+          "validation": "address_format"
+        },
+        "agent_full_name": {
+          "crm_source": "agents.first_name + ' ' + agents.last_name",
+          "field_type": "text",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 580},
+          "required": true,
+          "validation": "non_empty"
+        },
+        "agent_license_number": {
+          "crm_source": "agents.license_number",
+          "field_type": "text",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 560},
+          "required": true,
+          "validation": "license_format"
+        },
+        "brokerage_name": {
+          "crm_source": "agents.brokerage",
+          "field_type": "text",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 540},
+          "required": true,
+          "validation": "non_empty"
+        },
+        "agreement_start_date": {
+          "crm_source": "transactions.contract_date",
+          "field_type": "date",
+          "page": 1,
+          "coordinates": {"x": 150, "y": 500},
+          "required": true,
+          "validation": "date_format"
+        },
+        "agreement_end_date": {
+          "crm_source": "transactions.closing_date",
+          "field_type": "date",
+          "page": 1,
+          "coordinates": {"x": 350, "y": 500},
+          "required": true,
+          "validation": "date_format"
+        }
+      },
+      "default_values": {
+        "property_state": "CA"
       }
     }
   },

@@ -68,12 +68,14 @@ class CoordinateBasedFormFiller:
         return {
             "California_Residential_Purchase_Agreement": california_purchase_coordinates,
             "Buyer_Representation_Agreement": {
-                "client_name": {"x": 100, "y": 700, "page": 1},
-                "client_address": {"x": 100, "y": 680, "page": 1},
-                "agent_name": {"x": 100, "y": 600, "page": 1},
-                "commission_rate": {"x": 300, "y": 580, "page": 1},
-                "start_date": {"x": 100, "y": 540, "page": 1},
-                "end_date": {"x": 300, "y": 540, "page": 1}
+                "client_full_name": {"x": 120, "y": 700, "page": 1},
+                "client_address_full": {"x": 120, "y": 680, "page": 1},
+                "agent_full_name": {"x": 120, "y": 600, "page": 1},
+                "agent_license_number": {"x": 400, "y": 600, "page": 1},
+                "brokerage_name": {"x": 120, "y": 580, "page": 1},
+                "agreement_start_date": {"x": 120, "y": 540, "page": 1},
+                "agreement_end_date": {"x": 350, "y": 540, "page": 1},
+                "commission_rate": {"x": 120, "y": 520, "page": 1}
             },
             "Transaction_Record": {
                 "transaction_id": {"x": 100, "y": 700, "page": 1},
@@ -229,12 +231,14 @@ class CoordinateBasedFormFiller:
                 "title_company": "Pacific Title Company"
             },
             "Buyer_Representation_Agreement": {
-                "client_name": "John and Jane Smith",
-                "client_address": "123 Main Street, Anytown, CA 90210",
-                "agent_name": "Sarah Wilson, Narissa Realty",
-                "commission_rate": "2.5%",
-                "start_date": "January 1, 2025",
-                "end_date": "June 30, 2025"
+                "client_full_name": "John Jacob Smith",
+                "client_address_full": "456 Oak Avenue, Springfield, ST 12345",
+                "agent_full_name": "Alice Agent",
+                "agent_license_number": "CALDRE#01234567",
+                "brokerage_name": "Responsive Realty",
+                "agreement_start_date": "2024-07-01",
+                "agreement_end_date": "2024-12-31",
+                "commission_rate": "3.0%"
             },
             "Transaction_Record": {
                 "transaction_id": "TX-2025-001",

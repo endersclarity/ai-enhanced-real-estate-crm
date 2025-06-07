@@ -59,7 +59,9 @@ except ImportError as e:
         SECRET_KEY = 'real-estate-crm-secret-key-2025'
         USE_SUPABASE = True
         ENABLE_AI_CHATBOT = True
-        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+        GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+        if not GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY environment variable is required")
     
     current_config = FallbackConfig()
     
@@ -184,7 +186,9 @@ except Exception as e:
 DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'real_estate_crm.db')
 
 # Gemini API Configuration from environment
-GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY', 'your-gemini-api-key-here')
+GEMINI_API_KEY = getattr(current_config, 'GEMINI_API_KEY', None) or os.environ.get('GEMINI_API_KEY')
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable is required for AI functionality")
 
 # Configure Gemini API
 def configure_gemini():
@@ -727,6 +731,55 @@ def create_langchain_tools():
         """,
         func=create_transaction_tool
     ))
+
+    # Update Property Tool
+    def update_property_tool(property_id: int, **kwargs) -> str:
+        """Update an existing property's information"""
+        result = update_property(property_id=property_id, **kwargs)
+        return f"Property update result: {result['message']}"
+
+    tools.append(Tool(
+        name="update_property",
+        description="""Update an existing property's information in the CRM.
+        Parameters:
+        - property_id (required): The ID of the property to update.
+        - address_line1 (optional): New street address.
+        - city (optional): New city.
+        - state (optional): New state code (e.g., CA).
+        - zip_code (optional): New ZIP code.
+        - listing_price (optional): New listing price as integer.
+        - bedrooms (optional): New number of bedrooms.
+        - bathrooms (optional): New number of bathrooms.
+        - square_feet (optional): New square footage.
+        - property_type (optional): New property type (e.g., single_family, condo).
+        - mls_number (optional): New MLS listing number.
+        - status (optional): New status (e.g., active, pending, sold).
+        Use when user wants to modify existing property information.
+        """,
+        func=update_property_tool
+    ))
+
+    # Update Transaction Tool
+    def update_transaction_tool(transaction_id: int, **kwargs) -> str:
+        """Update an existing transaction's information"""
+        result = update_transaction(transaction_id=transaction_id, **kwargs)
+        return f"Transaction update result: {result['message']}"
+
+    tools.append(Tool(
+        name="update_transaction",
+        description="""Update an existing transaction's information in the CRM.
+        Parameters:
+        - transaction_id (required): The ID of the transaction to update.
+        - purchase_price (optional): New purchase price as integer.
+        - closing_date (optional): New closing date (YYYY-MM-DD format).
+        - status (optional): New status (e.g., pending, under_contract, closed).
+        - offer_date (optional): New offer date (YYYY-MM-DD format).
+        - buyer_client_id (optional): New buyer client ID.
+        - seller_client_id (optional): New seller client ID.
+        Use when user wants to modify existing transaction information.
+        """,
+        func=update_transaction_tool
+    ))
     
     return tools
 
@@ -741,7 +794,7 @@ def build_function_calling_context():
 
 🧠 CORE BEHAVIOR:
 1. **UNDERSTAND** what the user wants to do with their CRM data
-2. **ANALYZE** the message for client information (names, phones, emails, budgets, preferences)
+2. **ANALYZE** the message for client, property, and transaction information (names, addresses, dates, financial details, specific terms/contingencies). Determine if the request implies creating a new record or updating an existing one (e.g., by looking for phrases like 'new client', 'add property' vs. 'client X changed their phone', 'update status for property Y').
 3. **CALL FUNCTIONS** directly when you identify CRM operations needed
 4. **EXTRACT CAREFULLY** - Handle edge cases with precision
 
@@ -807,6 +860,23 @@ Input: "client emma watson, 9876543210, wants house"
     phone="(987) 654-3210"  # 10-digit number formatted
 )
 
+**EXAMPLE 7 - Client Update:**
+Input: "John Smith's email is now john.new@example.com and he's also looking for properties up to $700k."
+→ First, call find_clients(search_term="John Smith")
+→ If a unique client is found (e.g., client_id 123), then call update_client(client_id=123, email="john.new@example.com", budget_max=700000)
+→ If multiple clients or no client found, ask user for clarification.
+
+**EXAMPLE 8 - Property Update:**
+Input: "The property at 456 Oak Ave, Springfield is now listed at $350,000 and has a new status: active."
+→ First, call find_properties(search_term="456 Oak Ave, Springfield")
+→ If a unique property is found (e.g., property_id 456), then call update_property(property_id=456, listing_price=350000, status="active")
+→ If multiple properties or no property found, ask user for clarification.
+
+**EXAMPLE 9 - Transaction Update:**
+Input: "For transaction T789, the closing date has been pushed to Sept 15, 2024, and the purchase price was adjusted to $495,000."
+→ Call update_transaction(transaction_id="T789", closing_date="2024-09-15", purchase_price=495000)
+
+
 🔍 ENHANCED EXTRACTION RULES:
 - **Names**: Always Title Case (emma watson → Emma Watson)
 - **Phones**: 
@@ -823,6 +893,10 @@ Input: "client emma watson, 9876543210, wants house"
   - "wants to buy", "looking to purchase", "buyer" → "buyer"
   - "selling", "wants to sell", "seller" → "seller"
 - **Emails**: Always lowercase normalization
+- **Contingencies**: Extract contingency types and durations (e.g., "17-day inspection contingency" → type: inspection, duration: 17 days).
+- **Real Estate Dates**: Identify specific dates like 'offer date', 'acceptance date', 'closing date', 'inspection deadline', 'contract date'. Format as YYYY-MM-DD.
+- **Financials**: Extract not just price/budget, but also 'down payment', 'loan amount', 'earnest money deposit', 'HOA fees'. Convert to numbers.
+- **Participant Roles**: Identify roles mentioned like 'buyer's agent', 'listing agent', 'escrow company', 'lender'.
 
 🚨 VALIDATION & SAFETY:
 - Always validate extracted data before function calls
@@ -978,7 +1052,7 @@ def extract_entities_from_text(text):
         if GEMINI_CONFIGURED:
             result = get_gemini_response_with_function_calling(
                 message=f"Extract client information from: {text}",
-                context="Extract structured client data including first_name, last_name, phone, email, budget information."
+                context="Extract all relevant real estate entities. This includes names, roles (buyer, seller, agent), contact information (phone, email), property details (address, type, features, MLS number), transaction details (prices, amounts, dates like offer date, closing date, contingency periods/deadlines), and any other key terms or clauses mentioned in the context of a real estate transaction or CRM update."
             )
             
             # If AI found function calls, extract entities from the parameters
@@ -1583,6 +1657,168 @@ def find_properties(search_term=None, min_price=None, max_price=None, bedrooms=N
             'message': f'Error searching properties: {str(e)}'
         }
 
+def update_property(property_id, **kwargs):
+    """
+    Update an existing property's information in the CRM database.
+
+    Args:
+        property_id (int): Property ID to update.
+        **kwargs: Fields to update (address_line1, city, listing_price, status, etc.)
+
+    Returns:
+        dict: {'success': bool, 'message': str, 'updated_fields': list}
+    """
+    try:
+        conn = get_db_connection()
+
+        # Check if property exists
+        existing = conn.execute('SELECT id FROM properties WHERE id = ?', (property_id,)).fetchone()
+        if not existing:
+            conn.close()
+            return {
+                'success': False,
+                'message': f'Property with ID {property_id} not found',
+                'updated_fields': []
+            }
+
+        # Define valid column names for the properties table
+        valid_fields = [
+            'address_line1', 'address_line2', 'city', 'state', 'zip_code', 'county',
+            'mls_number', 'property_type', 'listing_type', 'status',
+            'bedrooms', 'bathrooms', 'square_feet', 'lot_size', 'lot_size_sqft', 'lot_size_acres',
+            'year_built', 'listing_price', 'property_description',
+            'public_remarks', 'private_remarks', 'assessor_parcel_number',
+            'lot_number', 'subdivision', 'stories', 'garage_type', 'garage_capacity',
+            'hoa_name', 'hoa_fee', 'hoa_frequency', 'school_district',
+            'elementary_school', 'middle_school', 'high_school'
+        ]
+
+        update_clauses = []
+        params = []
+        updated_keys = []
+
+        for key, value in kwargs.items():
+            if key in valid_fields and value is not None: # Ensure value is not None before updating
+                update_clauses.append(f'{key} = ?')
+                params.append(value)
+                updated_keys.append(key)
+
+        if not update_clauses:
+            conn.close()
+            return {
+                'success': False,
+                'message': 'No valid fields provided for update or all values are None',
+                'updated_fields': []
+            }
+
+        query = f"UPDATE properties SET {', '.join(update_clauses)} WHERE id = ?"
+        params.append(property_id)
+
+        conn.execute(query, params)
+        conn.commit()
+        conn.close()
+
+        return {
+            'success': True,
+            'message': f'Successfully updated property ID {property_id}',
+            'updated_fields': updated_keys
+        }
+
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Error updating property: {str(e)}',
+            'updated_fields': []
+        }
+
+def update_transaction(transaction_id, **kwargs):
+    """
+    Update an existing transaction's information in the CRM database.
+
+    Args:
+        transaction_id (int): Transaction ID to update.
+        **kwargs: Fields to update (purchase_price, status, closing_date, etc.)
+
+    Returns:
+        dict: {'success': bool, 'message': str, 'updated_fields': list}
+    """
+    try:
+        conn = get_db_connection()
+
+        existing = conn.execute('SELECT id FROM transactions WHERE id = ?', (transaction_id,)).fetchone()
+        if not existing:
+            conn.close()
+            return {
+                'success': False,
+                'message': f'Transaction with ID {transaction_id} not found',
+                'updated_fields': []
+            }
+
+        valid_fields = [
+            'property_id', 'buyer_client_id', 'seller_client_id', 'transaction_type', 'status',
+            'purchase_price', 'earnest_money_amount', 'down_payment_amount', 'down_payment_percentage',
+            'loan_amount', 'loan_term_years', 'interest_rate', 'offer_date', 'acceptance_date',
+            'contract_date', 'close_of_escrow_date', 'possession_date', 'inspection_deadline',
+            'appraisal_deadline', 'loan_approval_deadline', 'contingency_removal_date',
+            'financing_contingency', 'inspection_contingency', 'appraisal_contingency',
+            'title_contingency', 'sale_of_property_contingency', 'homeowners_insurance_contingency',
+            'hoa_approval_contingency', 'as_is_sale', 'seller_financing', 'notes',
+            'escrow_company_id', 'title_company_id', 'lender_id'
+        ]
+
+        update_clauses = []
+        params = []
+        updated_keys = []
+
+        for key, value in kwargs.items():
+            if key in valid_fields:
+                # Handle boolean fields specifically if they might come as strings from AI
+                if key in [
+                    'financing_contingency', 'inspection_contingency', 'appraisal_contingency',
+                    'title_contingency', 'sale_of_property_contingency', 'homeowners_insurance_contingency',
+                    'hoa_approval_contingency', 'as_is_sale', 'seller_financing'
+                ] and isinstance(value, str):
+                     value = value.lower() in ['true', '1', 'yes']
+                elif value is None and key not in [ # List fields that can be explicitly set to NULL
+                    'buyer_client_id', 'seller_client_id', 'escrow_company_id',
+                    'title_company_id', 'lender_id' # etc.
+                ]:
+                    # Skip if value is None for fields that shouldn't be set to None implicitly
+                    # This prevents accidentally nullifying fields if not provided
+                    continue
+
+                update_clauses.append(f'{key} = ?')
+                params.append(value)
+                updated_keys.append(key)
+
+        if not update_clauses:
+            conn.close()
+            return {
+                'success': False,
+                'message': 'No valid fields provided for update or all relevant values are None',
+                'updated_fields': []
+            }
+
+        query = f"UPDATE transactions SET {', '.join(update_clauses)} WHERE id = ?"
+        params.append(transaction_id)
+
+        conn.execute(query, params)
+        conn.commit()
+        conn.close()
+
+        return {
+            'success': True,
+            'message': f'Successfully updated transaction ID {transaction_id}',
+            'updated_fields': updated_keys
+        }
+
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Error updating transaction: {str(e)}',
+            'updated_fields': []
+        }
+
 # Enhanced function registry for AI discovery (includes both legacy and ZipForm functions)
 AI_CALLABLE_FUNCTIONS = {
     # Legacy functions (for backward compatibility)
@@ -1620,6 +1856,20 @@ AI_CALLABLE_FUNCTIONS = {
         'required_params': [],
         'optional_params': ['search_term', 'min_price', 'max_price', 'bedrooms', 'city', 'limit'],
         'example': 'find_properties(city="Sacramento", min_price=400000, max_price=600000, bedrooms=3)'
+    },
+    'update_property': {
+        'function': update_property,
+        'description': 'Update existing property information in the CRM.',
+        'required_params': ['property_id'],
+        'optional_params': ['address_line1', 'city', 'state', 'zip_code', 'listing_price', 'bedrooms', 'bathrooms', 'square_feet', 'property_type', 'mls_number', 'status'],
+        'example': 'update_property(123, listing_price=550000, status="sold")'
+    },
+    'update_transaction': {
+        'function': update_transaction,
+        'description': 'Update existing transaction information in the CRM.',
+        'required_params': ['transaction_id'],
+        'optional_params': ['purchase_price', 'closing_date', 'status', 'offer_date', 'buyer_client_id', 'seller_client_id'],
+        'example': 'update_transaction(456, purchase_price=760000, status="closed")'
     }
 }
 
@@ -2335,34 +2585,111 @@ def chat():
 
 @app.route('/process_email', methods=['POST'])
 def process_email():
-    """Handle email processing requests from the chatbot"""
+    """Handle email processing requests, extract entities, and propose client creation."""
     try:
         data = request.get_json()
         if not data or 'email_content' not in data:
             return jsonify({'error': 'No email content provided'}), 400
-        
+
         email_content = data['email_content']
         print(f"[EMAIL PROCESSING] Received content length: {len(email_content)} characters")
         print(f"[EMAIL PROCESSING] Content preview: {email_content[:200]}...")
-        
-        # For now, log the email content and return a placeholder response
-        # TODO: Implement data mapping and CRM integration in Task #6
-        extracted_data = {
-            'status': 'received',
-            'content_length': len(email_content),
-            'timestamp': datetime.now().isoformat()
-        }
-        
-        print(f"[EMAIL PROCESSING] Extracted data: {extracted_data}")
-        
-        return jsonify({
-            'extracted_data': extracted_data,
-            'message': 'Email received and logged successfully'
-        })
-        
+
+        raw_extracted_entities = extract_entities_from_text(email_content)
+        print(f"[EMAIL PROCESSING] Raw extracted entities: {raw_extracted_entities}")
+
+        if not raw_extracted_entities:
+            return jsonify({
+                'message': 'Could not extract any entities from the email.',
+                'extracted_entities': None
+            }), 200
+
+        # Focus on Client Creation
+        first_name = raw_extracted_entities.get('first_name')
+        last_name = raw_extracted_entities.get('last_name')
+        email = raw_extracted_entities.get('email')
+        phone = raw_extracted_entities.get('phone')
+
+        if first_name and last_name and (email or phone):
+            operation_type = 'create_client'
+            # Prepare data for validation, ensuring all potential fields are included
+            operation_data_for_validation = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'email': email,
+                'phone': phone,
+                'client_type': raw_extracted_entities.get('client_type', 'buyer'), # Default if not present
+                # Add any other fields that extract_entities_from_text might return and are relevant for create_client
+                'budget_min': raw_extracted_entities.get('budget_min'),
+                'budget_max': raw_extracted_entities.get('budget_max'),
+                'area_preference': raw_extracted_entities.get('area_preference'),
+                'bedrooms': raw_extracted_entities.get('bedrooms')
+            }
+            # Remove None values to avoid issues with validation or database insertion for optional fields
+            operation_data_for_validation = {k: v for k, v in operation_data_for_validation.items() if v is not None}
+
+
+            is_valid, validation_errors, cleaned_data = validate_extracted_data(operation_data_for_validation, operation_type)
+
+            if is_valid:
+                operation_id = f"op_{int(datetime.now().timestamp())}_process_email_create_client"
+
+                name_parts = [cleaned_data.get('first_name'), cleaned_data.get('last_name')]
+                full_name = " ".join(filter(None, name_parts))
+                proposal_text = f"Based on the email, I can create a new client: {full_name}."
+                if cleaned_data.get('email'):
+                    proposal_text += f" Email: {cleaned_data['email']}."
+                if cleaned_data.get('phone'):
+                    proposal_text += f" Phone: {cleaned_data['phone']}."
+                proposal_text += " Should I proceed?"
+
+                pending_operations[operation_id] = {
+                    'operation_type': operation_type,
+                    'operation_data': cleaned_data,
+                    'context': "Email Processing",
+                    'user_message': email_content, # Storing the original email content
+                    'status': 'pending_confirmation',
+                    'created_at': datetime.now().isoformat(),
+                    'proposal_text': proposal_text,
+                    'validation_passed': True # From chat endpoint logic
+                }
+
+                print(f"[EMAIL PROCESSING] Proposed operation: {operation_id} - {operation_type}")
+
+                return jsonify({
+                    'message': "Email processed. Please confirm the proposed action.",
+                    'operation_id': operation_id,
+                    'proposed_operation': {
+                        'type': operation_type,
+                        'data': cleaned_data,
+                        'proposal_text': proposal_text
+                    },
+                    'extracted_entities': raw_extracted_entities
+                }), 200
+            else:
+                # Data is NOT valid after validation
+                print(f"[EMAIL PROCESSING] Validation errors for client creation: {validation_errors}")
+                return jsonify({
+                    'error': 'validation_error',
+                    'message': 'Extracted client information is not valid.',
+                    'validation_errors': validation_errors,
+                    'extracted_entities': raw_extracted_entities,
+                    'response': f"I extracted client information from the email, but it's not quite right:\n\n{format_validation_errors(validation_errors)}\n\nPlease review and provide corrections if needed.",
+                    'error_type': 'validation' # Consistent with /chat endpoint
+                }), 400
+        else:
+            # Essential client information is NOT extracted
+            print("[EMAIL PROCESSING] Could not extract sufficient client information.")
+            return jsonify({
+                'message': 'Could not extract sufficient client information from the email to propose an action.',
+                'extracted_entities': raw_extracted_entities
+            }), 200
+
     except Exception as e:
-        print(f"[EMAIL PROCESSING ERROR] {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
+        print(f"[EMAIL PROCESSING ERROR] {type(e).__name__}: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
 
 # ============================================================================
 # USER CONFIRMATION WORKFLOW ENDPOINTS
@@ -2678,6 +3005,8 @@ def execute_database_operation(operation_type, operation_data):
             return create_property(**operation_data)
         elif operation_type == 'update_property':
             return update_property(**operation_data)
+        elif operation_type == 'update_transaction':
+            return update_transaction(**operation_data)
         elif operation_type == 'create_transaction':
             return create_transaction(**operation_data)
         elif operation_type == 'find_clients':
