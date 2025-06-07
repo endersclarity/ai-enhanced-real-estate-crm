@@ -173,6 +173,65 @@ class FormBackendService:
         except Exception as e:
             logger.error(f"❌ Form population failed: {e}")
             raise InternalServerError(f"Form population failed: {str(e)}")
+
+    def get_form_preview_data(self, form_id: str, client_id: str, property_id: str, transaction_id: Optional[str] = None) -> Dict[str, Any]:
+        """Provide data for form field preview before actual population"""
+        logger.info(f"🚀 Processing form preview data request: {form_id} for client {client_id}, property {property_id}")
+
+        if form_id not in self.supported_forms:
+            raise NotFound(f"Form '{form_id}' is not supported.")
+
+        required_data_sources = self.supported_forms[form_id].get('required_data', [])
+        if 'client' in required_data_sources and not client_id:
+            raise BadRequest("client_id is required for this form preview.")
+        if 'property' in required_data_sources and not property_id:
+            raise BadRequest("property_id is required for this form preview.")
+        if 'transaction' in required_data_sources and not transaction_id:
+            # This could be optional for preview, or you might decide it's required
+            logger.warning(f"Transaction ID not provided for form {form_id} which may require it.")
+
+
+        engine = FormPopulationEngine() # Already instantiated in __init__ as self.population_engine, but task asks for new one.
+                                        # Using self.population_engine is better practice. For now, following instructions.
+
+        crm_data = engine.fetch_crm_data(client_id, property_id, transaction_id)
+
+        form_config = engine.mapping_config['form_mappings'].get(form_id)
+        if not form_config:
+            raise NotFound(f"Mapping configuration not found for form: {form_id}")
+
+        preview_fields = []
+        form_mappings = form_config.get('mappings', {})
+        default_values = form_config.get('default_values', {})
+
+        for pdf_field_name, field_config_details in form_mappings.items():
+            raw_value = engine.resolve_field_value(field_config_details['crm_source'], crm_data)
+
+            if not raw_value and pdf_field_name in default_values:
+                raw_value = default_values[pdf_field_name]
+
+            # Ensure value is serializable (e.g. convert None to string "N/A" or empty string)
+            display_value = raw_value if raw_value is not None else ""
+
+
+            preview_fields.append({
+                'pdf_field_name': pdf_field_name,
+                'display_label': pdf_field_name.replace('_', ' ').title(),
+                'value_from_crm': display_value,
+                'crm_source_expression': field_config_details['crm_source'],
+                'page': field_config_details.get('page', 'N/A'),
+                'coordinates': field_config_details.get('coordinates', 'N/A')
+            })
+
+        logger.info(f"✅ Successfully prepared preview data for {form_id} with {len(preview_fields)} fields.")
+        return {
+            'success': True,
+            'form_id': form_id,
+            'form_name': self.supported_forms[form_id]['name'],
+            'preview_fields': preview_fields,
+            'context_ids': {'client_id': client_id, 'property_id': property_id, 'transaction_id': transaction_id},
+            'timestamp': datetime.now().isoformat()
+        }
     
     def validate_form_request(self, form_id: str, field_data: Dict[str, Any]) -> Dict[str, Any]:
         """Handle form validation request"""
@@ -353,7 +412,8 @@ def api_status():
                 '/api/forms/populate',
                 '/api/forms/validate',
                 '/api/forms/download/<form_id>/<file_name>',
-                '/api/forms/status'
+                '/api/forms/status',
+                '/api/forms/preview_data'
             ],
             'population_engine_status': 'loaded',
             'validation_framework_status': 'loaded',
