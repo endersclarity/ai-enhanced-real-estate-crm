@@ -1,0 +1,32 @@
+{
+  "test_timestamp": "2025-06-04T09:04:06.610567",
+  "base_url": "http://172.22.206.209:5001",
+  "tests": [
+    {
+      "test": "client_search_with_query",
+      "status": "PASS",
+      "details": "Found 1 clients"
+    },
+    {
+      "test": "client_search_recent",
+      "status": "PASS",
+      "details": "Found 1 recent clients"
+    },
+    {
+      "test": "property_search",
+      "status": "FAIL",
+      "details": "HTTP 500"
+    },
+    {
+      "test": "quick_forms_page",
+      "status": "PASS",
+      "details": "Page loads with autofill UI"
+    },
+    {
+      "test": "crm_integration",
+      "status": "PASS",
+      "details": "Generated form with 7 fields"
+    }
+  ],
+  "overall_status": "MOSTLY WORKING"
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MLS Search Debug Test</title>
+    <script>
+        async function testMLSSearch() {
+            try {
+                console.log('Testing MLS search...');
+                const response = await fetch('/api/mls/search?q=nevada%20city&limit=3');
+                const data = await response.json();
+                console.log('MLS API Response:', data);
+                
+                const resultsDiv = document.getElementById('results');
+                if (data.success && data.listings) {
+                    console.log('Found', data.listings.length, 'listings');
+                    data.listings.forEach((listing, index) => {
+                        console.log(`Listing ${index + 1}:`, listing);
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <h4>${listing.address}</h4>
+                            <p>${listing.city}, ${listing.state} ${listing.zip_code}</p>
+                            <p>Price: $${listing.list_price.toLocaleString()}</p>
+                            <p>MLS: ${listing.mls_id}</p>
+                            <hr>
+                        `;
+                        resultsDiv.appendChild(div);
+                    });
+                    resultsDiv.innerHTML += `<p><strong>Total found: ${data.listings.length} of ${data.total_available} available</strong></p>`;
+                } else {
+                    resultsDiv.innerHTML = '<p>No results found or API error</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>MLS Search Debug Test</h1>
+    <button onclick="testMLSSearch()">Test Nevada City Search</button>
+    <div id="results"></div>
+</body>
+</html>

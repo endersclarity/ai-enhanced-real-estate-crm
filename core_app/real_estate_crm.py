@@ -2126,7 +2126,7 @@ def properties_list():
         query = '''
             SELECT id, street_address, city, state, zip_code,
                    bedrooms, bathrooms, square_feet, listed_price, created_at,
-                   mls_number, property_type
+                   mls_number, property_type, zillow_url, realtor_url, mls_portal_url
             FROM properties 
             WHERE 1=1
         '''

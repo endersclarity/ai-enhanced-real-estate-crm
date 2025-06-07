@@ -69,6 +69,7 @@
                                     <th>Details</th>
                                     <th>Price</th>
                                     <th>MLS</th>
+                                    <th>Links</th>
                                     <th>Added</th>
                                     <th>Actions</th>
                                 </tr>
@@ -101,6 +102,28 @@
                                         {% else %}
                                             <span class="text-muted">No MLS</span>
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            {% if property.zillow_url %}
+                                            <a href="{{ property.zillow_url }}" target="_blank" class="btn btn-outline-primary btn-sm mb-1" title="View on Zillow">
+                                                <i class="fas fa-external-link-alt"></i> Zillow
+                                            </a>
+                                            {% endif %}
+                                            {% if property.realtor_url %}
+                                            <a href="{{ property.realtor_url }}" target="_blank" class="btn btn-outline-success btn-sm mb-1" title="View on Realtor.com">
+                                                <i class="fas fa-external-link-alt"></i> Realtor
+                                            </a>
+                                            {% endif %}
+                                            {% if property.mls_portal_url %}
+                                            <a href="{{ property.mls_portal_url }}" target="_blank" class="btn btn-outline-info btn-sm" title="View on MLS">
+                                                <i class="fas fa-external-link-alt"></i> MLS
+                                            </a>
+                                            {% endif %}
+                                            {% if not property.zillow_url and not property.realtor_url and not property.mls_portal_url %}
+                                            <small class="text-muted">No links</small>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     <td>
                                         <small>{{ property.created_at[:10] if property.created_at else 'N/A' }}</small>
