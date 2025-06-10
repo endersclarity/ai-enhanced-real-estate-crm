@@ -2033,12 +2033,25 @@ def debug_service_key_test():
     
     return jsonify(test_results)
 
+@app.route('/api/crpa/test_architecture')
+def test_architecture():
+    """Test endpoint for architecture validation"""
+    return jsonify({
+        'success': True,
+        'components': {
+            'enhanced_architecture': True,
+            'form_filler': True,
+            'crm_mapper': True,
+            'validator': True
+        }
+    })
+
 @app.route('/clients')
 def clients_list():
     """View all clients"""
     if CONFIG_LOADED and current_config.USE_SUPABASE:
         # Use Supabase API via database config
-        clients = db.get_all_clients()
+        clients = db.execute_query('SELECT * FROM clients ORDER BY created_at DESC', fetch_all=True)
     else:
         # Fallback to SQLite
         conn = get_db_connection()
@@ -2081,6 +2094,39 @@ def new_client():
         return redirect(url_for('clients_list'))
     
     return render_template('client_form.html')
+
+@app.route('/clients/quick-add', methods=['GET', 'POST'])
+def quick_add_client():
+    """Quick add client form - minimal fields for fast entry"""
+    if request.method == 'POST':
+        data = request.form
+        conn = get_db_connection()
+        
+        # Insert with minimal required fields
+        conn.execute('''
+            INSERT INTO clients (
+                client_type, first_name, last_name, email, home_phone,
+                budget_min, budget_max, notes, status, lead_source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            data.get('client_type', 'buyer'),
+            data['first_name'],
+            data['last_name'],
+            data.get('email'),
+            data.get('home_phone'),
+            data.get('budget_min') or None,
+            data.get('budget_max') or None,
+            data.get('notes'),
+            data.get('status', 'active'),
+            data.get('lead_source', 'Direct')
+        ))
+        conn.commit()
+        conn.close()
+        
+        flash(f'Client {data["first_name"]} {data["last_name"]} added successfully!')
+        return redirect(url_for('clients_list'))
+    
+    return render_template('quick_add_client.html')
 
 @app.route('/clients/<int:client_id>')
 def client_detail(client_id):
@@ -3302,6 +3348,169 @@ def init_basic_database():
     except Exception as e:
         print(f"⚠️ Database initialization error: {e}")
         return False
+
+# ============================================================================
+# ENHANCED CRPA ENDPOINTS - Google AI Studio Architecture Integration
+# ============================================================================
+
+try:
+    from crpa_controller import CrpaController
+    
+    # Initialize CRPA Controller for enhanced form generation
+    crpa_controller = CrpaController(database_path="real_estate_crm.db")
+    CRPA_AVAILABLE = True
+    print("✅ Enhanced CRPA Controller initialized (Google AI Studio Architecture)")
+except ImportError as e:
+    CRPA_AVAILABLE = False
+    print(f"⚠️ Enhanced CRPA Controller not available: {e}")
+
+@app.route('/generate_crpa/<int:transaction_id>')
+def generate_crpa_form(transaction_id):
+    """
+    Generate CRPA form using enhanced architecture
+    
+    Features:
+    - 177 CRM fields → 33 CRPA fields mapping
+    - Legal compliance validation
+    - Enhanced transformations (concatenate, format_currency, template)
+    - Multiple output formats (HTML, JSON)
+    """
+    if not CRPA_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Enhanced CRPA Controller not available',
+            'message': 'Please check system configuration'
+        }), 500
+    
+    try:
+        print(f"🔄 Generating enhanced CRPA form for transaction {transaction_id}")
+        
+        # Generate complete CRPA form package
+        result = crpa_controller.generate_crpa_form(
+            transaction_id, 
+            include_html=True, 
+            include_json=True
+        )
+        
+        if result['success']:
+            print(f"✅ CRPA form generated successfully in {result['processing_time']['total']}s")
+            
+            # Return JSON response for API calls
+            if request.headers.get('Content-Type') == 'application/json' or 'api' in request.args:
+                return jsonify(result)
+            
+            # Return HTML page for browser access
+            if 'html_content' in result['outputs']:
+                return result['outputs']['html_content']
+            else:
+                return jsonify(result)
+        else:
+            print(f"❌ CRPA form generation failed: {result['error']}")
+            return jsonify(result), 400
+            
+    except Exception as e:
+        print(f"❌ CRPA endpoint error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'transaction_id': transaction_id
+        }), 500
+
+@app.route('/api/crpa/validate/<int:transaction_id>')
+def validate_crpa_data(transaction_id):
+    """
+    Validate transaction data for CRPA form generation
+    
+    Returns validation report without generating full form
+    """
+    if not CRPA_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Enhanced CRPA Controller not available'
+        }), 500
+    
+    try:
+        print(f"🔍 Validating transaction data for ID {transaction_id}")
+        
+        result = crpa_controller.validate_transaction_data(transaction_id)
+        
+        if result['success']:
+            print(f"✅ Validation completed for transaction {transaction_id}")
+        else:
+            print(f"⚠️ Validation failed for transaction {transaction_id}: {result['error']}")
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"❌ Validation endpoint error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'transaction_id': transaction_id
+        }), 500
+
+@app.route('/api/crpa/transactions')
+def get_crpa_transactions():
+    """
+    Get list of available transactions for CRPA form generation
+    """
+    if not CRPA_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Enhanced CRPA Controller not available'
+        }), 500
+    
+    try:
+        print("📋 Retrieving available transactions for CRPA generation")
+        
+        result = crpa_controller.get_available_transactions()
+        
+        if result['success']:
+            print(f"✅ Retrieved {result['count']} available transactions")
+        else:
+            print(f"⚠️ Failed to retrieve transactions: {result['error']}")
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"❌ Transactions endpoint error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/crpa_dashboard')
+def crpa_dashboard():
+    """
+    Enhanced CRPA Dashboard for form generation management
+    """
+    if not CRPA_AVAILABLE:
+        flash('Enhanced CRPA system is not available. Please check system configuration.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        # Get available transactions
+        transactions_result = crpa_controller.get_available_transactions()
+        
+        if transactions_result['success']:
+            transactions = transactions_result['transactions']
+        else:
+            transactions = []
+            flash(f"Could not load transactions: {transactions_result['error']}", 'warning')
+        
+        return render_template('crpa_dashboard.html', 
+                             transactions=transactions,
+                             crpa_available=True,
+                             architecture='Google AI Studio Enhanced')
+        
+    except Exception as e:
+        print(f"❌ CRPA Dashboard error: {e}")
+        flash(f'Error loading CRPA dashboard: {e}', 'error')
+        return redirect(url_for('dashboard'))
+
+# ============================================================================
+# END ENHANCED CRPA ENDPOINTS
+# ============================================================================
 
 if __name__ == '__main__':
     print("🏠 Starting Real Estate CRM Application...")

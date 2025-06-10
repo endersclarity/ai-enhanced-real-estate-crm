@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Add Client{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-plus-fill"></i> Quick Add Client</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/clients/quick-add">
+                        <!-- Basic Info -->
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="first_name" class="form-label">First Name*</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col">
+                                <label for="last_name" class="form-label">Last Name*</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="mb-3">
+                            <label for="home_phone" class="form-label">Phone Number*</label>
+                            <input type="tel" class="form-control" id="home_phone" name="home_phone" 
+                                   placeholder="(555) 123-4567" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="client@email.com">
+                        </div>
+
+                        <!-- Client Type -->
+                        <div class="mb-3">
+                            <label for="client_type" class="form-label">Client Type*</label>
+                            <select class="form-select" id="client_type" name="client_type" required>
+                                <option value="buyer">Buyer</option>
+                                <option value="seller">Seller</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+
+                        <!-- Budget (for buyers) -->
+                        <div id="budget-section" class="row mb-3">
+                            <div class="col">
+                                <label for="budget_min" class="form-label">Budget Min</label>
+                                <input type="number" class="form-control" id="budget_min" name="budget_min" 
+                                       placeholder="$400,000">
+                            </div>
+                            <div class="col">
+                                <label for="budget_max" class="form-label">Budget Max</label>
+                                <input type="number" class="form-control" id="budget_max" name="budget_max" 
+                                       placeholder="$600,000">
+                            </div>
+                        </div>
+
+                        <!-- Quick Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Quick Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                      placeholder="Looking for 3BR in downtown area..."></textarea>
+                        </div>
+
+                        <!-- Hidden fields for defaults -->
+                        <input type="hidden" name="status" value="active">
+                        <input type="hidden" name="lead_source" value="Direct">
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Add Client
+                            </button>
+                            <a href="/clients" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- AI Assistant Hint -->
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-lightbulb"></i> <strong>Pro Tip:</strong> 
+                        After adding the client, use the AI chatbot to add detailed information like 
+                        "John wants a pool and his wife works from home" or 
+                        "Pre-approved for $550k with Wells Fargo"
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide budget fields based on client type
+document.getElementById('client_type').addEventListener('change', function() {
+    const budgetSection = document.getElementById('budget-section');
+    if (this.value === 'seller') {
+        budgetSection.style.display = 'none';
+    } else {
+        budgetSection.style.display = 'flex';
+    }
+});
+
+// Phone number formatting
+document.getElementById('home_phone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 6) {
+        value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+    } else if (value.length >= 3) {
+        value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

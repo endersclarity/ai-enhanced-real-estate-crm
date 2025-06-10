@@ -11,9 +11,19 @@
                 <i class="bi bi-download"></i> Export
             </button>
         </div>
-        <a href="{{ url_for('new_client') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-person-plus"></i> Add Client
-        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-plus"></i> Add Client
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('quick_add_client') }}">
+                    <i class="bi bi-lightning"></i> Quick Add
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('new_client') }}">
+                    <i class="bi bi-file-text"></i> Full Form
+                </a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -36,10 +46,14 @@
     <div class="col-md-3">
         <select class="form-select" id="locationFilter">
             <option value="">All Locations</option>
+            {% set cities = [] %}
             {% for client in clients %}
-                {% if client.address_city %}
-                    <option value="{{ client.address_city }}">{{ client.address_city }}</option>
+                {% if client.city and client.city not in cities %}
+                    {% if cities.append(client.city) %}{% endif %}
                 {% endif %}
+            {% endfor %}
+            {% for city in cities|sort %}
+                <option value="{{ city }}">{{ city }}</option>
             {% endfor %}
         </select>
     </div>
@@ -88,13 +102,13 @@
                             {% if client.email %}
                                 <div><i class="bi bi-envelope"></i> {{ client.email }}</div>
                             {% endif %}
-                            {% if client.phone_primary %}
-                                <div><i class="bi bi-telephone"></i> {{ client.phone_primary }}</div>
+                            {% if client.home_phone %}
+                                <div><i class="bi bi-telephone"></i> {{ client.home_phone }}</div>
                             {% endif %}
                         </td>
                         <td>
-                            {% if client.address_city and client.address_state %}
-                                {{ client.address_city }}, {{ client.address_state }}
+                            {% if client.city %}
+                                {{ client.city }}
                             {% else %}
                                 <span class="text-muted">Not provided</span>
                             {% endif %}
@@ -119,7 +133,7 @@
                                     <i class="bi bi-envelope"></i>
                                 </button>
                                 <button class="btn btn-outline-success btn-sm" 
-                                        onclick="callClient('{{ client.phone_primary }}')" title="Call">
+                                        onclick="callClient('{{ client.home_phone }}')" title="Call">
                                     <i class="bi bi-telephone"></i>
                                 </button>
                             </div>

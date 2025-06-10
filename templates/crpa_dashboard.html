@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}Enhanced CRPA Form Generator{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="mb-0">🏠 Enhanced CRPA Form Generator</h1>
+                            <p class="mb-0">Google AI Studio Architecture | 177 CRM Fields → 33 CRPA Fields</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge badge-light">{{ architecture }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🏗️ Enhanced Architecture Components</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded bg-light">
+                                <i class="fas fa-database fa-2x text-primary mb-2"></i>
+                                <h6>CrmDataMapper</h6>
+                                <small class="text-muted">177→33 field mapping with transformations</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded bg-light">
+                                <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                <h6>DataValidator</h6>
+                                <small class="text-muted">Legal compliance & cross-field validation</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded bg-light">
+                                <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                                <h6>Enhanced Transformations</h6>
+                                <small class="text-muted">concatenate, format_currency, template</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 border rounded bg-light">
+                                <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                                <h6>Multi-Format Output</h6>
+                                <small class="text-muted">HTML, JSON, PDF generation</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🚀 Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" onclick="testEnhancedArchitecture()">
+                            <i class="fas fa-cogs"></i> Test Enhanced Architecture
+                        </button>
+                        <button class="btn btn-info btn-lg" onclick="viewAvailableTransactions()">
+                            <i class="fas fa-list"></i> View Available Transactions
+                        </button>
+                        <button class="btn btn-success btn-lg" onclick="generateSampleForm()">
+                            <i class="fas fa-file-alt"></i> Generate Sample CRPA Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="p-3">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                                <h6 class="mt-2">CRPA Available</h6>
+                                <span class="badge badge-success">{{ 'Yes' if crpa_available else 'No' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3">
+                                <i class="fas fa-database fa-2x text-info"></i>
+                                <h6 class="mt-2">Transactions</h6>
+                                <span class="badge badge-info">{{ transactions|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Transactions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💼 Available Transactions for CRPA Generation</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshTransactions()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if transactions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Property Address</th>
+                                    <th>Purchase Price</th>
+                                    <th>Closing Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td><span class="badge badge-primary">#{{ transaction.id }}</span></td>
+                                    <td>{{ transaction.client_name or 'Unknown Client' }}</td>
+                                    <td>{{ transaction.property_address or 'Unknown Property' }}</td>
+                                    <td>
+                                        {% if transaction.purchase_price %}
+                                            <strong class="text-success">${{ "{:,.0f}".format(transaction.purchase_price) }}</strong>
+                                        {% else %}
+                                            <span class="text-muted">Not specified</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transaction.closing_date or 'TBD' }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-success btn-sm" onclick="generateCrpaForm({{ transaction.id }})">
+                                                <i class="fas fa-file-contract"></i> Generate CRPA
+                                            </button>
+                                            <button class="btn btn-info btn-sm" onclick="validateTransaction({{ transaction.id }})">
+                                                <i class="fas fa-check-double"></i> Validate
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Transactions Available</h5>
+                        <p class="text-muted">Create transactions in the CRM to generate CRPA forms.</p>
+                        <a href="{{ url_for('new_transaction') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Transaction
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal fade" id="resultsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enhanced CRPA Generation Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <!-- Content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="openFullPage" style="display: none;">
+                        <i class="fas fa-external-link-alt"></i> Open Full Page
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+        <div class="text-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+            <div class="mt-2">
+                <strong>Generating Enhanced CRPA Form...</strong><br>
+                <small class="text-muted">Running Google AI Studio Architecture</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced CRPA Dashboard JavaScript Functions
+
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+function generateCrpaForm(transactionId) {
+    showLoading();
+    
+    console.log(`🔄 Generating enhanced CRPA form for transaction ${transactionId}`);
+    
+    // Generate form and display in new window
+    const url = `/generate_crpa/${transactionId}`;
+    
+    fetch(url)
+        .then(response => {
+            hideLoading();
+            if (response.ok) {
+                // Open in new window for full experience
+                window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                
+                // Show success message
+                showSuccessMessage(`✅ CRPA form generated successfully for transaction ${transactionId}!`);
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Form generation failed');
+                });
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('CRPA generation error:', error);
+            showErrorMessage(`❌ Failed to generate CRPA form: ${error.message}`);
+        });
+}
+
+function validateTransaction(transactionId) {
+    showLoading();
+    
+    console.log(`🔍 Validating transaction ${transactionId}`);
+    
+    fetch(`/api/crpa/validate/${transactionId}`)
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            
+            if (data.success) {
+                const validation = data.validation;
+                let resultHtml = `
+                    <div class="alert alert-${validation.is_valid ? 'success' : 'warning'}">
+                        <h5>📊 Validation Results for Transaction ${transactionId}</h5>
+                        <p><strong>Status:</strong> ${validation.summary}</p>
+                        <p><strong>Legal Compliance:</strong> ${validation.legal_compliance}</p>
+                        <p><strong>Field Completion:</strong> ${(validation.completion_rate * 100).toFixed(1)}%</p>
+                        <p><strong>Business Rules:</strong> ${validation.business_rules_passed ? 'Passed' : 'Failed'}</p>
+                    </div>
+                `;
+                
+                document.getElementById('modalContent').innerHTML = resultHtml;
+                const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+                modal.show();
+                
+                console.log('✅ Validation completed:', validation);
+            } else {
+                showErrorMessage(`❌ Validation failed: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Validation error:', error);
+            showErrorMessage(`❌ Validation error: ${error.message}`);
+        });
+}
+
+function testEnhancedArchitecture() {
+    showLoading();
+    
+    console.log('🧪 Testing enhanced architecture components');
+    
+    fetch('/api/crpa/transactions')
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            
+            if (data.success) {
+                let resultHtml = `
+                    <div class="alert alert-success">
+                        <h5>🚀 Enhanced Architecture Test Results</h5>
+                        <p><strong>Status:</strong> ✅ All components operational</p>
+                        <p><strong>Available Transactions:</strong> ${data.count}</p>
+                        <p><strong>Architecture:</strong> Google AI Studio Enhanced</p>
+                        <p><strong>Components:</strong> CrmDataMapper, DataValidator, Enhanced Transformations</p>
+                    </div>
+                `;
+                
+                document.getElementById('modalContent').innerHTML = resultHtml;
+                const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+                modal.show();
+                
+                showSuccessMessage('✅ Enhanced architecture test completed successfully!');
+            } else {
+                showErrorMessage(`❌ Architecture test failed: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Architecture test error:', error);
+            showErrorMessage(`❌ Architecture test error: ${error.message}`);
+        });
+}
+
+function viewAvailableTransactions() {
+    showLoading();
+    
+    fetch('/api/crpa/transactions')
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            
+            if (data.success) {
+                location.reload(); // Refresh page to show updated transactions
+            } else {
+                showErrorMessage(`❌ Failed to load transactions: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Load transactions error:', error);
+            showErrorMessage(`❌ Error loading transactions: ${error.message}`);
+        });
+}
+
+function generateSampleForm() {
+    // Use transaction ID 1 as sample
+    generateCrpaForm(1);
+}
+
+function refreshTransactions() {
+    showLoading();
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function showSuccessMessage(message) {
+    const alertHtml = `
+        <div class="alert alert-success alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert-success');
+        alerts.forEach(alert => alert.remove());
+    }, 5000);
+}
+
+function showErrorMessage(message) {
+    const alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert-danger');
+        alerts.forEach(alert => alert.remove());
+    }, 8000);
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏠 Enhanced CRPA Dashboard initialized');
+    console.log('🏗️ Architecture: Google AI Studio Enhanced');
+    console.log('📊 Available transactions: {{ transactions|length }}');
+});
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.spinner-border {
+    animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+.position-fixed {
+    position: fixed !important;
+}
+</style>
+{% endblock %}
