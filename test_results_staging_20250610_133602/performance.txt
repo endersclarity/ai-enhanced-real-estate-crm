@@ -1,0 +1,5 @@
+Response time check:
+/: 0.002269s
+/clients: 0.001926s
+/properties: 0.001970s
+/transactions: 0.001955s

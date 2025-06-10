@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # DEV INSTANCE - For fucking around, debugging, adding features
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: offer-creator-dev
+    ports:
+      - "5001:5000"
+    volumes:
+      - .:/app  # Full access for live changes
+      - dev_venv:/opt/venv  # Separate venv
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=1
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=sqlite:////app/dev_crm.db
+      - INSTANCE_NAME=DEV
+    working_dir: /app
+    command: python core_app/real_estate_crm.py
+    networks:
+      - offer-network
+
+  # STAGING INSTANCE - Clean, tested, ready to deploy
+  staging:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev  # Same Dockerfile for now
+    container_name: offer-creator-staging
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./app:/app/app:ro  # Read-only app code
+      - ./core_app:/app/core_app:ro  # Read-only core
+      - ./templates:/app/templates:ro  # Read-only templates
+      - ./static:/app/static:ro  # Read-only static
+      - staging_data:/app/data  # Separate data volume
+      - staging_venv:/opt/venv  # Separate venv
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - PYTHONUNBUFFERED=1
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=sqlite:////app/data/staging_crm.db
+      - INSTANCE_NAME=STAGING
+    working_dir: /app
+    command: python core_app/real_estate_crm.py
+    networks:
+      - offer-network
+
+volumes:
+  dev_venv:
+  staging_venv:
+  staging_data:
+
+networks:
+  offer-network:
+    driver: bridge

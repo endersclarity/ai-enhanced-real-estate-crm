@@ -1,0 +1,3 @@
+
+=== STDERR ===
+open /home/ender/.claude/projects/offer-creator/ai-debug/docker-compose.dev.yml: no such file or directory

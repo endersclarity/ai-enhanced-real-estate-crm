@@ -1,0 +1,100 @@
+
+Claude Code, I need you to debug this error in my Real Estate CRM:
+
+**Error Summary:**
+Client Management page returns 500 error
+
+**System State:**
+- Timestamp: 2025-06-09T22:59:16.433067
+- Container Status: running (Port: 0.0.0.0:5000->5000/tcp)
+- Database: Exists (Size: 81920 bytes)
+
+**Error Details:**
+
+- Endpoint: http://localhost:5000/clients
+- Status Code: 500
+- Error Type: http_error
+
+
+**Recent Docker Logs:**
+```
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1486, in full_dispatch_request
+app-1  |     rv = self.handle_user_exception(e)
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+app-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1486, in full_dispatch_request
+app-1  |     rv = self.handle_user_exception(e)
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1484, in full_dispatch_request
+...
+app-1  |     rv = self.handle_user_exception(e)
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1484, in full_dispatch_request
+app-1  |     rv = self.dispatch_request()
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^
+...
+app-1  |     rv = self.dispatch_request()
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1469, in dispatch_request
+app-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+app-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/core_app/real_estate_crm.py", line 2041, in clients_list
+app-1  |     clients = db.get_all_clients()
+app-1  |               ^^^^^^^^^^^^^^^^^^^^
+...
+app-1  |     clients = db.get_all_clients()
+app-1  |               ^^^^^^^^^^^^^^^^^^^^
+app-1  | AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'
+app-1  |  * Detected change in '/app/ai-debug/human_control.py', reloading
+app-1  |  * Restarting with stat
+...
+app-1  | 💼 Transaction Management: http://localhost:5000/transactions
+app-1  | 🤖 AI Chatbot: http://localhost:5000/debug_chat
+app-1  | ⚠️ Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'
+app-1  |  * Debugger is active!
+app-1  |  * Debugger PIN: 120-984-258
+...
+```
+
+**Code Context:**
+
+File: core_app/real_estate_crm.py
+Line: 2041
+
+Code snippet:
+```python
+        test_results['service_key_error'] = str(e)
+    
+    return jsonify(test_results)
+
+@app.route('/clients')
+def clients_list():
+    """View all clients"""
+    if CONFIG_LOADED and current_config.USE_SUPABASE:
+        # Use Supabase API via database config
+        clients = db.get_all_clients()
+    else:
+        # Fallback to SQLite
+        conn = get_db_connection()
+        clients = conn.execute('''
+            SELECT id, client_type, first_name, last_name, email, home_phone, 
+                   city, created_at
+            FROM clients 
+            ORDER BY last_name, first_name
+        ''').fetchall()
+        conn.close()
+
+```
+
+
+**What I need:**
+1. Analyze this error and identify the root cause
+2. Suggest a specific fix with exact code changes
+3. Explain any risks or side effects
+4. Provide verification steps
+
+You have full access to the codebase. Please read any additional files you need to understand the context better.

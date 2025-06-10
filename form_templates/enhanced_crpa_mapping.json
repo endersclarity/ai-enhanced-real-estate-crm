@@ -1,0 +1,424 @@
+{
+  "form_name": "California Residential Purchase Agreement - Enhanced",
+  "form_id": "crpa_enhanced",
+  "description": "Enhanced 33-field CRPA template with Google AI Studio transformation rules",
+  "version": "2.0",
+  "enhanced_features": [
+    "Sophisticated field transformations (concatenate, format_currency, template)",
+    "Legal compliance validation rules",
+    "Cross-field consistency checks",
+    "UTF-8 encoding support for international names",
+    "Conditional field requirements",
+    "Business rule enforcement"
+  ],
+  "template_content": "# CALIFORNIA RESIDENTIAL PURCHASE AGREEMENT\n**Date:** {{offer_date}}\n\n---\n\n## PROPERTY INFORMATION\n**Property Address:** {{property_address}}  \n**City, State, ZIP:** {{city_state_zip}}  \n**APN:** {{apn}}  \n**County:** {{county}}  \n**Property Type:** {{property_type}}  \n\n---\n\n## BUYER INFORMATION\n**Buyer Name(s):** {{buyer_name}}  \n**Buyer Address:** {{buyer_address}}  \n**Phone:** {{buyer_phone}}  \n**Email:** {{buyer_email}}  \n**Buyer's Agent:** {{buyer_agent}}  \n**Brokerage:** {{buyer_brokerage}}  \n**Agent License #:** {{buyer_agent_license}}  \n**Agent Phone:** {{buyer_agent_phone}}  \n\n---\n\n## SELLER INFORMATION\n**Seller Name(s):** {{seller_name}}  \n**Seller Address:** {{seller_address}}  \n**Phone:** {{seller_phone}}  \n**Email:** {{seller_email}}  \n**Seller's Agent:** {{seller_agent}}  \n**Brokerage:** {{seller_brokerage}}  \n**Agent License #:** {{seller_agent_license}}  \n\n---\n\n## PURCHASE TERMS\n**Purchase Price:** {{purchase_price}}  \n**Initial Deposit:** {{initial_deposit}}  \n**Down Payment:** {{down_payment}}  \n**Loan Amount:** {{loan_amount}}  \n**Closing Date:** {{closing_date}}  \n**Possession Date:** {{possession_date}}  \n**Financing Contingency:** {{financing_contingency_days}} days  \n**Inspection Contingency:** {{inspection_contingency_days}} days  \n\n---\n\n## KEY DATES\n**Offer Date:** {{offer_date}}  \n**Offer Expiration:** {{offer_expiration}}  \n**Contract Date:** {{contract_date}}  \n**Estimated Closing:** {{closing_date}}  \n\n---\n\n## ESCROW AND ADDITIONAL DETAILS\n**Escrow Company:** {{escrow_company}}  \n**Title Company:** {{title_company}}  \n**Additional Terms:** {{additional_terms}}  \n\n---\n\n## SIGNATURES\n\n**BUYER ACCEPTANCE**  \nBuyer: {{buyer_name}}  \nDate: {{contract_date}}  \nSignature: ________________________________\n\n**SELLER ACCEPTANCE**  \nSeller: {{seller_name}}  \nDate: {{contract_date}}  \nSignature: ________________________________\n\n**BUYER'S AGENT**  \nAgent: {{buyer_agent}}  \nLicense #: {{buyer_agent_license}}  \nDate: {{contract_date}}  \nSignature: ________________________________\n\n**SELLER'S AGENT**  \nAgent: {{seller_agent}}  \nLicense #: {{seller_agent_license}}  \nDate: {{contract_date}}  \nSignature: ________________________________\n\n---\n*This form is for informational purposes and does not constitute legal advice. Consult with appropriate professionals for specific guidance.*",
+  "field_mappings": {
+    "property_address": {
+      "label": "Property Address",
+      "type": "text",
+      "required": true,
+      "crm_source": "property.property_address",
+      "validation": {
+        "min_length": 5,
+        "pattern": "^[0-9]+\\s+.+",
+        "description": "Must include street number and name"
+      }
+    },
+    "city_state_zip": {
+      "label": "City, State, ZIP",
+      "type": "text",
+      "required": true,
+      "transform": {
+        "method": "template",
+        "sources": ["property.property_city", "property.property_state", "property.property_zip"],
+        "template_string": "{0}, {1} {2}"
+      },
+      "validation": {
+        "pattern": "^.+,\\s+[A-Z]{2}\\s+\\d{5}(-\\d{4})?$",
+        "description": "Format: City, ST 12345"
+      }
+    },
+    "apn": {
+      "label": "Assessor's Parcel Number",
+      "type": "text",
+      "required": false,
+      "crm_source": "property.apn",
+      "validation": {
+        "pattern": "^\\d{3}-\\d{3}-\\d{3}$|^\\d{8,12}$",
+        "description": "Valid APN format required"
+      }
+    },
+    "county": {
+      "label": "County",
+      "type": "text",
+      "required": true,
+      "crm_source": "property.county",
+      "default": "Nevada",
+      "validation": {
+        "min_length": 2,
+        "description": "County name required"
+      }
+    },
+    "property_type": {
+      "label": "Property Type",
+      "type": "select",
+      "options": ["Single Family Residence", "Condominium", "Townhouse", "Multi-Unit", "Vacant Land"],
+      "required": true,
+      "crm_source": "property.property_type",
+      "default": "Single Family Residence"
+    },
+    "buyer_name": {
+      "label": "Buyer Name(s)",
+      "type": "text",
+      "required": true,
+      "transform": {
+        "method": "concatenate",
+        "sources": ["client.first_name", "client.last_name"],
+        "separator": " "
+      },
+      "validation": {
+        "min_length": 2,
+        "pattern": "^[a-zA-Z\\s'-]+$",
+        "description": "Valid name required"
+      }
+    },
+    "buyer_address": {
+      "label": "Buyer Address",
+      "type": "text",
+      "required": true,
+      "transform": {
+        "method": "template",
+        "sources": ["client.address_line1", "client.city", "client.state", "client.zip_code"],
+        "template_string": "{0}, {1}, {2} {3}"
+      },
+      "validation": {
+        "min_length": 10,
+        "description": "Complete address required"
+      }
+    },
+    "buyer_phone": {
+      "label": "Buyer Phone",
+      "type": "tel",
+      "required": true,
+      "crm_source": "client.phone",
+      "validation": {
+        "pattern": "^\\(\\d{3}\\)\\s+\\d{3}-\\d{4}$",
+        "description": "Format: (555) 123-4567"
+      }
+    },
+    "buyer_email": {
+      "label": "Buyer Email",
+      "type": "email",
+      "required": true,
+      "crm_source": "client.email",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "description": "Valid email address required"
+      }
+    },
+    "buyer_agent": {
+      "label": "Buyer's Agent",
+      "type": "text",
+      "required": true,
+      "default": "Narissa Jennings",
+      "crm_source": "agent.name",
+      "validation": {
+        "min_length": 2,
+        "description": "Agent name required"
+      }
+    },
+    "buyer_brokerage": {
+      "label": "Buyer's Brokerage",
+      "type": "text",
+      "required": true,
+      "default": "Coldwell Banker Grass Roots Realty",
+      "crm_source": "agent.brokerage",
+      "validation": {
+        "min_length": 3,
+        "description": "Brokerage name required"
+      }
+    },
+    "buyer_agent_license": {
+      "label": "Buyer Agent License #",
+      "type": "text",
+      "required": true,
+      "default": "02129287",
+      "crm_source": "agent.license_number",
+      "validation": {
+        "pattern": "^\\d{8}$|^[A-Z]{2}-\\d{7}$",
+        "description": "Valid CA DRE license number required"
+      }
+    },
+    "buyer_agent_phone": {
+      "label": "Buyer Agent Phone",
+      "type": "tel",
+      "required": true,
+      "default": "(530) 276-5970",
+      "crm_source": "agent.phone",
+      "validation": {
+        "pattern": "^\\(\\d{3}\\)\\s+\\d{3}-\\d{4}$",
+        "description": "Format: (555) 123-4567"
+      }
+    },
+    "seller_name": {
+      "label": "Seller Name(s)",
+      "type": "text",
+      "required": false,
+      "transform": {
+        "method": "concatenate",
+        "sources": ["seller.first_name", "seller.last_name"],
+        "separator": " "
+      },
+      "validation": {
+        "min_length": 2,
+        "description": "Valid name required if provided"
+      }
+    },
+    "seller_address": {
+      "label": "Seller Address",
+      "type": "text",
+      "required": false,
+      "crm_source": "seller.address"
+    },
+    "seller_phone": {
+      "label": "Seller Phone",
+      "type": "tel",
+      "required": false,
+      "crm_source": "seller.phone",
+      "validation": {
+        "pattern": "^\\(\\d{3}\\)\\s+\\d{3}-\\d{4}$",
+        "description": "Format: (555) 123-4567 if provided"
+      }
+    },
+    "seller_email": {
+      "label": "Seller Email",
+      "type": "email",
+      "required": false,
+      "crm_source": "seller.email",
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "description": "Valid email address if provided"
+      }
+    },
+    "seller_agent": {
+      "label": "Seller's Agent",
+      "type": "text",
+      "required": false,
+      "crm_source": "seller.agent_name"
+    },
+    "seller_brokerage": {
+      "label": "Seller's Brokerage",
+      "type": "text",
+      "required": false,
+      "crm_source": "seller.brokerage"
+    },
+    "seller_agent_license": {
+      "label": "Seller Agent License #",
+      "type": "text",
+      "required": false,
+      "crm_source": "seller.agent_license",
+      "validation": {
+        "pattern": "^\\d{8}$|^[A-Z]{2}-\\d{7}$",
+        "description": "Valid CA DRE license number if provided"
+      }
+    },
+    "purchase_price": {
+      "label": "Purchase Price",
+      "type": "currency",
+      "required": true,
+      "transform": {
+        "method": "format_currency",
+        "source": "transaction.purchase_price",
+        "symbol": "$"
+      },
+      "validation": {
+        "min_value": 1000,
+        "max_value": 50000000,
+        "description": "Valid purchase price required ($1,000 - $50,000,000)"
+      }
+    },
+    "initial_deposit": {
+      "label": "Initial Deposit",
+      "type": "currency",
+      "required": true,
+      "transform": {
+        "method": "format_currency",
+        "source": "transaction.earnest_money",
+        "symbol": "$"
+      },
+      "validation": {
+        "min_value": 0,
+        "cross_field_validation": {
+          "rule": "less_than",
+          "compare_field": "purchase_price",
+          "description": "Initial deposit must be less than purchase price"
+        }
+      }
+    },
+    "down_payment": {
+      "label": "Down Payment",
+      "type": "currency",
+      "required": true,
+      "transform": {
+        "method": "format_currency",
+        "source": "transaction.down_payment",
+        "symbol": "$"
+      },
+      "validation": {
+        "min_value": 0,
+        "cross_field_validation": {
+          "rule": "less_than_or_equal",
+          "compare_field": "purchase_price",
+          "description": "Down payment cannot exceed purchase price"
+        }
+      }
+    },
+    "loan_amount": {
+      "label": "Loan Amount",
+      "type": "currency",
+      "required": false,
+      "transform": {
+        "method": "format_currency",
+        "source": "transaction.loan_amount",
+        "symbol": "$"
+      },
+      "conditional_requirement": {
+        "condition": "financing_type != 'Cash'",
+        "description": "Required for financed purchases"
+      }
+    },
+    "closing_date": {
+      "label": "Closing Date",
+      "type": "date",
+      "required": true,
+      "crm_source": "transaction.closing_date",
+      "validation": {
+        "future_date": true,
+        "min_days_from_today": 7,
+        "description": "Closing date must be at least 7 days in the future"
+      }
+    },
+    "possession_date": {
+      "label": "Possession Date",
+      "type": "text",
+      "required": true,
+      "default": "Close of escrow",
+      "crm_source": "transaction.possession_date"
+    },
+    "financing_contingency_days": {
+      "label": "Financing Contingency Days",
+      "type": "number",
+      "required": true,
+      "default": "21",
+      "crm_source": "transaction.financing_contingency_days",
+      "validation": {
+        "min_value": 0,
+        "max_value": 60,
+        "description": "Contingency period: 0-60 days"
+      }
+    },
+    "inspection_contingency_days": {
+      "label": "Inspection Contingency Days",
+      "type": "number",
+      "required": true,
+      "default": "17",
+      "crm_source": "transaction.inspection_contingency_days",
+      "validation": {
+        "min_value": 0,
+        "max_value": 30,
+        "description": "Inspection period: 0-30 days"
+      }
+    },
+    "offer_date": {
+      "label": "Offer Date",
+      "type": "date",
+      "required": true,
+      "default": "today",
+      "crm_source": "transaction.offer_date",
+      "validation": {
+        "max_days_from_today": 30,
+        "description": "Offer date cannot be more than 30 days old"
+      }
+    },
+    "offer_expiration": {
+      "label": "Offer Expiration",
+      "type": "date",
+      "required": true,
+      "crm_source": "transaction.offer_expiration",
+      "validation": {
+        "future_date": true,
+        "cross_field_validation": {
+          "rule": "greater_than",
+          "compare_field": "offer_date",
+          "description": "Expiration must be after offer date"
+        }
+      }
+    },
+    "contract_date": {
+      "label": "Contract Date",
+      "type": "date",
+      "required": false,
+      "crm_source": "transaction.contract_date"
+    },
+    "escrow_company": {
+      "label": "Escrow Company",
+      "type": "text",
+      "required": false,
+      "default": "Nevada County Escrow",
+      "crm_source": "transaction.escrow_company",
+      "validation": {
+        "min_length": 3,
+        "description": "Escrow company name if provided"
+      }
+    },
+    "title_company": {
+      "label": "Title Company",
+      "type": "text",
+      "required": false,
+      "crm_source": "transaction.title_company",
+      "validation": {
+        "min_length": 3,
+        "description": "Title company name if provided"
+      }
+    },
+    "additional_terms": {
+      "label": "Additional Terms",
+      "type": "textarea",
+      "required": false,
+      "crm_source": "transaction.additional_terms",
+      "validation": {
+        "max_length": 1000,
+        "description": "Additional terms (max 1000 characters)"
+      }
+    }
+  },
+  "validation_rules": {
+    "legal_compliance": {
+      "california_requirements": [
+        "buyer_agent_license must be valid CA DRE number",
+        "property_address must be complete with street number",
+        "purchase_price must be reasonable market value",
+        "contingency_periods must be within legal limits"
+      ]
+    },
+    "business_rules": [
+      "initial_deposit < purchase_price",
+      "down_payment <= purchase_price",
+      "closing_date > offer_date",
+      "offer_expiration > offer_date",
+      "financing_contingency_days <= 60",
+      "inspection_contingency_days <= 30"
+    ],
+    "cross_field_dependencies": {
+      "loan_amount": "Required if purchase_price > down_payment",
+      "seller_agent_license": "Required if seller_agent provided",
+      "title_company": "Recommended for transactions > $500,000"
+    }
+  },
+  "performance_targets": {
+    "generation_time": "<5 seconds",
+    "field_accuracy": "99%+",
+    "validation_coverage": "100% of required fields",
+    "error_handling": "Graceful degradation for missing data"
+  }
+}

@@ -1,0 +1,45 @@
+**1. Root Cause Analysis:**
+
+The error `AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'` indicates that the `db` variable used in the `/clients` route handler, when `USE_SUPABASE` is enabled, is incorrectly assigned an instance of `DatabaseConfig` instead of the actual database connection object (likely a Supabase client or a wrapper around it) that provides the `get_all_clients` method. The `DatabaseConfig` object is intended for configuration loading, not database operations.
+
+**2. Specific Fix with Code Snippets:**
+
+The fix requires ensuring that the `db` variable is correctly initialized as the Supabase client or a suitable database access object when `USE_SUPABASE` is true. Without seeing the initialization code for `db`, the exact fix location is unknown, but it will be where `db` is assigned.
+
+**Assuming `db` is a global or application-level variable initialized elsewhere:**
+
+Locate the code block where `db` is initialized based on `current_config.USE_SUPABASE`. It should look something like this (example):
+
+```python
+# Incorrect initialization (causing the error)
+if current_config.USE_SUPABASE:
+    db = DatabaseConfig() # <-- This is wrong
+else:
+    db = SQLiteConnectionWrapper() # Or similar
+
+# Correct initialization
+if current_config.USE_SUPABASE:
+    # Assuming you have a function or class to get the Supabase client
+    # Replace get_supabase_client() with your actual initialization logic
+    db = get_supabase_client(current_config.SUPABASE_URL, current_config.SUPABASE_KEY)
+else:
+    # Keep your existing SQLite initialization if applicable
+    db = SQLiteConnectionWrapper() # Or similar
+```
+
+**Action:** Modify the initialization logic for the `db` variable to correctly instantiate and assign the Supabase client or its wrapper when `current_config.USE_SUPABASE` is true.
+
+**3. Prevention Strategy:**
+
+*   **Type Checking/Assertions:** Add checks during the `db` initialization process to assert that the assigned object is of the expected type (e.g., `isinstance(db, SupabaseClient)` or a custom database wrapper class).
+*   **Clear Separation:** Ensure a clear separation between configuration loading logic (`DatabaseConfig`) and database access logic. Database connection objects should be distinct from configuration objects.
+*   **Initialization Function:** Encapsulate the database initialization logic in a dedicated function that returns the correct database object based on the configuration.
+
+**4. Testing Approach:**
+
+1.  **Enable Supabase:** Configure the application to use Supabase (`current_config.USE_SUPABASE = True`).
+2.  **Access `/clients`:** Navigate to `http://localhost:5000/clients`.
+3.  **Verify Success:** Confirm that the page loads successfully (status code 200) and displays the list of clients fetched from Supabase.
+4.  **Disable Supabase (Fallback):** Configure the application to use the fallback SQLite database (`current_config.USE_SUPABASE = False`).
+5.  **Access `/clients`:** Navigate to `http://localhost:5000/clients` again.
+6.  **Verify Success:** Confirm that the page loads successfully (status code 200) and displays the list of clients fetched from SQLite.

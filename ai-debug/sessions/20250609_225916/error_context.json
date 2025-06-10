@@ -1,0 +1,67 @@
+{
+  "error_description": "Client Management page returns 500 error",
+  "system_state": {
+    "timestamp": "2025-06-09T22:59:16.433067",
+    "session_id": "20250609_225916",
+    "containers": [
+      {
+        "Command": "\"python core_app/rea\u2026\"",
+        "CreatedAt": "2025-06-09 22:47:45 -0700 PDT",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "7fa035bfcaa9",
+        "Image": "offer-creator-app",
+        "Labels": "desktop.docker.io/binds/0/Source=/home/ender/.claude/projects/offer-creator,com.docker.compose.image=sha256:3440c2256a3e5eeb3317b33f3a350ee9b8a3647be5857296d30f4bdc287371b0,com.docker.compose.project.working_dir=/home/ender/.claude/projects/offer-creator,com.docker.compose.version=2.35.1,com.docker.compose.container-number=1,com.docker.compose.depends_on=,desktop.docker.io/binds/0/SourceKind=wsl2DistroFile,com.docker.compose.replace=50a3233f2257d45807fe568337549f99d0e79fe6bad1482ddf80603d951d0b76,desktop.docker.io/wsl-distro=Ubuntu,com.docker.compose.oneoff=False,com.docker.compose.project=offer-creator,com.docker.compose.project.config_files=/home/ender/.claude/projects/offer-creator/docker-compose.dev.yml,com.docker.compose.config-hash=ba0b3f46ad7c316c4d825645a01d6df31823b759b21a86416b6e5dd1aa373a83,com.docker.compose.service=app,desktop.docker.io/binds/0/Target=/app",
+        "LocalVolumes": "0",
+        "Mounts": "/run/desktop/m\u2026",
+        "Name": "offer-creator-app-1",
+        "Names": "offer-creator-app-1",
+        "Networks": "offer-creator_default",
+        "Ports": "0.0.0.0:5000->5000/tcp",
+        "Project": "offer-creator",
+        "Publishers": [
+          {
+            "URL": "0.0.0.0",
+            "TargetPort": 5000,
+            "PublishedPort": 5000,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "11 minutes ago",
+        "Service": "app",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 6 minutes"
+      }
+    ],
+    "database": {
+      "exists": true,
+      "size": 81920,
+      "modified": "2025-06-07T21:52:56.485397"
+    }
+  },
+  "docker_logs": "app-1  | \u2705 Environment variables validated\napp-1  | \u2705 Flask configured for development environment\napp-1  | \u2705 MLS data loaded: 5 listings from Listing.csv\napp-1  | \u2705 ZipForm AI functions integrated with chatbot\napp-1  | \u2705 Offer Creation AI functions integrated with chatbot\napp-1  | \u2705 Enhanced CRPA Controller initialized (Google AI Studio Architecture)\napp-1  | \ud83c\udfe0 Starting Real Estate CRM Application...\napp-1  | \u2705 Environment variables validated\napp-1  | \ud83c\udf10 DigitalOcean deployment detected (PORT=5000)\napp-1  | \ud83c\udf0d Environment: development\napp-1  | \ud83d\udd27 Debug mode: True\napp-1  | \ud83d\udce1 Host: 0.0.0.0:5000\napp-1  | \ud83d\udcdd Navigate to: http://localhost:5000\napp-1  | \ud83d\udcbb Dashboard: http://localhost:5000\napp-1  | \ud83d\udc65 Client Management: http://localhost:5000/clients\napp-1  | \ud83c\udfd8\ufe0f Property Management: http://localhost:5000/properties\napp-1  | \ud83d\udcbc Transaction Management: http://localhost:5000/transactions\napp-1  | \ud83e\udd16 AI Chatbot: http://localhost:5000/debug_chat\napp-1  | \u26a0\ufe0f Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'\napp-1  |  * Debugger is active!\napp-1  |  * Debugger PIN: 120-984-258\napp-1  | 172.21.0.1 - - [10/Jun/2025 05:52:52] \"\u001b[35m\u001b[1mGET /clients HTTP/1.1\u001b[0m\" 500 -\napp-1  | Traceback (most recent call last):\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2213, in __call__\napp-1  |     return self.wsgi_app(environ, start_response)\napp-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2193, in wsgi_app\napp-1  |     response = self.handle_exception(e)\napp-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2190, in wsgi_app\napp-1  |     response = self.full_dispatch_request()\napp-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1486, in full_dispatch_request\napp-1  |     rv = self.handle_user_exception(e)\napp-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1484, in full_dispatch_request\napp-1  |     rv = self.dispatch_request()\napp-1  |          ^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1469, in dispatch_request\napp-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)\napp-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/app/core_app/real_estate_crm.py\", line 2041, in clients_list\napp-1  |     clients = db.get_all_clients()\napp-1  |               ^^^^^^^^^^^^^^^^^^^^\napp-1  | AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'\napp-1  | 172.21.0.1 - - [10/Jun/2025 05:58:02] \"\u001b[35m\u001b[1mGET /clients HTTP/1.1\u001b[0m\" 500 -\napp-1  | Traceback (most recent call last):\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2213, in __call__\napp-1  |     return self.wsgi_app(environ, start_response)\napp-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2193, in wsgi_app\napp-1  |     response = self.handle_exception(e)\napp-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 2190, in wsgi_app\napp-1  |     response = self.full_dispatch_request()\napp-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1486, in full_dispatch_request\napp-1  |     rv = self.handle_user_exception(e)\napp-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1484, in full_dispatch_request\napp-1  |     rv = self.dispatch_request()\napp-1  |          ^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/opt/venv/lib/python3.11/site-packages/flask/app.py\", line 1469, in dispatch_request\napp-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)\napp-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napp-1  |   File \"/app/core_app/real_estate_crm.py\", line 2041, in clients_list\napp-1  |     clients = db.get_all_clients()\napp-1  |               ^^^^^^^^^^^^^^^^^^^^\napp-1  | AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'\napp-1  |  * Detected change in '/app/ai-debug/human_control.py', reloading\napp-1  |  * Restarting with stat\napp-1  | \u26a0\ufe0f Monitoring modules not available: No module named 'quick_fix_monitoring'\napp-1  | \ud83d\udd0d Import paths: ['/app/core_app', '/app']\napp-1  | \u2705 Production configuration and Supabase database loaded\napp-1  | \u2705 Environment: development\napp-1  | \u2705 Database: Supabase PostgreSQL\napp-1  | \u2705 AI Integration: Enabled\napp-1  | \u2705 ZipForm AI functions loaded successfully\napp-1  | \u2705 Offer Creation AI functions loaded successfully\napp-1  | \u2705 Environment variables validated\napp-1  | \u2705 Flask configured for development environment\napp-1  | \u2705 MLS data loaded: 5 listings from Listing.csv\napp-1  | \u2705 ZipForm AI functions integrated with chatbot\napp-1  | \u2705 Offer Creation AI functions integrated with chatbot\napp-1  | \u2705 Enhanced CRPA Controller initialized (Google AI Studio Architecture)\napp-1  | \ud83c\udfe0 Starting Real Estate CRM Application...\napp-1  | \u2705 Environment variables validated\napp-1  | \ud83c\udf10 DigitalOcean deployment detected (PORT=5000)\napp-1  | \ud83c\udf0d Environment: development\napp-1  | \ud83d\udd27 Debug mode: True\napp-1  | \ud83d\udce1 Host: 0.0.0.0:5000\napp-1  | \ud83d\udcdd Navigate to: http://localhost:5000\napp-1  | \ud83d\udcbb Dashboard: http://localhost:5000\napp-1  | \ud83d\udc65 Client Management: http://localhost:5000/clients\napp-1  | \ud83c\udfd8\ufe0f Property Management: http://localhost:5000/properties\napp-1  | \ud83d\udcbc Transaction Management: http://localhost:5000/transactions\napp-1  | \ud83e\udd16 AI Chatbot: http://localhost:5000/debug_chat\napp-1  | \u26a0\ufe0f Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'\napp-1  |  * Debugger is active!\napp-1  |  * Debugger PIN: 120-984-258\n",
+  "endpoint_error": {
+    "url": "http://localhost:5000/clients",
+    "status_code": 500,
+    "headers": {
+      "Server": "Werkzeug/2.3.7 Python/3.11.13",
+      "Date": "Tue, 10 Jun 2025 05:59:16 GMT",
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Length": "14453",
+      "Connection": "close"
+    },
+    "body": "<!doctype html>\n<html lang=en>\n  <head>\n    <title>AttributeError: &#39;DatabaseConfig&#39; object has no attribute &#39;get_all_clients&#39;\n // Werkzeug Debugger</title>\n    <link rel=\"stylesheet\" href=\"?__debugger__=yes&amp;cmd=resource&amp;f=style.css\">\n    <link rel=\"shortcut icon\"\n        href=\"?__debugger__=yes&amp;cmd=resource&amp;f=console.png\">\n    <script src=\"?__debugger__=yes&amp;cmd=resource&amp;f=debugger.js\"></script>\n    <script>\n      var CONSOLE_MODE = false,\n          EVALEX = true,\n          EVALEX_TRUSTED = false,\n          SECRET = \"QlLgQgSm3BDmWggOL3eH\";\n    </script>\n  </head>\n  <body style=\"background-color: #fff\">\n    <div class=\"debugger\">\n<h1>AttributeError</h1>\n<div class=\"detail\">\n  <p class=\"errormsg\">AttributeError: &#39;DatabaseConfig&#39; object has no attribute &#39;get_all_clients&#39;\n</p>\n</div>\n<h2 class=\"traceback\">Traceback <em>(most recent call last)</em></h2>\n<div class=\"traceback\">\n  <h3></h3>\n  <ul><li><div class=\"frame\" id=\"frame-124750333",
+    "error_type": "http_error"
+  },
+  "code_context": {
+    "file_path": "core_app/real_estate_crm.py",
+    "total_lines": 3505,
+    "error_line": 2041,
+    "code_context": {
+      "start_line": 2032,
+      "end_line": 2051,
+      "lines": "        test_results['service_key_error'] = str(e)\n    \n    return jsonify(test_results)\n\n@app.route('/clients')\ndef clients_list():\n    \"\"\"View all clients\"\"\"\n    if CONFIG_LOADED and current_config.USE_SUPABASE:\n        # Use Supabase API via database config\n        clients = db.get_all_clients()\n    else:\n        # Fallback to SQLite\n        conn = get_db_connection()\n        clients = conn.execute('''\n            SELECT id, client_type, first_name, last_name, email, home_phone, \n                   city, created_at\n            FROM clients \n            ORDER BY last_name, first_name\n        ''').fetchall()\n        conn.close()\n"
+    }
+  }
+}

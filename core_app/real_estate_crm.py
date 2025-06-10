@@ -3512,6 +3512,115 @@ def crpa_dashboard():
 # END ENHANCED CRPA ENDPOINTS
 # ============================================================================
 
+# ============================================================================
+# API ENDPOINTS FOR TESTING AND MONITORING
+# ============================================================================
+
+@app.route('/api/health')
+def api_health():
+    """Health check endpoint for monitoring"""
+    try:
+        # Check database connectivity
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM clients")
+        client_count = cursor.fetchone()[0]
+        conn.close()
+        db_connected = True
+    except Exception as e:
+        db_connected = False
+        client_count = 0
+    
+    return jsonify({
+        'status': 'healthy' if db_connected else 'degraded',
+        'timestamp': datetime.now().isoformat(),
+        'database_connected': db_connected,
+        'environment': os.environ.get('FLASK_ENV', 'development'),
+        'version': '1.0.0',
+        'components': {
+            'database': 'healthy' if db_connected else 'unhealthy',
+            'ai_chatbot': globals().get('ENABLE_AI_CHATBOT', False),
+            'crpa_system': globals().get('CRPA_AVAILABLE', False)
+        }
+    })
+
+@app.route('/api/stats')
+def api_stats():
+    """Get CRM statistics"""
+    try:
+        conn = get_db_connection()
+        
+        # Get counts
+        stats = {}
+        for table in ['clients', 'properties', 'transactions']:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
+            stats[table] = cursor.fetchone()[0]
+        
+        # Get recent activity
+        cursor.execute("""
+            SELECT 'client' as type, first_name || ' ' || last_name as name, created_at 
+            FROM clients 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        """)
+        recent_clients = cursor.fetchall()
+        
+        cursor.execute("""
+            SELECT 'transaction' as type, 
+                   'Transaction #' || id as name, 
+                   created_at 
+            FROM transactions 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        """)
+        recent_transactions = cursor.fetchall()
+        
+        # Combine and sort recent activity
+        recent_activity = []
+        for row in recent_clients + recent_transactions:
+            recent_activity.append({
+                'type': row[0],
+                'name': row[1],
+                'date': row[2] if row[2] else 'Unknown'
+            })
+        
+        recent_activity.sort(key=lambda x: x['date'], reverse=True)
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'clients': stats['clients'],
+            'properties': stats['properties'],
+            'transactions': stats['transactions'],
+            'recent_activity': recent_activity[:10],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'clients': 0,
+            'properties': 0,
+            'transactions': 0
+        }), 500
+
+# Dashboard route already exists above, no need to duplicate
+
+# ============================================================================
+# SECURITY HEADERS MIDDLEWARE
+# ============================================================================
+
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
 if __name__ == '__main__':
     print("🏠 Starting Real Estate CRM Application...")
     

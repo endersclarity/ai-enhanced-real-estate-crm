@@ -1,4 +1,9 @@
 flask==2.3.3
+flask-sqlalchemy==3.0.5
+flask-login==0.6.3
+flask-wtf==1.1.1
+wtforms==3.0.1
+email-validator==2.0.0
 PyPDF2==3.0.1
 reportlab==4.0.4
 pdfplumber==0.9.0

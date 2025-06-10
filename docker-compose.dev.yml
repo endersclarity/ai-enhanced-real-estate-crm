@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      # Don't mount anything to /opt/venv - let it stay in container
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=1
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=sqlite:////app/real_estate_crm.db
+      - PATH=/opt/venv/bin:$PATH
+    working_dir: /app
+    command: python run_flask_app.py
+    
+  # Simplified first version - no PostgreSQL yet

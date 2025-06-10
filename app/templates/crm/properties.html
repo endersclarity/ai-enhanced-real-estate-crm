@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Properties - Real Estate CRM{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fas fa-home me-2"></i>Properties</h2>
+            <button class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Add Property
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if properties %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Address</th>
+                                    <th>City</th>
+                                    <th>Price</th>
+                                    <th>Type</th>
+                                    <th>Bed/Bath</th>
+                                    <th>Sq Ft</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for property in properties %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ property.address }}</strong>
+                                        {% if property.mls_number %}
+                                            <br><small class="text-muted">MLS: {{ property.mls_number }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ property.city }}, {{ property.state }}</td>
+                                    <td>
+                                        <strong>${{ "{:,.0f}".format(property.price) if property.price else 'No Price' }}</strong>
+                                        {% if property.price_per_sqft %}
+                                            <br><small class="text-muted">${{ "{:.0f}".format(property.price_per_sqft) }}/sq ft</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ property.property_type.title() if property.property_type else 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if property.bedrooms and property.bathrooms %}
+                                            {{ property.bedrooms }}bed / {{ property.bathrooms }}bath
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ "{:,}".format(property.square_feet) if property.square_feet else 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if property.status.value == 'active' else 'warning' if property.status.value == 'pending' else 'secondary' }}">
+                                            {{ property.status.value.title() if property.status else 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No properties yet</h5>
+                        <p class="text-muted">Add your first property to start building your listings</p>
+                        <button class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Add First Property
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

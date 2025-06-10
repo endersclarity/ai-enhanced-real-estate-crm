@@ -1,0 +1,24 @@
+{
+  "error_description": "Client Management page returns 500 error",
+  "system_state": {
+    "timestamp": "2025-06-09T22:58:02.854832",
+    "session_id": "20250609_225802",
+    "database": {
+      "exists": false
+    }
+  },
+  "docker_logs": "",
+  "endpoint_error": {
+    "url": "http://localhost:5000/clients",
+    "status_code": 500,
+    "headers": {
+      "Server": "Werkzeug/2.3.7 Python/3.11.13",
+      "Date": "Tue, 10 Jun 2025 05:58:02 GMT",
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Length": "14453",
+      "Connection": "close"
+    },
+    "body": "<!doctype html>\n<html lang=en>\n  <head>\n    <title>AttributeError: &#39;DatabaseConfig&#39; object has no attribute &#39;get_all_clients&#39;\n // Werkzeug Debugger</title>\n    <link rel=\"stylesheet\" href=\"?__debugger__=yes&amp;cmd=resource&amp;f=style.css\">\n    <link rel=\"shortcut icon\"\n        href=\"?__debugger__=yes&amp;cmd=resource&amp;f=console.png\">\n    <script src=\"?__debugger__=yes&amp;cmd=resource&amp;f=debugger.js\"></script>\n    <script>\n      var CONSOLE_MODE = false,\n          EVALEX = true,\n          EVALEX_TRUSTED = false,\n          SECRET = \"0NF0vnQJp6nQiVZTmRHA\";\n    </script>\n  </head>\n  <body style=\"background-color: #fff\">\n    <div class=\"debugger\">\n<h1>AttributeError</h1>\n<div class=\"detail\">\n  <p class=\"errormsg\">AttributeError: &#39;DatabaseConfig&#39; object has no attribute &#39;get_all_clients&#39;\n</p>\n</div>\n<h2 class=\"traceback\">Traceback <em>(most recent call last)</em></h2>\n<div class=\"traceback\">\n  <h3></h3>\n  <ul><li><div class=\"frame\" id=\"frame-130532535",
+    "error_type": "http_error"
+  }
+}

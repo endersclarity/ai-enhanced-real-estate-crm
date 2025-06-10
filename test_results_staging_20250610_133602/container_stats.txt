@@ -1,0 +1,2 @@
+CONTAINER ID   NAME                    CPU %     MEM USAGE / LIMIT     MEM %     NET I/O        BLOCK I/O         PIDS
+d9d68ee2ebfa   offer-creator-staging   0.01%     111.2MiB / 7.757GiB   1.40%     25kB / 849kB   84.7MB / 65.5kB   6

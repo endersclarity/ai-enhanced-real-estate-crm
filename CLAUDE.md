@@ -1,171 +1,196 @@
-# CLAUDE.md - Real Estate CRM Project Configuration
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-Comprehensive Real Estate CRM system with AI integration for Narissa Realty - provides complete client management, transaction tracking, and intelligent workflow automation.
 
-## Quick Commands
+AI-Enhanced Real Estate CRM is a comprehensive system for real estate professionals with:
+- Complete CRM functionality for clients, properties, and transactions
+- AI-powered form generation for California Association of Realtors (CAR) forms
+- Multi-strategy approach to form filling (coordinate-based, HTML replicas, bespoke forms)
+- Three-tier diagnostic system for identifying and fixing critical issues
+
+## Essential Commands
+
+### System Management
+
 ```bash
-# CRM Development with AI (BREAKTHROUGH WORKING PATTERN)
-export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU" && source venv/bin/activate && python real_estate_crm.py        # Start main Flask CRM with AI
-source venv/bin/activate         # Activate Python environment
-python app.py                    # Start legacy Flask application
+# Start/Restart Flask Application (CRITICAL: Always use after code changes)
+ps aux | grep -E "python.*flask|python.*app" | grep -v grep | awk '{print $2}' | xargs -r kill -9
+source venv/bin/activate
+python core_app/real_estate_crm.py > /dev/null 2>&1 &
+WSL_IP=$(ip addr show eth0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
+echo "✅ Flask restarted with changes - access at http://$WSL_IP:5000"
 
-# AI Integration Testing (PROVEN WORKING)
-curl -X POST http://localhost:5000/chat -H "Content-Type: application/json" -d '{"message": "Test AI integration"}'
-curl -X POST http://localhost:5000/process_email -H "Content-Type: application/json" -d '{"email_content": "Sample email content"}'
+# System Diagnostics
+./scripts/three-tier-diagnostics.sh    # Full diagnostic suite
+./scripts/fast-diagnostics.py          # Quick health check
+./scripts/health-check.sh              # Basic verification
 
-# Database Management
-sqlite3 real_estate.db ".schema" # View database schema
-python -c "import sqlite3; print('Database ready')"  # Test database connection
-
-# Static Demo
-open C:/Users/ender/Desktop/CRM_Demo/index.html  # Open static HTML demo (Windows)
-
-# AI Integration Development
-python email_processor.py        # Test email processing capabilities
-python workflow_automation.py    # Test AI workflow features
-
-# PDF Processing (Research Track)
-python analyze_forms.py          # Analyze PDF form structures
-python advanced_pdf_reconstructor.py  # Multi-strategy PDF reconstruction
-python professional_pdf_filler.py     # Professional coordinate-based filling
-
-# File Management
-ls -la *.sql                     # View database schema files
-ls -la templates/                # View HTML templates
-rm -rf __pycache__/ *.pyc        # Clean Python cache files
-
-# Project Documentation
-cat memory-bank/system_manifest.md  # View system architecture
-cat memory-bank/project_roadmap.md  # View development roadmap
-cat memory-bank/crm_core_module.md  # View CRM core documentation
+# Docker Management
+docker-compose -f docker-compose.dev.yml up -d  # Start containers
+docker-compose -f docker-compose.dev.yml down   # Stop containers
+docker-compose -f docker-compose.dev.yml logs   # View logs
 ```
 
-## Code Style Guidelines
-- **Python**: Follow PEP 8 standards
-- **Flask**: Use blueprints for modular CRM features
-- **Database**: Use SQLAlchemy ORM for database operations
-- **AI Integration**: Modular design for AI components
-- **Error Handling**: Comprehensive exception handling for all operations
-- **API Design**: RESTful endpoints for all CRM operations
-- **Frontend**: Responsive design with Bootstrap framework
+### Database Operations
 
-## Testing Workflow
-- Test all CRUD operations for clients, properties, transactions
-- Validate database integrity and relationships
-- Test responsive design on desktop, tablet, and mobile
-- Verify AI integration with sample email data
-- Test static HTML demo functionality with localStorage
-- Validate security features and user authentication
-
-## Dependencies
 ```bash
-pip install -r requirements.txt
-```
-Key libraries: Flask, SQLAlchemy, Bootstrap, jQuery, langchain-google-genai, langchain-core
+# Initialize Database Schema (CAUTION: May reset data)
+python core_app/init_database.py
 
-## 🚀 BREAKTHROUGH: Gemini AI Integration Success Pattern
-**CRITICAL LESSONS FOR FUTURE AI INTEGRATIONS:**
-
-### What Works (DO THIS):
-```python
-# EXACT WORKING PATTERN - COPY THIS EVERY TIME
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage
-
-llm = ChatGoogleGenerativeAI(
-    model="models/gemini-2.5-flash-preview-04-17",  # WITH "models/" prefix!
-    google_api_key="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU",
-    temperature=0.1
-)
-
-messages = [
-    SystemMessage(content="System prompt here"),
-    HumanMessage(content=user_message)
-]
-response = llm.invoke(messages)
-return response.content
+# Populate Test Data
+python populate_rich_crm_data.py       # Comprehensive test data
+python simple_populate_crm.py          # Basic test data
 ```
 
-### Dependencies That Work:
+### Form Processing
+
 ```bash
-pip install langchain-google-genai langchain-core
+# Test Form Generation System
+python professional_form_filler.py             # Basic PDF form filling
+python enhanced_professional_form_filler.py    # Enhanced form processing
+python coordinate_based_form_filler.py         # Precise form field filling
+python bespoke_form_creator.py                 # Custom form creation
+
+# Validate Form Output
+python validation_framework.py                 # Legal compliance validation
+python validate_pdf_outputs.py                 # Verify PDF outputs
 ```
 
-### Environment Pattern:
+### AI Integration Testing
+
 ```bash
-export GEMINI_API_KEY="AIzaSyCJ8-hQJVLGXDkHy2sjw-O6Dls0FVO0gGU"
+# Test AI Functionality
+python ai_chatbot_integration.py               # Test AI chatbot
+python core_app/zipform_ai_functions.py        # Test ZipForm functions
+python demo_enhanced_architecture.py           # Test enhanced architecture
 ```
 
-### API Key Location Discovery:
-Found working API key in: `/mnt/c/Users/ender/Documents/Projects/Obsidian/Obsidian_Projects_Folder/.env`
+### Testing
 
-### Model Name Format Discoveries:
-- ✅ **LangChain**: `"models/gemini-2.5-flash-preview-04-17"` (WORKING)
-- ❌ **Wrong**: `"gemini-pro"`, `"gemini-1.5-flash"`, `"gemini-2.5-flash-preview-0417"`
-- 📍 **Reference Projects**: Langchain8n email agent uses this exact format
+```bash
+# Integration Testing
+python test_enhanced_integration.py            # Test full integration
+python test_offer_creation.py                  # Test form generation
+python test_crm_autofill_functionality.py      # Test autofill
 
-## Architecture Notes
-- **CRM Core**: 177-field database schema with complete relationship management
-- **Dual Interface**: Flask web app + static HTML demo
-- **AI Integration**: Email processing, workflow automation, predictive analytics
-- **Security**: Authentication, authorization, data encryption
-- **Deployment**: Cloud-ready with production hosting support
+# Browser/UI Testing
+python test_browser_compatibility.py           # Test browser compatibility  
+python test_quick_form_ui.py                   # Test form UI
+```
 
-## Repository Structure
-- `real_estate_crm.py` - Main Flask CRM application
-- `real_estate_crm_schema.sql` - Complete 177-field database schema
-- `templates/` - HTML templates for CRM interface
-- `static/` - CSS/JS assets for responsive design
-- `memory-bank/` - Comprehensive system documentation
-- `C:\Users\ender\Desktop\CRM_Demo\` - Static HTML demo system
-- PDF processing files - Research track for form automation
+## Architecture Overview
 
-## Business Context
-- **Client**: Narissa Realty (sister's business)
-- **Primary Focus**: Complete CRM system for real estate professionals
-- **Secondary Focus**: AI-powered automation and intelligence
-- **Research Track**: PDF form processing and legal compliance
-- **Users**: Real estate agents, teams, and agencies
+### Core Components
 
-## Development Priorities
-1. **CRM Optimization**: Core functionality testing and refinement
-2. **AI Integration**: Email processing and workflow automation
-3. **Production Deployment**: Hosting, security, and performance
-4. **User Experience**: Interface improvements and mobile optimization
+1. **CRM System**: Flask-based application with SQLite/PostgreSQL database
+   - Located in `core_app/real_estate_crm.py`
+   - 177-field schema for comprehensive real estate data
+   - RESTful API endpoints for clients, properties, transactions
 
-## Branch Progress Tracking Implementation
-This project implements the new Branch Progress Tracking workflow:
-- **Source**: `BRANCH_README.md` defines Phase 2 AI Integration success criteria
-- **Execution**: `/task` command automatically updates branch progress on every completion
-- **Integration**: Progress tracked in both granular tasks and high-level branch milestones
-- **Accountability**: Real-time updates ensure branch plans stay current with actual development
+2. **Form Processing System**: Multi-strategy form generation
+   - Coordinate-based PDF filling (`professional_form_filler.py`)
+   - HTML form recreation (`html_templates/true_crpa_form.html`)
+   - Form templates and field mappings (`form_templates/`)
+   - 33-field CRPA template mapped from 177 CRM fields
 
-### Current Branch: feature/phase-2-ai-integration
-- **Goal**: AI-enhanced chatbot with email processing capabilities
-- **Progress Tracking**: Automatic updates to BRANCH_README.md on task completion
-- **Success Criteria**: 5 major deliverables with 10 supporting tasks
-- **Timeline**: 3-week development cycle with milestone tracking
+3. **AI Integration**: Google Gemini 2.5 Flash with LangChain
+   - AI function calling (`core_app/zipform_ai_functions.py`)
+   - Natural language form generation
+   - Intelligent data extraction and validation
 
-## /taskmaster Natural Language Processing (PROJECT-SPECIFIC)
-**CRITICAL PROJECT BEHAVIOR:** This project uses advanced task management with natural language processing.
+4. **Three-Tier Diagnostics**: Comprehensive system monitoring
+   - Fast-fail diagnostics (`scripts/fast-diagnostics.py`)
+   - AI analysis (`ai-debug/`)
+   - Human-in-the-loop review
 
-### When `/taskmaster [natural language]` is typed:
-1. **Automatically parse** user intent from natural language
-2. **Execute** appropriate task-master CLI commands
-3. **Update** project task tracking in `tasks/tasks.json`
-4. **Maintain** branch progress tracking integration
+### Data Flow
 
-### Project-Specific Intent Patterns:
-- **CRM Issues**: "chatbot broken", "AI not working" → Check tasks 11-14, high priority fixes
-- **Integration Problems**: "flask", "endpoint", "API" → Check backend integration tasks
-- **Testing Issues**: "not responding", "can't click" → UI/frontend debugging tasks
-- **AI/Gemini Problems**: "API key", "response", "timeout" → AI integration tasks
+1. Client/Property/Transaction data in CRM database (177 fields)
+2. CrmDataMapper transforms data to form-ready format (33 fields)
+3. Multiple form generation strategies:
+   - Professional form filler uses ReportLab for coordinate-based filling
+   - HTML templates provide pixel-perfect form replicas
+   - Bespoke form creator builds custom forms from scratch
+4. Validation framework ensures legal compliance and data integrity
+5. Final output as PDF or HTML for user
 
-### Task Dependencies in This Project:
-- Tasks 1-10: Core CRM and AI integration
-- Tasks 11+: Bug fixes and enhancements
-- Always check task dependencies before adding new tasks
-- Maintain priority: HIGH for blocking issues, MEDIUM for features, LOW for nice-to-haves
+## Current System Status
 
-**This ensures consistent task management behavior across all conversations in this project.**
+The system is in critical remediation phase with several known issues:
+
+1. **Database Schema Mismatch**: Schema in init_database.py doesn't match actual database
+2. **JavaScript Dependency Conflicts**: Bootstrap 5 and jQuery compatibility issues
+3. **Enhanced Architecture Integration**: CrmDataMapper functionality needs restoration
+4. **UI/UX Issues**: System requires memorized IDs instead of natural language input
+
+## Critical Files
+
+1. **Core Application**: `core_app/real_estate_crm.py`
+2. **Database Schema**: `core_app/init_database.py`
+3. **Form Processors**:
+   - `professional_form_filler.py`
+   - `enhanced_professional_form_filler.py`
+   - `coordinate_based_form_filler.py`
+4. **Templates**:
+   - `form_templates/california_residential_purchase_agreement_template.json`
+   - `html_templates/true_crpa_form.html`
+5. **AI Integration**: `core_app/zipform_ai_functions.py`
+6. **Diagnostics**: `scripts/three-tier-diagnostics.sh`
+
+## Development Workflow
+
+### Adding New Features
+
+1. Run diagnostics to ensure system stability
+2. Make incremental changes to affected components
+3. Restart Flask application after each change
+4. Verify changes with appropriate test scripts
+5. Run validation to ensure compliance
+
+### Form Development
+
+1. Use existing form template as base (`form_templates/california_residential_purchase_agreement_template.json`)
+2. Map CRM fields to form fields using the CrmDataMapper pattern
+3. Test form generation with `enhanced_professional_form_filler.py`
+4. Validate output with `validation_framework.py`
+
+### Fixing Critical Issues
+
+1. **Database Schema**: Compare init_database.py with actual database structure
+2. **JavaScript Dependencies**: Ensure proper Bootstrap 5 and jQuery compatibility
+3. **Enhanced Architecture**: Restore CrmDataMapper functionality
+4. **UI/UX**: Replace ID-based inputs with natural language/dropdown interfaces
+
+## Environment Variables
+
+```bash
+# AI Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=models/gemini-2.5-flash-preview-04-17
+
+# Database Configuration
+DATABASE_URL=sqlite:///core_app/real_estate_crm.db
+DB_PATH=core_app/database/
+
+# Flask Configuration
+FLASK_ENV=development
+FLASK_DEBUG=True
+SECRET_KEY=your_secret_key_here
+
+# Form Processing
+CAR_FORMS_PATH=car_forms/
+OUTPUT_PATH=output/
+TEMPLATES_PATH=form_templates/
+```
+
+## Important Notes
+
+1. **ALWAYS restart Flask after changes** - Flask auto-reload is unreliable
+2. **ALWAYS use WSL IP address** for web access (not localhost)
+3. Prioritize fixing critical issues before adding new features
+4. The system contains extensive form processing infrastructure ready for activation
+5. All database operations require user confirmation for AI tools
+6. Never commit sensitive information like API keys or passwords
+7. When running the application, always bind to all interfaces with `host='0.0.0.0'`

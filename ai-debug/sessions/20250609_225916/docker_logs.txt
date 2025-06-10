@@ -1,0 +1,100 @@
+app-1  | ✅ Environment variables validated
+app-1  | ✅ Flask configured for development environment
+app-1  | ✅ MLS data loaded: 5 listings from Listing.csv
+app-1  | ✅ ZipForm AI functions integrated with chatbot
+app-1  | ✅ Offer Creation AI functions integrated with chatbot
+app-1  | ✅ Enhanced CRPA Controller initialized (Google AI Studio Architecture)
+app-1  | 🏠 Starting Real Estate CRM Application...
+app-1  | ✅ Environment variables validated
+app-1  | 🌐 DigitalOcean deployment detected (PORT=5000)
+app-1  | 🌍 Environment: development
+app-1  | 🔧 Debug mode: True
+app-1  | 📡 Host: 0.0.0.0:5000
+app-1  | 📝 Navigate to: http://localhost:5000
+app-1  | 💻 Dashboard: http://localhost:5000
+app-1  | 👥 Client Management: http://localhost:5000/clients
+app-1  | 🏘️ Property Management: http://localhost:5000/properties
+app-1  | 💼 Transaction Management: http://localhost:5000/transactions
+app-1  | 🤖 AI Chatbot: http://localhost:5000/debug_chat
+app-1  | ⚠️ Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'
+app-1  |  * Debugger is active!
+app-1  |  * Debugger PIN: 120-984-258
+app-1  | 172.21.0.1 - - [10/Jun/2025 05:52:52] "[35m[1mGET /clients HTTP/1.1[0m" 500 -
+app-1  | Traceback (most recent call last):
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2213, in __call__
+app-1  |     return self.wsgi_app(environ, start_response)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2193, in wsgi_app
+app-1  |     response = self.handle_exception(e)
+app-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2190, in wsgi_app
+app-1  |     response = self.full_dispatch_request()
+app-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1486, in full_dispatch_request
+app-1  |     rv = self.handle_user_exception(e)
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1484, in full_dispatch_request
+app-1  |     rv = self.dispatch_request()
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1469, in dispatch_request
+app-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/core_app/real_estate_crm.py", line 2041, in clients_list
+app-1  |     clients = db.get_all_clients()
+app-1  |               ^^^^^^^^^^^^^^^^^^^^
+app-1  | AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'
+app-1  | 172.21.0.1 - - [10/Jun/2025 05:58:02] "[35m[1mGET /clients HTTP/1.1[0m" 500 -
+app-1  | Traceback (most recent call last):
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2213, in __call__
+app-1  |     return self.wsgi_app(environ, start_response)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2193, in wsgi_app
+app-1  |     response = self.handle_exception(e)
+app-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 2190, in wsgi_app
+app-1  |     response = self.full_dispatch_request()
+app-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1486, in full_dispatch_request
+app-1  |     rv = self.handle_user_exception(e)
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1484, in full_dispatch_request
+app-1  |     rv = self.dispatch_request()
+app-1  |          ^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/opt/venv/lib/python3.11/site-packages/flask/app.py", line 1469, in dispatch_request
+app-1  |     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+app-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app-1  |   File "/app/core_app/real_estate_crm.py", line 2041, in clients_list
+app-1  |     clients = db.get_all_clients()
+app-1  |               ^^^^^^^^^^^^^^^^^^^^
+app-1  | AttributeError: 'DatabaseConfig' object has no attribute 'get_all_clients'
+app-1  |  * Detected change in '/app/ai-debug/human_control.py', reloading
+app-1  |  * Restarting with stat
+app-1  | ⚠️ Monitoring modules not available: No module named 'quick_fix_monitoring'
+app-1  | 🔍 Import paths: ['/app/core_app', '/app']
+app-1  | ✅ Production configuration and Supabase database loaded
+app-1  | ✅ Environment: development
+app-1  | ✅ Database: Supabase PostgreSQL
+app-1  | ✅ AI Integration: Enabled
+app-1  | ✅ ZipForm AI functions loaded successfully
+app-1  | ✅ Offer Creation AI functions loaded successfully
+app-1  | ✅ Environment variables validated
+app-1  | ✅ Flask configured for development environment
+app-1  | ✅ MLS data loaded: 5 listings from Listing.csv
+app-1  | ✅ ZipForm AI functions integrated with chatbot
+app-1  | ✅ Offer Creation AI functions integrated with chatbot
+app-1  | ✅ Enhanced CRPA Controller initialized (Google AI Studio Architecture)
+app-1  | 🏠 Starting Real Estate CRM Application...
+app-1  | ✅ Environment variables validated
+app-1  | 🌐 DigitalOcean deployment detected (PORT=5000)
+app-1  | 🌍 Environment: development
+app-1  | 🔧 Debug mode: True
+app-1  | 📡 Host: 0.0.0.0:5000
+app-1  | 📝 Navigate to: http://localhost:5000
+app-1  | 💻 Dashboard: http://localhost:5000
+app-1  | 👥 Client Management: http://localhost:5000/clients
+app-1  | 🏘️ Property Management: http://localhost:5000/properties
+app-1  | 💼 Transaction Management: http://localhost:5000/transactions
+app-1  | 🤖 AI Chatbot: http://localhost:5000/debug_chat
+app-1  | ⚠️ Database initialization error: 'DatabaseConfig' object has no attribute 'init_database_schema'
+app-1  |  * Debugger is active!
+app-1  |  * Debugger PIN: 120-984-258
